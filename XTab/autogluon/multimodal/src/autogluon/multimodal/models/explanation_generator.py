@@ -69,7 +69,7 @@ class SelfAttentionGenerator:
         attention_map_tabimg = torch.stack(attention_map_tabimg.split(self.batch_size, dim=0), dim=0).mean(dim=0)
         attention_map_tabimg = attention_map_tabimg.clamp(min=0) # Apply ReLU function
 
-        cls_per_token_score = torch.cat((attention_map_tabimg[:,-1,:], attention_map_imgimg[:,-1,:]), dim=1)
+        cls_per_token_score = torch.cat((attention_map_tabimg[:,-1,:], attention_map_tabtab[:,-1,:]), dim=1)
         
         # Replace token CLS with 0
         cls_per_token_score[:,self.num_tab_tokens-1] = torch.zeros(1)
