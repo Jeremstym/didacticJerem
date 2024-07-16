@@ -118,10 +118,10 @@ task:
   sequence_pooling: False
   mtr_p: 0
   mt_by_attr: False
-  use_custom_attention: True
+  use_custom_attention: False
   cross_attention: True
   first_prenormalization: True
-  final_module: True
+  final_module: False
 
   tabular_tokenizer:
     _target_: didactic.models.tabular.TabularEmbedding
