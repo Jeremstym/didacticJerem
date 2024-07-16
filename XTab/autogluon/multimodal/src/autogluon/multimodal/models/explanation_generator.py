@@ -28,7 +28,7 @@ class SelfAttentionGenerator:
         self.model.zero_grad()
         base_output.backward(retain_graph=True)
 
-        blocks = self.model.encoder.n_self_blocks
+        blocks = self.model.encoder.blocks
         attention_map = blocks[-1].attention.get_attn()
         attention_map = torch.stack(attention_map.split(self.batch_size, dim=0), dim=0).mean(dim=0)
         attention_map = attention_map.clamp(min=0) # Apply ReLU function
