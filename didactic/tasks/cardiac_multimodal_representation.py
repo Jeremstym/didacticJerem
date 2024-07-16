@@ -927,6 +927,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             unimodal_params = {attr: unimodal_param.squeeze(dim=0) for attr, unimodal_param in unimodal_params.items()}
             unimodal_taus = {attr: unimodal_tau.squeeze(dim=0) for attr, unimodal_tau in unimodal_taus.items()}
 
-        if self.hparams.cross_attention:
+        if self.hparams.cross_attention and self.hparams.use_custom_attention:
             return out_features, predictions, unimodal_params, unimodal_taus, attention_dict
         return out_features, predictions, unimodal_params, unimodal_taus, attention_map, custom_attention
