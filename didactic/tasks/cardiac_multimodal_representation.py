@@ -906,7 +906,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # If use custom attention is not enabled, return the raw attention map
         if not self.hparams.use_custom_attention:
             with torch.enable_grad():
-                attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
+                if hparams.cross_attention:
+                    attention_map = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets)
+                else:
+                    attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
             custom_attention = None
 
         # If the model enforces unimodal constraint on ordinal targets, output the unimodal parametrization
