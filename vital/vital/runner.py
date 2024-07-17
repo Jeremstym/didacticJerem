@@ -136,8 +136,10 @@ class VitalRunner(ABC):
                 else:
                     model.load_state_dict(torch.load(ckpt_path, map_location=model.device)["state_dict"], strict=cfg.strict)
                     for key in model.state_dict():
-                        if key in model.state_dict().keys() and key in torch.load(ckpt_path, map_location=model.device)["state_dict"].keys():
-                            print(key)
+                        modelkeys = list(model.state_dict().keys())
+                        loadkeys = list(torch.load(ckpt_path, map_location=model.device)["state_dict"].keys())
+                        commonkeys = list(set(modelkeys).intersection(loadkeys))
+                        print(commonkeys)
             else:
                 logger.info(f"Loading model from {ckpt_path}")
                 model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict)
