@@ -13,7 +13,7 @@ defaults:
 
 test: True
 
-state_dict: False
+state_dict: True
 
 trainer:
   devices: 1
