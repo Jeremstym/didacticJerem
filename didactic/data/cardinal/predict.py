@@ -462,8 +462,6 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
             attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
         elif pl_module.hparams.cross_attention and not pl_module.hparams.use_custom_attention:            
-            attention_mean = torch.stack(attention_list, dim=0).mean(dim=0)
-            attention_list = attention_mean.tolist()
             token_split = len(pl_module.tabular_tags)
             cls_token = attention_list[token_split]
             attention_list = attention_list[:token_split] + attention_list[token_split+1:] + [cls_token]
