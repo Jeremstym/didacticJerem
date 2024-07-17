@@ -120,7 +120,7 @@ task:
   mt_by_attr: False
   use_custom_attention: False
   cross_attention: True
-  first_prenormalization: True
+  first_prenormalization: False
   final_module: False
 
   tabular_tokenizer:
