@@ -304,11 +304,10 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             attr for attr in pl_module.hparams.predict_losses if attr in TabularAttribute.numerical_attrs()
         ]
         attention_list = []
-        if pl_module.hparams.cross_attention:
+        if pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
             attention_tab = []
             attention_tabimg = []
             attention_self = []
-        else:
             custom_attention_list = []
         
         for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions):
@@ -325,7 +324,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     attention_self.append(patient_predictions[4]["attention_self"].cpu().mean(dim=0))
                 else:   
                     attention_list.append(patient_predictions[4].cpu().mean(dim=0))
-                    custom_attention_list.append(patient_predictions[5].cpu().mean(dim=0))
+                    # custom_attention_list.append(patient_predictions[5].cpu().mean(dim=0))
                 if target_categorical_attrs:
                     patient_categorical_data = {"patient": patient_id}
                     for attr in target_categorical_attrs:
@@ -436,7 +435,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
         token_list = [token.name if isinstance(token, TabularAttribute) else token for token in self.token_tags]
         attention_mean = torch.stack(attention_list, dim=0).mean(dim=0)
         attention_list = attention_mean.tolist()
-        if pl_module.hparams.cross_attention:
+        if pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
             attention_tab_mean = torch.stack(attention_tab, dim=0).mean(dim=0)
             attention_tab_list = attention_tab_mean.tolist()
             attention_tabimg_mean = torch.stack(attention_tabimg, dim=0).mean(dim=0)
@@ -457,6 +456,20 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 "AttentionRaw": attention_list,
                 "CrossAttention": attention_cross_list,
                 "AttentionSelf": attention_self_list,
+            }
+            attention_df = pd.DataFrame.from_records(attention_df_dict, index="Token")
+            data_filepath = self._write_path / "attention_scores.csv"
+            log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
+            attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
+        elif pl_module.hparams.cross_attention and not pl_module.hparams.use_custom_attention:            
+            attention_mean = torch.stack(attention_list, dim=0).mean(dim=0)
+            attention_list = attention_mean.tolist()
+            token_split = len(pl_module.tabular_tags)
+            cls_token = attention_list[token_split]
+            attention_list = attention_list[:token_split] + attention_list[token_split+1:] + [cls_token]
+            attention_df_dict = {
+                "Token": token_list,
+                "Attention": attention_list,
             }
             attention_df = pd.DataFrame.from_records(attention_df_dict, index="Token")
             data_filepath = self._write_path / "attention_scores.csv"
