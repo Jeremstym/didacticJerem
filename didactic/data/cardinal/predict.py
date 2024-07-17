@@ -318,7 +318,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             subset_categorical_data, subset_numerical_data = [], []
             for (patient_id, patient), patient_predictions in zip(subset_patients.items(), subset_predictions):
                 attr_predictions = patient_predictions[1]
-                if pl_module.hparams.cross_attention:
+                if pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
                     attention_list.append(patient_predictions[4]["attention_raw"].cpu().mean(dim=0))
                     attention_tab.append(patient_predictions[4]["attention_tab"].cpu().mean(dim=0))
                     attention_tabimg.append(patient_predictions[4]["attention_tabimg"].cpu().mean(dim=0))
