@@ -717,7 +717,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             )
 
         tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
-        out_features = self.encode_cross_attention(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
+        if self.hparams.irene_baseline:
+            out_features = self.encodeIRENE(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
+        else:
+            out_features = self.encode_cross_attention(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
