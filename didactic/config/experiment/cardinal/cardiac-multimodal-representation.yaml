@@ -122,6 +122,7 @@ task:
   cross_attention: True
   first_prenormalization: False
   final_module: False
+  irene_baseline: False
 
   tabular_tokenizer:
     _target_: didactic.models.tabular.TabularEmbedding
