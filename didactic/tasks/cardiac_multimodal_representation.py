@@ -946,7 +946,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # If use custom attention is not enabled, return the raw attention map
         if not self.hparams.use_custom_attention:
             with torch.enable_grad():
-                if self.hparams.cross_attention:
+                if self.hparams.irene_baseline:
+                    attention_map = None
+                elif self.hparams.cross_attention:
                     attention_map = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets)
                 else:
                     attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
