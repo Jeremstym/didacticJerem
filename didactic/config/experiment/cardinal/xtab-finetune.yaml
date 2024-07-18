@@ -18,7 +18,7 @@ task:
   mtr_p: [ 0.3, 0 ]
 
   # Architecture parameters to define the same architecture as XTab
-  embed_dim: 192
+  embed_dim: 768
   model:
     encoder:
       d_token: ${task.embed_dim}
