@@ -20,6 +20,8 @@ from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
 from vital.tasks.generic import SharedStepsTask
 from vital.utils.decorators import auto_move_data
 
+from IRENE.models import encoder as irene_encoder
+
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
@@ -564,6 +566,28 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         return out_features
         
+
+    @auto_move_data
+    def encodeIRENE(
+        self,
+        tab_tokens: Tensor,
+        tab_avail_mask: Tensor,
+        ts_tokens: Tensor,
+        ts_avail_mask: Tensor,
+    ):
+        # Tokenize the tabular and time-series attributes
+        tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
+        ts_tokens = self.preprocess_tokens(ts_tokens, ts_avail_mask)
+
+        # Add CLS token to the tabular tokens
+        if self.hparams.cls_token:
+            tab_tokens = self.cls_token(tab_tokens)
+
+        out_tokens, attention_weights = self.irene_encoder(tab_tokens, ts_tokens)
+
+        print(f"out_tokens: {out_tokens.shape}")
+        print(f"attention_weights: {attention_weights.shape}")
+        raise Exception("IRENE")
 
     @auto_move_data
     def forward(
