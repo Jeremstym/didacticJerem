@@ -749,7 +749,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
         if self.hparams.irene_baseline:
-            tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
+            tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
             out_features = self.encodeIRENE(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
         elif self.hparams.cross_attention:
             tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
