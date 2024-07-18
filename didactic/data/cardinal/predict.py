@@ -438,7 +438,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
         attention_mean = torch.stack(attention_list, dim=0).mean(dim=0)
         attention_list = attention_mean.tolist()
         if pl_module.hparams.cross_attention and pl_module.hparams.irene_baseline:
-            continue
+            pass
         elif pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
             attention_tab_mean = torch.stack(attention_tab, dim=0).mean(dim=0)
             attention_tab_list = attention_tab_mean.tolist()
