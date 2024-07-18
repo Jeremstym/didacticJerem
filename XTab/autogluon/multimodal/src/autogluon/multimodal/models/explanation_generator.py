@@ -94,7 +94,7 @@ class SelfAttentionGenerator:
             grad = blk.attention.get_attn_gradients()
             cam = blk.attention.get_attn()
             cam = grad * cam
-            cam = torch.stack(cam.split(self.batch_size, dim=0), dim=0).mean(dim=0)
+            cam = torch.stack(cam.split(self.batch_size, dim=0), dim=0).mean(dim=0) # or .clamp(min=0).mean(dim=0)?
             cam = cam.clamp(min=0) # Apply ReLU function
             R += torch.matmul(cam, R)
         cls_per_token_score = R[:,-1,:]
