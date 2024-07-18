@@ -4,6 +4,6 @@
 [submodule "XTab"]
 	path = XTab
 	url = https://github.com/Jeremstym/XTab
-[submodule "IRENE"]
-	path = IRENE
-	url = https://github.com/Jeremstym/IRENE
+# [submodule "IRENE"]
+# 	path = IRENE
+# 	url = https://github.com/Jeremstym/IRENE
