@@ -588,9 +588,16 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         out_tokens, attention_weights = self.irene_encoder(tab_tokens, ts_tokens)
 
-        print(f"out_tokens: {out_tokens.shape}")
-        print(f"attention_weights: {attention_weights.shape}")
-        raise Exception("IRENE")
+        if self.hparams.sequence_pooling:
+            # Perform sequence pooling of the transformers' output tokens
+            out_features = self.sequence_pooling(out_tokens)
+        elif self.hparams.cls_token:
+            # Only keep the CLS token (i.e. the last tabular tokens) from the tokens outputted by the encoder
+            num_tab_tokens = tab_tokens.size(1)
+            out_features = out_tokens[:, num_tab_tokens - 1, :] # Notice that IRENE model originally mean pools the output
+
+        return out_features
+
 
     @auto_move_data
     def forward(
