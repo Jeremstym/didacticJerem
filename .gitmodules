@@ -7,3 +7,6 @@
 # [submodule "IRENE"]
 # 	path = IRENE
 # 	url = https://github.com/Jeremstym/IRENE
+[submodule "IRENEtoDIDACTIC"]
+	path = IRENE
+	url = https://github.com/Jeremstym/IRENE.git
