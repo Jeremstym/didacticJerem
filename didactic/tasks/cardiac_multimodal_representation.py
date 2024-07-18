@@ -20,7 +20,8 @@ from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
 from vital.tasks.generic import SharedStepsTask
 from vital.utils.decorators import auto_move_data
 
-from IRENE.models import encoder as irene_encoder
+from IRENE.models.encoder import Encoder as IRENEncoder
+from IRENE.configs import get_IRENE_config
 
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from didactic.models.tabular import TabularEmbedding
@@ -239,6 +240,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
+
+        self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
 
         # Configure tokenizers and extract relevant info about the models' architectures
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
