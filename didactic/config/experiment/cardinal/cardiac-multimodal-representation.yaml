@@ -102,7 +102,7 @@ data:
   predict:
     _target_: didactic.data.cardinal.predict.CardiacRepresentationPredictionWriter
     write_path: ${sys.getcwd:}/predictions
-    hue_attrs: ${data.process_patient_kwargs.tabular_attrs}
+    # hue_attrs: ${data.process_patient_kwargs.tabular_attrs}
 
 exclude_tabular_attrs: []
 # Determine the number of tabular + time-series attributes used by the model based on their respective configs
