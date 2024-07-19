@@ -91,13 +91,13 @@ data:
       - diastolic_dysfunction
       - ht_cm
     time_series_attrs:
-      - gls
-      - ls_left
-      - ls_right
-      - lv_area
-      - lv_length
-      - myo_thickness_left
-      - myo_thickness_right
+      # - gls
+      # - ls_left
+      # - ls_right
+      # - lv_area
+      # - lv_length
+      # - myo_thickness_left
+      # - myo_thickness_right
 
   predict:
     _target_: didactic.data.cardinal.predict.CardiacRepresentationPredictionWriter
