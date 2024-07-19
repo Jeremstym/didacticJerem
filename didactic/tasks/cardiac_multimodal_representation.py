@@ -88,9 +88,16 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         """
         # Ensure string tags are converted to their appropriate enum types
         # And to it before call to the parent's `init` so that the converted values are saved in `hparams`
-        tabular_attrs = tuple(TabularAttribute[e] for e in tabular_attrs)
-        views = tuple(ViewEnum[e] for e in views)
-        time_series_attrs = tuple(TimeSeriesAttribute[e] for e in time_series_attrs)
+        if tabular_attrs:
+            tabular_attrs = tuple(TabularAttribute[e] for e in tabular_attrs)
+        else:
+            tabular_attrs = tuple()
+        if time_series_attrs:
+            time_series_attrs = tuple(TimeSeriesAttribute[e] for e in time_series_attrs)
+            views = tuple(ViewEnum[e] for e in views)
+        else:
+            time_series_attrs = tuple()
+            views = tuple()
 
         # If dropout/masking are not single numbers, make sure they are tuples (and not another container type)
         if not isinstance(mtr_p, (int, float)):
