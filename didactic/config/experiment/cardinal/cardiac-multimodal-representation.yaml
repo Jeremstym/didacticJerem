@@ -24,7 +24,7 @@ data:
   patients_kwargs:
     views: [A4C, A2C]
   process_patient_kwargs:
-    tabular_attrs:
+    # tabular_attrs:
       # - ef
       # - edv
       # - esv
