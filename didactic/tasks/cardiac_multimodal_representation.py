@@ -248,7 +248,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
 
-        self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
+        if self.hparams.irene_baseline:
+            self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
 
         # Configure tokenizers and extract relevant info about the models' architectures
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
