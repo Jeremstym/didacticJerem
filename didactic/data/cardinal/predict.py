@@ -368,7 +368,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     )
                     for attr in target_categorical_attrs
                 }
-
+                print(subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]].values)
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
