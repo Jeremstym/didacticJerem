@@ -371,6 +371,10 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 target = subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]]
                 probs = subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]]
 
+                print(f"probs is {probs[0]}")
+                print(f"probs shape is {probs[0].shape}")
+                raise Exception("Stop here")
+
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
