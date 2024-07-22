@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from pytorch_lightning.callbacks import BasePredictionWriter
 from pytorch_lightning.callbacks.prediction_writer import WriteInterval
 from scipy import stats
-from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, RocCurveDisplay
+from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, RocCurveDisplay, average_precision_score
 from torch import Tensor
 from vital.data.cardinal.config import TabularAttribute, TimeSeriesAttribute
 from vital.data.cardinal.config import View as ViewEnum
@@ -370,6 +370,13 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 }
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
+                        subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
+                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
+                    )
+                    for attr in target_categorical_attrs
+                }
+                subset_categorical_stats.loc["pr_auc"] = {
+                    f"{attr}_prediction": average_precision_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
                         subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
                     )
