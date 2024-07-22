@@ -371,14 +371,14 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
-                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
+                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]].values,
                     )
                     for attr in target_categorical_attrs
                 }
                 subset_categorical_stats.loc["pr_auc"] = {
                     f"{attr}_prediction": average_precision_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
-                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
+                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]].values,
                     )
                     for attr in target_categorical_attrs
                 }
@@ -520,7 +520,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 list_values = TABULAR_CAT_ATTR_LABELS[attr]
                 df = df.replace({list_values[0]: 0, list_values[1]: 1, list_values[2]: 2})
                 # change type to float 
-                df[f"{attr}_probs"] = np.array(df[f"{attr}_probs"].values, dtype=np.float32)
+                # df[f"{attr}_probs"] = np.array(df[f"{attr}_probs"].values, dtype=np.float32)
             else:
                 raise ValueError(f"Unexpected number of categories for attribute {attr}: {TABULAR_CAT_ATTR_LABELS[attr]}")
         return df
