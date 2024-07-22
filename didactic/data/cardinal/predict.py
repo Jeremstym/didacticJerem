@@ -520,7 +520,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 list_values = TABULAR_CAT_ATTR_LABELS[attr]
                 df = df.replace({list_values[0]: 0, list_values[1]: 1, list_values[2]: 2})
                 # change type to float 
-                # df[f"{attr}_probs"] = df[f"{attr}_probs"].astype(float)
+                df[f"{attr}_probs"] = np.array(df[f"{attr}_probs"].values, dtype=np.float32)
             else:
                 raise ValueError(f"Unexpected number of categories for attribute {attr}: {TABULAR_CAT_ATTR_LABELS[attr]}")
         return df
