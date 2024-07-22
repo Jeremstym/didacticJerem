@@ -513,7 +513,12 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
         """
         df = df.copy()
         for attr in target_categorical_attrs:
-            assert attr in TabularAttribute.binary_attrs(), f"Attribute '{attr}' is not binary"
-            list_values = TABULAR_CAT_ATTR_LABELS[attr]
-            df = df.replace({list_values[0]: 0, list_values[1]: 1})
+            if attr in TabularAttribute.binary_attrs():
+                list_values = TABULAR_CAT_ATTR_LABELS[attr]
+                df = df.replace({list_values[0]: 0, list_values[1]: 1})
+            elif len(TABULAR_CAT_ATTR_LABELS[attr]) == 3:
+                list_values = TABULAR_CAT_ATTR_LABELS[attr]
+                df = df.replace({list_values[0]: 0, list_values[1]: 1, list_values[2]: 2})
+            else:
+                raise ValueError(f"Unexpected number of categories for attribute {attr}: {TABULAR_CAT_ATTR_LABELS[attr]}")
         return df
