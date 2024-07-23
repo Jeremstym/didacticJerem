@@ -357,7 +357,9 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
 
             if subset_categorical_data:
                 subset_categorical_df = pd.DataFrame.from_records(subset_categorical_data, index="patient")
+                print(subset_categorical_df)
                 subset_categorical_to_numeric = self._convert_cat_to_num(subset_categorical_df, target_categorical_attrs)
+                print(subset_categorical_to_numeric)
                 subset_categorical_stats = subset_categorical_df.describe().drop(["count"])
                 # Compute additional custom metrics (i.e. not reported by `describe`) for categorical attributes
                 notna_mask = subset_categorical_df.notna()
