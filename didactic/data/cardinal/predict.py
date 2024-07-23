@@ -374,7 +374,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
                         probs,
-                        mutli_class="ovr",
+                        multi_class="ovr",
                     )
                     for attr in target_categorical_attrs
                 }
