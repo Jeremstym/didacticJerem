@@ -361,9 +361,6 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 subset_categorical_stats = subset_categorical_df.describe().drop(["count"])
                 # Compute additional custom metrics (i.e. not reported by `describe`) for categorical attributes
                 notna_mask = subset_categorical_df.notna()
-                print(subset_categorical_to_numeric)
-                print(subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]])
-                raise Exception
                 subset_categorical_stats.loc["acc"] = {
                     f"{attr}_prediction": accuracy_score(
                         subset_categorical_df[f"{attr}_target"][notna_mask[f"{attr}_target"]],
@@ -372,7 +369,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     for attr in target_categorical_attrs
                 }
                 probs = np.array(subset_categorical_to_numeric[f"{attr}_probs"].values.tolist(), dtype=np.float32)
-                probs = torch.nn.functional.sigmoid(torch.tensor(probs)).numpy()
+                print(probs)
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
