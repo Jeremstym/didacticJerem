@@ -357,7 +357,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
 
             if subset_categorical_data:
                 subset_categorical_df = pd.DataFrame.from_records(subset_categorical_data, index="patient")
-                subset_categorical_to_numeric = self._convert_cat_to_binary_num(subset_categorical_df, target_categorical_attrs)
+                subset_categorical_to_numeric = self._convert_cat_to_num(subset_categorical_df, target_categorical_attrs)
                 subset_categorical_stats = subset_categorical_df.describe().drop(["count"])
                 # Compute additional custom metrics (i.e. not reported by `describe`) for categorical attributes
                 notna_mask = subset_categorical_df.notna()
@@ -500,7 +500,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
             attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
 
-    def _convert_cat_to_binary_num(
+    def _convert_cat_to_num(
         self,
         df: pd.DataFrame,
         target_categorical_attrs: Sequence[str],
