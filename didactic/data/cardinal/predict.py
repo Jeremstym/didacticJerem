@@ -369,6 +369,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     for attr in target_categorical_attrs
                 }
                 probs = np.array(subset_categorical_to_numeric[f"{attr}_probs"].values.tolist(), dtype=np.float32)
+                probs = torch.nn.functional.sigmoid(torch.tensor(probs)).numpy()
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
