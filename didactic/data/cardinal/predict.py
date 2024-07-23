@@ -358,8 +358,9 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             if subset_categorical_data:
                 subset_categorical_df = pd.DataFrame.from_records(subset_categorical_data, index="patient")
                 subset_categorical_to_numeric = self._convert_cat_to_binary_num(subset_categorical_df, target_categorical_attrs)
-                subset_categorical_to_numeric.to_csv(self._write_path / f"{subset}_categorical_scores.csv", quoting=csv.QUOTE_NONNUMERIC)
-                raise ValueError("This code is not supposed to be executed")
+                print(subset_categorical_to_numeric)
+                print(subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]])
+                raise Exception
                 subset_categorical_stats = subset_categorical_df.describe().drop(["count"])
                 # Compute additional custom metrics (i.e. not reported by `describe`) for categorical attributes
                 notna_mask = subset_categorical_df.notna()
