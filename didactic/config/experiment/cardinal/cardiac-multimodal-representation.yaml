@@ -1,7 +1,7 @@
 # @package _global_
 
 defaults:
-  - /task/data: tabular-no-echo
+  - /task/data: tabular-selec
   - /task/time_series_tokenizer/model: transformer
   - /task/model/encoder: ???
   - /task/model/contrastive_head: mlp
