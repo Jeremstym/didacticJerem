@@ -369,7 +369,6 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     for attr in target_categorical_attrs
                 }
                 probs = np.array(subset_categorical_to_numeric[f"{attr}_probs"].values.tolist(), dtype=np.float32)
-                print(probs)
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
@@ -385,24 +384,24 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     )
                     for attr in target_categorical_attrs
                 }
+                if len(TABULAR_CAT_ATTR_LABELS[attr]) == 2:
+                    for attr in target_categorical_attrs:                                
+                        display_roc = RocCurveDisplay.from_predictions(
+                                subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
+                                subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
+                                name=f"{attr}",
+                                color="darkorange",
+                                plot_chance_level=True,
+                            )
 
-                for attr in target_categorical_attrs:                                
-                    display_roc = RocCurveDisplay.from_predictions(
-                            subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
-                            subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
-                            name=f"{attr}",
-                            color="darkorange",
-                            plot_chance_level=True,
+                        _ = display_roc.ax_.set(
+                            xlabel="False Positive Rate",
+                            ylabel="True Positive Rate",
+                            title="ROC of the healthy/sick classification for HT desease",
                         )
 
-                    _ = display_roc.ax_.set(
-                        xlabel="False Positive Rate",
-                        ylabel="True Positive Rate",
-                        title="ROC of the healthy/sick classification for HT desease",
-                    )
-
-                    plt.savefig(self._write_path / "ROC_curve_sanity.png")
-                    plt.close()
+                        plt.savefig(self._write_path / "ROC_curve_sanity.png")
+                        plt.close()
 
                 # Concatenate the element-wise results + statistics in one dataframe
                 subset_categorical_scores = pd.concat([subset_categorical_stats, subset_categorical_df])
