@@ -12,6 +12,6 @@ nvidia-smi
 
 ulimit -n 4096
 
-for seed in {43..53}; do
+for seed in {45..53}; do
     poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/irene_ternary-selec${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.irene_baseline=True
 done
