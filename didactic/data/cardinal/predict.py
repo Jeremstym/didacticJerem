@@ -357,9 +357,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
 
             if subset_categorical_data:
                 subset_categorical_df = pd.DataFrame.from_records(subset_categorical_data, index="patient")
-                print(subset_categorical_df)
                 subset_categorical_to_numeric = self._convert_cat_to_num(subset_categorical_df, target_categorical_attrs)
-                print(subset_categorical_to_numeric)
                 subset_categorical_stats = subset_categorical_df.describe().drop(["count"])
                 # Compute additional custom metrics (i.e. not reported by `describe`) for categorical attributes
                 notna_mask = subset_categorical_df.notna()
@@ -524,7 +522,11 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             elif len(TABULAR_CAT_ATTR_LABELS[attr]) == 3:
                 list_values = TABULAR_CAT_ATTR_LABELS[attr]
                 df = df.replace({list_values[0]: 0, list_values[1]: 1, list_values[2]: 2})
+                def normalize_list(lst):
+                    total = sum(lst)
+                    return [x / total for x in lst]
                 # convert probs to list of lists
+                df[f"{attr}_probs"] = df[f"{attr}_probs"].apply(normalize_list)
                 # df[f"{attr}_probs"] = np.array(df[f"{attr}_probs"].values.tolist(), dtype=np.float32).tolist()
             else:
                 raise ValueError(f"Unexpected number of categories for attribute {attr}: {TABULAR_CAT_ATTR_LABELS[attr]}")
