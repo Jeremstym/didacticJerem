@@ -31,3 +31,5 @@ task:
     - gfr
     - nt_probnp
     - nt_probnp_group
+
+  time_series_attrs: ${data.process_patient_kwargs.time_series_attrs}

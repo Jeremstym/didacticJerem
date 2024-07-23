@@ -16,3 +16,5 @@ task:
     - a_velocity
     - ddd
     - la_volume
+
+  time_series_attrs: ${data.process_patient_kwargs.time_series_attrs}
