@@ -560,7 +560,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             tab_tokens = self.cls_token(tab_tokens)
 
         # Forward pass through the transformer encoder
-        out_tokens = self.encoder(tab_tokens, ts_tokens)
+        if hparams.late_concat:
+            tab_tokens = self.positional_encoding(tab_tokens)
+            ts_tokens = self.positional_encoding(ts_tokens)
+            out_tab_tokens = self.encoder(tab_tokens)
+            out_ts_tokens = self.encoder(ts_tokens)
+            out_tokens = torch.cat([out_tab_tokens, out_ts_tokens], dim=1)
+        else:
+            out_tokens = self.encoder(tab_tokens, ts_tokens)
 
         if self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
