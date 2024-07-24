@@ -244,6 +244,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Declare cross-attention if enabled
         self.hparams.cross_attention = cross_attention
+        if self.hparams.late_concat:
+            self.hparams.cross_attention = True # Use cross attention structure for late concatenation
 
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
