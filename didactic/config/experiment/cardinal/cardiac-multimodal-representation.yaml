@@ -124,6 +124,8 @@ task:
   final_module: False
   irene_baseline: False
   late_concat: False
+  sum_fusion: False
+  product_fusion: False
 
   tabular_tokenizer:
     _target_: didactic.models.tabular.TabularEmbedding
