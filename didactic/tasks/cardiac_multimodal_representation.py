@@ -358,8 +358,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if self.hparams.late_concat:
                 contrastive_head = hydra.utils.instantiate(
                     self.hparams.model.contrastive_head,
-                    in_features=[ 2 * self.hparams.embed_dim ],
-                    out_features=[ 2 * self.hparams.embed_dim ],
+                    input_shape=[ 2 * self.hparams.embed_dim ],
+                    output_shape=[ 2 * self.hparams.embed_dim ],
                     hidden=[ 2 * self.hparams.embed_dim ])
             else:
                 contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
