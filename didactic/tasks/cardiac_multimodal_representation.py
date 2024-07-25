@@ -611,18 +611,18 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         else:
             out_tokens = self.encoder(tab_tokens, ts_tokens)
 
-        if self.hparams.sequence_pooling:
-            # Perform sequence pooling of the transformers' output tokens
-            out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
-        elif self.hparams.cls_token:
-            # Only keep the CLS token (i.e. the last tabular tokens) from the tokens outputted by the encoder
-            num_tab_tokens = tab_tokens.size(1)
-            out_features = out_tokens[:, num_tab_tokens - 1, :]  # (N, S, E) -> (N, E)
-        else:
-            raise AssertionError(
-                "Either `cls_token` or `sequence_pooling` should have been enabled as the method to reduce the "
-                "dimensionality of the encoder's output from a sequence of tokens to only one token."
-            )
+            if self.hparams.sequence_pooling:
+                # Perform sequence pooling of the transformers' output tokens
+                out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
+            elif self.hparams.cls_token:
+                # Only keep the CLS token (i.e. the last tabular tokens) from the tokens outputted by the encoder
+                num_tab_tokens = tab_tokens.size(1)
+                out_features = out_tokens[:, num_tab_tokens - 1, :]  # (N, S, E) -> (N, E)
+            else:
+                raise AssertionError(
+                    "Either `cls_token` or `sequence_pooling` should have been enabled as the method to reduce the "
+                    "dimensionality of the encoder's output from a sequence of tokens to only one token."
+                )
 
         return out_features
         
