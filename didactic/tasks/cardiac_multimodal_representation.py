@@ -243,9 +243,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         )
 
         # Declare cross-attention if enabled
-        self.hparams.cross_attention = cross_attention
+        self.cross_attention = cross_attention
         if self.hparams.late_concat:
-            self.hparams.cross_attention = True # Use cross attention structure for late concatenation
+            self.cross_attention = True # Use cross attention structure for late concatenation
 
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
@@ -370,6 +370,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     prediction_heads[target_tab_attr] = hydra.utils.instantiate(
                         self.hparams.model.ordinal_head, num_logits=output_size
                     )
+                elif self.hparams.late_concat:
+                    prediction_heads[target_tab_attr] = hydra.utils.instantiate(
+                        self.hparams.model.prediction_head, in_features=2 * self.hparams.embed_dim, out_features=output_size
+                    )
                 else:
                     prediction_heads[target_tab_attr] = hydra.utils.instantiate(
                         self.hparams.model.prediction_head, out_features=output_size
@@ -471,7 +475,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         notna_mask = torch.cat(notna_mask, dim=1).bool()  # (N, S_tab + S_ts)
         tab_notna_mask = torch.cat(tab_notna_mask, dim=1).bool() if tabular_attrs else None
 
-        if self.hparams.cross_attention:
+        if self.cross_attention:
             return tab_attrs_tokens, time_series_attrs_tokens, tab_notna_mask, time_series_notna_mask
             
         return tokens, notna_mask
@@ -563,11 +567,39 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Forward pass through the transformer encoder
         if self.hparams.late_concat:
+            assert self.hparams.cls_token, "Late concatenation requires the presence of a CLS token."
             tab_tokens = self.positional_encoding(tab_tokens)
+            ts_tokens = self.cls_token(ts_tokens)
             ts_tokens = self.positional_encoding(ts_tokens)
             out_tab_tokens = self.encoder(tab_tokens)
             out_ts_tokens = self.encoder(ts_tokens)
-            out_tokens = torch.cat([out_tab_tokens, out_ts_tokens], dim=1)
+            out_tab_features = out_tab_tokens[:, -1, :]  # (N, S, E) -> (N, E)
+            out_ts_features = out_ts_tokens[:, -1, :]  # (N, S, E) -> (N, E)
+            out_features = torch.cat([out_tab_features, out_ts_features], dim=1)
+        elif self.hparams.sum_fusion:
+            assert self.hparams.cls_token, "Sum fusion requires the presence of a CLS token."
+            tab_tokens = self.positional_encoding(tab_tokens)
+            ts_tokens = self.cls_token(ts_tokens)
+            ts_tokens = self.positional_encoding(ts_tokens)
+            out_tab_tokens = self.encoder(tab_tokens)
+            out_ts_tokens = self.encoder(ts_tokens)
+            num_tab_tokens = tab_tokens.size(1)
+            out_tab_features = out_tab_tokens[:, num_tab_tokens - 1, :]  # (N, S, E) -> (N, E)
+            num_ts_tokens = ts_tokens.size(1)
+            out_ts_features = out_ts_tokens[:, num_ts_tokens - 1, :]  # (N, S, E) -> (N, E)
+            out_features = out_tab_features + out_ts_features
+        elif self.hparams.product_fusion:
+            assert self.hparams.cls_token, "Product fusion requires the presence of a CLS token."
+            tab_tokens = self.positional_encoding(tab_tokens)
+            ts_tokens = self.cls_token(ts_tokens)          
+            ts_tokens = self.positional_encoding(ts_tokens)
+            out_tab_tokens = self.encoder(tab_tokens)
+            out_ts_tokens = self.encoder(ts_tokens)
+            num_tab_tokens = tab_tokens.size(1)
+            out_tab_features = out_tab_tokens[:, num_tab_tokens - 1, :]
+            num_ts_tokens = ts_tokens.size(1)
+            out_ts_features = out_ts_tokens[:, num_ts_tokens - 1, :]
+            out_features = out_tab_features * out_ts_features
         else:
             out_tokens = self.encoder(tab_tokens, ts_tokens)
 
@@ -655,7 +687,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 "the requested inference task."
             )
 
-        if self.hparams.cross_attention:
+        if self.cross_attention:
             return self._forward_cross_attention(tabular_attrs, time_series_attrs, task)
         
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
@@ -781,7 +813,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.irene_baseline:
             tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
             out_features = self.encodeIRENE(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
-        elif self.hparams.cross_attention:
+        elif self.cross_attention:
             tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
             out_features = self.encode_cross_attention(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
         else:
@@ -791,13 +823,13 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         metrics = {}
         losses = []
         if self.predict_losses:  # run fully-supervised prediction step
-            if self.hparams.cross_attention:
+            if self.cross_attention:
                 metrics.update(self._cross_prediction_shared_step(batch, batch_idx, tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask, out_features))
             else:
                 metrics.update(self._prediction_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
             losses.append(metrics["s_loss"])
         if self.contrastive_loss:  # run self-supervised contrastive step
-            if self.hparams.cross_attention:
+            if self.cross_attention:
                 metrics.update(self._cross_contrastive_shared_step(batch, batch_idx, tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask, out_features))
             else:
                 metrics.update(self._contrastive_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
@@ -948,7 +980,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             targets = {attr: batch[attr] for attr in self.prediction_heads}
             attention_generator = SelfAttentionGenerator(self)
             if self.hparams.use_custom_attention:
-                if self.hparams.cross_attention:
+                if self.cross_attention:
                     raw_attention = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets, cross_modal=True)
                     attention_tab, attention_tabimg, attention_self = attention_generator.generate_cross_attention_score2(tabular_attrs, time_series_attrs, targets)
                     attention_dict = {
@@ -965,7 +997,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             with torch.enable_grad():
                 if self.hparams.irene_baseline:
                     attention_map = None
-                elif self.hparams.cross_attention:
+                elif self.cross_attention:
                     attention_map = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets)
                 else:
                     attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
@@ -986,6 +1018,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             unimodal_params = {attr: unimodal_param.squeeze(dim=0) for attr, unimodal_param in unimodal_params.items()}
             unimodal_taus = {attr: unimodal_tau.squeeze(dim=0) for attr, unimodal_tau in unimodal_taus.items()}
 
-        if self.hparams.cross_attention and self.hparams.use_custom_attention:
+        if self.cross_attention and self.hparams.use_custom_attention:
             return out_features, predictions, unimodal_params, unimodal_taus, attention_dict
         return out_features, predictions, unimodal_params, unimodal_taus, attention_map, custom_attention
