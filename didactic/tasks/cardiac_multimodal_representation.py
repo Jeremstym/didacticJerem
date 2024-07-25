@@ -355,7 +355,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Build the projection head for contrastive learning, if contrastive learning is enabled
         contrastive_head = None
         if self.contrastive_loss:
-            contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
+            if self.hparams.late_concat:
+                contrastive_head = hydra.utils.instantiate(
+                    self.hparams.model.contrastive_head,
+                    in_features=2 * self.hparams.embed_dim,
+                    out_features=2 * self.hparams.embed_dim,
+                    hidden=2 * self.hparams.model.encoder.d_model)
+            else:
+                contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
 
         # Build the prediction heads (one by tabular attribute to predict) following the architecture proposed in
         # https://arxiv.org/pdf/2106.11959
