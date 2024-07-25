@@ -317,8 +317,9 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             subset_categorical_data, subset_numerical_data = [], []
             for (patient_id, patient), patient_predictions in zip(subset_patients.items(), subset_predictions):
                 attr_predictions = patient_predictions[1]
-                if pl_module.hparams.cross_attention and pl_module.hparams.irene_baseline:
-                    pass
+                if not patient_predictions[4]:
+                    # When attention map is None, skip
+                    pass 
                 elif pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
                     attention_list.append(patient_predictions[4]["attention_raw"].cpu().mean(dim=0))
                     attention_tab.append(patient_predictions[4]["attention_tab"].cpu().mean(dim=0))
@@ -444,9 +445,12 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 prediction_scores.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
 
         token_list = [token.name if isinstance(token, TabularAttribute) else token for token in self.token_tags]
-        attention_mean = torch.stack(attention_list, dim=0).mean(dim=0)
-        attention_list = attention_mean.tolist()
-        if pl_module.hparams.cross_attention and pl_module.hparams.irene_baseline:
+        if attention_list:
+            attention_mean = torch.stack(attention_list, dim=0).mean(dim=0)
+            attention_list = attention_mean.tolist()
+        
+        if not attention_list:
+            # When attention list is empty, skip
             pass
         elif pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
             attention_tab_mean = torch.stack(attention_tab, dim=0).mean(dim=0)
