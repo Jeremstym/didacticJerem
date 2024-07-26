@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard
-#SBATCH --job-name=TabularBaseline-no24
+#SBATCH --job-name=TabularBaseline-no24-xtab
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2-16:00:00
@@ -20,5 +20,5 @@ for seed in {43..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/product-fusion-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False task.first_prenormalization=False task.product_fusion=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/early-fusion${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False task.first_prenormalization=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tabular_baseline-xtabREAL${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
-    poetry run  didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tabular_baseline-no24h${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False
+    poetry run  didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tabular_baseline-no24h-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
 done
