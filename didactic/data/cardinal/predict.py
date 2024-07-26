@@ -317,7 +317,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             subset_categorical_data, subset_numerical_data = [], []
             for (patient_id, patient), patient_predictions in zip(subset_patients.items(), subset_predictions):
                 attr_predictions = patient_predictions[1]
-                if not patient_predictions[4]:
+                if patient_predictions[4] is None:
                     # When attention map is None, skip
                     pass 
                 elif pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
