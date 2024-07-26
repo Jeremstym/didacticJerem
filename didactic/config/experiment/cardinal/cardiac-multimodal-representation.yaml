@@ -1,7 +1,7 @@
 # @package _global_
 
 defaults:
-  - /task/data: tabular+time-series
+  - /task/data: time-series
   - /task/time_series_tokenizer/model: transformer
   - /task/model/encoder: ???
   - /task/model/contrastive_head: mlp
@@ -25,71 +25,71 @@ data:
     views: [A4C, A2C]
   process_patient_kwargs:
     tabular_attrs:
-      - ef
-      - edv
-      - esv
-      - a4c_ed_sc_min
-      - a4c_ed_sc_max
-      - a4c_ed_lc_min
-      - a4c_ed_lc_max
-      - a2c_ed_ic_min
-      - a2c_ed_ic_max
-      - a2c_ed_ac_min
-      - a2c_ed_ac_max
-      - age
-      - sex
-      - bmi
-      - hf
-      - cad
-      - pad
-      - stroke
-      - tobacco
-      - diabetes
-      - dyslipidemia
-      - etiology
-      - ddd
-      - bradycardic
-      - ace_inhibitor
-      - arb
-      - tz_diuretic
-      - central_acting
-      - beta_blocker
-      - spironolactone
-      - alpha_blocker
-      - ccb
-      - sbp_24
-      - dbp_24
-      - pp_24
-      - sbp_tte
-      - dbp_tte
-      - pp_tte
-      - ht_severity
-      - ht_grade
-      - sanity
-      - hr_tte
-      - creat
-      - gfr
-      - nt_probnp
-      - nt_probnp_group
-      - e_velocity
-      - a_velocity
-      - mv_dt
-      - lateral_e_prime
-      - septal_e_prime
-      - reduced_e_prime
-      - e_e_prime_ratio
-      - d_dysfunction_e_e_prime_ratio
-      - la_volume
-      - dilated_la
-      - ph_vmax_tr
-      - lvm_ind
-      - lvh
-      - ivs_d
-      - lvid_d
-      - pw_d
-      - diastolic_dysfunction_param_sum
-      - diastolic_dysfunction
-      - ht_cm
+      # - ef
+      # - edv
+      # - esv
+      # - a4c_ed_sc_min
+      # - a4c_ed_sc_max
+      # - a4c_ed_lc_min
+      # - a4c_ed_lc_max
+      # - a2c_ed_ic_min
+      # - a2c_ed_ic_max
+      # - a2c_ed_ac_min
+      # - a2c_ed_ac_max
+      # - age
+      # - sex
+      # - bmi
+      # - hf
+      # - cad
+      # - pad
+      # - stroke
+      # - tobacco
+      # - diabetes
+      # - dyslipidemia
+      # - etiology
+      # - ddd
+      # - bradycardic
+      # - ace_inhibitor
+      # - arb
+      # - tz_diuretic
+      # - central_acting
+      # - beta_blocker
+      # - spironolactone
+      # - alpha_blocker
+      # - ccb
+      # - sbp_24
+      # - dbp_24
+      # - pp_24
+      # - sbp_tte
+      # - dbp_tte
+      # - pp_tte
+      # - ht_severity
+      # - ht_grade
+      # - sanity
+      # - hr_tte
+      # - creat
+      # - gfr
+      # - nt_probnp
+      # - nt_probnp_group
+      # - e_velocity
+      # - a_velocity
+      # - mv_dt
+      # - lateral_e_prime
+      # - septal_e_prime
+      # - reduced_e_prime
+      # - e_e_prime_ratio
+      # - d_dysfunction_e_e_prime_ratio
+      # - la_volume
+      # - dilated_la
+      # - ph_vmax_tr
+      # - lvm_ind
+      # - lvh
+      # - ivs_d
+      # - lvid_d
+      # - pw_d
+      # - diastolic_dysfunction_param_sum
+      # - diastolic_dysfunction
+      # - ht_cm
     time_series_attrs:
       - gls
       - ls_left
@@ -106,7 +106,7 @@ data:
 
 exclude_tabular_attrs: []
 # Determine the number of tabular + time-series attributes used by the model based on their respective configs
-n_tabular_attrs: ${builtin.len:${task.tabular_attrs}}
+n_tabular_attrs: 0 #${builtin.len:${task.tabular_attrs}}
 n_time_series_attrs: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
 
 task:
