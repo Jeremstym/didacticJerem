@@ -478,7 +478,19 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             data_filepath = self._write_path / "attention_scores.csv"
             log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
             attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
-        elif pl_module.hparams.cross_attention and not pl_module.hparams.use_custom_attention:            
+        elif pl_module.hparams.use_custom_attention:
+            custom_attention_mean = torch.stack(custom_attention_list, dim=0).mean(dim=0)
+            custom_attention_list = custom_attention_mean.tolist()
+            df_dict = {
+                "Token": token_list,
+                "Attention": attention_list,
+                "CustomAttention": custom_attention_list,
+            }
+            attention_df = pd.DataFrame.from_records(df_dict, index="Token")
+            data_filepath = self._write_path / "attention_scores.csv"
+            log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
+            attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
+        elif not pl_module.hparams.cross_attention:            
             token_split = len(pl_module.tabular_tags)
             cls_token = attention_list[token_split]
             attention_list = attention_list[:token_split] + attention_list[token_split+1:] + [cls_token]
@@ -491,17 +503,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
             attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
         else:
-            custom_attention_mean = torch.stack(custom_attention_list, dim=0).mean(dim=0)
-            custom_attention_list = custom_attention_mean.tolist()
-            df_dict = {
-                "Token": token_list,
-                "Attention": attention_list,
-                "CustomAttention": custom_attention_list,
-            }
-            attention_df = pd.DataFrame.from_records(df_dict, index="Token")
-            data_filepath = self._write_path / "attention_scores.csv"
-            log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
-            attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
+            raise ValueError("Unexpected attention configuration, have to be either cross_attention or custom_attention, or both")
 
     def _convert_cat_to_num(
         self,
