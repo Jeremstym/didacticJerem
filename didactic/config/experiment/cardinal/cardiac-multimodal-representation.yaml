@@ -57,9 +57,9 @@ data:
       - spironolactone
       - alpha_blocker
       - ccb
-      - sbp_24
-      - dbp_24
-      - pp_24
+      # - sbp_24
+      # - dbp_24
+      # - pp_24
       - sbp_tte
       - dbp_tte
       - pp_tte
