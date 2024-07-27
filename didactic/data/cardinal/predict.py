@@ -369,19 +369,19 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     )
                     for attr in target_categorical_attrs
                 }
-                probs = np.array(subset_categorical_to_numeric[f"{attr}_probs"].values.tolist(), dtype=np.float32)
+                # probs = np.array(subset_categorical_to_numeric[f"{attr}_probs"].values.tolist(), dtype=np.float32)
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
-                        probs,
-                        multi_class="ovr",
+                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
+                        # multi_class="ovr",
                     )
                     for attr in target_categorical_attrs
                 }
                 subset_categorical_stats.loc["pr_auc"] = {
                     f"{attr}_prediction": average_precision_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
-                        probs,
+                        subset_categorical_to_numeric[f"{attr}_probs"][notna_mask[f"{attr}_target"]],
                     )
                     for attr in target_categorical_attrs
                 }
