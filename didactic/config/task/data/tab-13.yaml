@@ -3,8 +3,8 @@
 task:
   tabular_attrs:
     # Top 13 tabular attributes from patient records
-    # - sbp_tte
-    # - pp_tte
+    - sbp_tte
+    - pp_tte
     - age
     - diastolic_dysfunction_param_sum
     - pw_d
