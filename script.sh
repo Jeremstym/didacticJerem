@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard
-#SBATCH --job-name=Top11-ht-severity
+#SBATCH --job-name=Top11-ht-severity-xtab
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2-16:00:00
@@ -28,5 +28,5 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tab11-baseline-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/cross-tab13-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
 
-    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tab13-ht-severity${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False 
+    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tab13-ht-severity-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
 done
