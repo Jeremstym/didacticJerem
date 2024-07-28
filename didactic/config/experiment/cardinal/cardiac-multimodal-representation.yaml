@@ -1,7 +1,7 @@
 # @package _global_
 
 defaults:
-  - /task/data: tabular
+  - /task/data: tabular+time-series
   - /task/time_series_tokenizer/model: transformer
   - /task/model/encoder: ???
   - /task/model/contrastive_head: mlp
@@ -106,7 +106,7 @@ data:
 
 exclude_tabular_attrs: []
 # Determine the number of tabular + time-series attributes used by the model based on their respective configs
-n_tabular_attrs: 0 #${builtin.len:${task.tabular_attrs}}
+n_tabular_attrs: ${builtin.len:${task.tabular_attrs}}
 n_time_series_attrs: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
 
 task:
