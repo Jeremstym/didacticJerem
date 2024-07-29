@@ -25,6 +25,9 @@ wheels/
 *.egg
 MANIFEST
 
+# Results
+resultsWORKSHOP/
+
 # Lightning /camus
 test_tube_exp/
 tests/tests_tt_dir/
