@@ -10,3 +10,6 @@
 [submodule "IRENEtoDIDACTIC"]
 	path = IRENE
 	url = https://github.com/Jeremstym/IRENE.git
+[submodule "MulModVM"]
+	path = MulModVM
+	url = https://github.com/Jeremstym/MulModVM.git
