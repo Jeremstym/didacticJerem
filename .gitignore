@@ -27,6 +27,8 @@ MANIFEST
 
 # Results
 resultsWORKSHOP/
+# Diagrams
+diagrams/
 
 # Lightning /camus
 test_tube_exp/
