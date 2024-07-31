@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=hard
+#SBATCH --partition=hard,electronic
 #SBATCH --job-name=ht-severity-sefatt-ordinal-xtab
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
