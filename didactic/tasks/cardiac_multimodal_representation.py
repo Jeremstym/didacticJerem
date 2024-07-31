@@ -1018,6 +1018,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             with torch.enable_grad():
                 if self.hparams.irene_baseline:
                     attention_map = None
+                elif self.hparams.ordinal_mode:
+                    attention_map = None
                 elif self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
                     attention_map = None
                 elif self.cross_attention:
