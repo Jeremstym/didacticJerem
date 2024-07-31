@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 from pytorch_lightning.callbacks import BasePredictionWriter
 from pytorch_lightning.callbacks.prediction_writer import WriteInterval
 from scipy import stats
+from scipy.special import softmax
 from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, RocCurveDisplay, average_precision_score
 from torch import Tensor
 from vital.data.cardinal.config import TabularAttribute, TimeSeriesAttribute
@@ -336,7 +337,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                         else:
                             predicted = TABULAR_CAT_ATTR_LABELS[attr][attr_predictions[attr].argmax()]
                         if pl_module.hparams.ordinal_mode:
-                            probabilities = np.softmax(attr_predictions[attr].cpu().numpy())
+                            probabilities = softmax(attr_predictions[attr].cpu().numpy(), axis=1)
                         else:
                             probabilities = attr_predictions[attr].cpu().numpy()
                         patient_categorical_data.update(
