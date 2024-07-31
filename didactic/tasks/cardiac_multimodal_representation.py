@@ -621,7 +621,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_features = out_tab_features * out_ts_features
         else:
             tab_tokens = self.positional_encoding_tabular(tab_tokens)
-            ts_tokens = self.positional_encoding_time_series(ts_tokens)
+            # ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tokens = self.encoder(tab_tokens, ts_tokens)
 
             if self.hparams.sequence_pooling:
