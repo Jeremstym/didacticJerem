@@ -1,6 +1,6 @@
 _target_: didactic.models.tabular.TabularMLP
 
-in_features: ???
+in_features: ${n_tabular_attrs}
 n_layers: 2
 dropout: 0.1
 d_token: 192
