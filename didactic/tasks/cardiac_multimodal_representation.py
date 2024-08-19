@@ -698,7 +698,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         tab_features = self.tabularMLPEncoder(tab_tokens)
 
         out_features = torch.cat([tab_features, ts_tokens], dim=1) # (N, E_tab + E_ts)
-        out_features = F.Linear(out_features, self.last_fc) # (N, E_tab + E_ts) -> (N, E)
+        out_features = F.linear(out_features, self.last_fc) # (N, E_tab + E_ts) -> (N, E)
         return out_features
 
     @auto_move_data
