@@ -1039,6 +1039,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             predictions = self(tabular_attrs, time_series_attrs, task="predict")
 
         # Retrieve custom attention with Attention generator
+        if self.hparams.use_tabularMLP or self.hparams.irene_baseline:
+            return out_features, predictions, None, None, None, None
         with torch.enable_grad():
             targets = {attr: batch[attr] for attr in self.prediction_heads}
             attention_generator = SelfAttentionGenerator(self)
@@ -1058,9 +1060,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # If use custom attention is not enabled, return the raw attention map
         if not self.hparams.use_custom_attention:
             with torch.enable_grad():
-                if self.hparams.irene_baseline:
-                    attention_map = None
-                elif self.hparams.ordinal_mode:
+                if self.hparams.ordinal_mode:
                     attention_map = None
                 elif self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
                     attention_map = None
