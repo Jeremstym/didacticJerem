@@ -11,6 +11,7 @@ import torch
 from omegaconf import DictConfig
 from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
+from torch.nn import functional as F
 from torchmetrics.functional import accuracy, mean_absolute_error
 from vital.data.augmentation.base import mask_tokens, random_masking
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
@@ -257,6 +258,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.irene_baseline:
             self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
 
+        if self.hparams.use_tabularMLP:
+            self.tabularMLPEncoder = hydra.utils.instantiate(
+                self.hparams.model.encoder,
+                in_features=len(self.tabular_num_attrs) + len(self.tabular_cat_attrs),
+                out_features=self.hparams.embed_dim
+                )
+            self.last_fc = torch.nn.Parameter(torch.randn(self.hparams.embed_dim * 2, self.hparams.embed_dim)) # (2 * E, E) 
+            
         # Configure tokenizers and extract relevant info about the models' architectures
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
@@ -284,7 +293,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if time_series_attrs:
             if isinstance(time_series_tokenizer, DictConfig):
-                time_series_tokenizer = hydra.utils.instantiate(time_series_tokenizer)
+                time_series_tokenizer = hydra.utils.instantiate(time_series_tokenizer, pooling=self.hparams.use_tabularMLP)
         else:
             # Set tokenizer to `None` if it's not going to be used
             time_series_tokenizer = None
@@ -461,11 +470,15 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # instead of their current null/default values.
             # 1) Convert missing numerical attributes (NaNs) to numbers to avoid propagating NaNs
             # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
-            tab_attrs_tokens = self.tabular_tokenizer(
-                x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
-                x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
-            )  # (N, S_tab, E)
-            tokens.append(tab_attrs_tokens)
+            
+            if self.hparams.use_tabularMLP:
+                tab_attrs_tokens = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1) # (N, S_tab)
+            else:
+                tab_attrs_tokens = self.tabular_tokenizer(
+                    x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
+                    x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
+                )  # (N, S_tab, E)
+                tokens.append(tab_attrs_tokens)
 
             # Identify missing data in tabular attributes
             tab_notna_mask = []
@@ -495,6 +508,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         tab_notna_mask = torch.cat(tab_notna_mask, dim=1).bool() if tabular_attrs else None
 
         if self.cross_attention:
+            return tab_attrs_tokens, time_series_attrs_tokens, tab_notna_mask, time_series_notna_mask
+        elif self.hparams.use_tabularMLP:
             return tab_attrs_tokens, time_series_attrs_tokens, tab_notna_mask, time_series_notna_mask
             
         return tokens, notna_mask
@@ -668,6 +683,20 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         return out_features
 
+    @auto_move_data
+    def encodeMLP(
+        self,
+        tab_tokens,
+        tab_avail_mask,
+        ts_tokens,
+        ts_avail_mask,
+    ):
+        tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
+        tab_features = self.tabularMLPEncoder(tab_tokens)
+
+        out_features = torch.cat([tab_features, ts_tokens], dim=1) # (N, E_tab + E_ts)
+        out_features = F.Linear(out_features, self.last_fc) # (N, E_tab + E_ts) -> (N, E)
+        return out_features
 
     @auto_move_data
     def forward(
@@ -710,6 +739,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if self.cross_attention:
             return self._forward_cross_attention(tabular_attrs, time_series_attrs, task)
+        if self.hparams.use_tabularMLP:
+            tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
+            out_features = self.encodeMLP(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
         
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
@@ -834,6 +866,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.irene_baseline:
             tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
             out_features = self.encodeIRENE(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
+        elif self.hparams.use_tabularMLP:
+            tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
+            out_features = self.encodeMLP(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
         elif self.cross_attention:
             tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
             out_features = self.encode_cross_attention(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)

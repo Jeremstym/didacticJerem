@@ -1,0 +1,5 @@
+_target_: didactic.models.tabular.TabularMLP
+
+n_layers: 2
+n_hidden: 192
+dropout: 0.1

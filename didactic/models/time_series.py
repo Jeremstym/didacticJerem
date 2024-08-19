@@ -8,7 +8,7 @@ from torch.nn import functional as F
 class TimeSeriesEmbedding(nn.Module):
     """Embedding for time series which resamples the time dim and/or passes through an arbitrary learnable model."""
 
-    def __init__(self, resample_dim: int, model: nn.Module = None):
+    def __init__(self, resample_dim: int, model: nn.Module = None, corruption_rate: float = 0.0, pooling: bool = False) -> None:
         """Initializes class instance.
 
         Args:
@@ -20,7 +20,39 @@ class TimeSeriesEmbedding(nn.Module):
         super().__init__()
         self.model = model
         self.resample_dim = resample_dim
+        self.corruption_rate = corruption_rate
+        self.pooling = pooling
 
+    def corrupt(self, x: Tensor, corruption_rate: float = 0.1) -> Tensor:
+        """Corrupts the input tensor by setting a fraction of its values to zero.
+
+        Args:
+            x: (N, S, E), Input tensor to corrupt.
+            corruption_rate: Fraction of values to set to zero.
+
+        Returns:
+            (N, S, E), Corrupted input tensor.
+        """
+        mask = torch.rand_like(x) < corruption_rate
+        return x * mask
+
+    def sequence_pooling_ts(self, x: Tensor, pooling: str = "mean") -> Tensor:
+        """Applies a pooling operation along the time dimension of the input tensor.
+
+        Args:
+            x: (N, S, E), Input tensor to pool.
+            pooling: Pooling operation to apply. Can be one of ["mean", "max"].
+
+        Returns:
+            (N, E), Pooled input tensor.
+        """
+        if pooling == "mean":
+            return x.mean(dim=1)
+        elif pooling == "max":
+            return x.max(dim=1).values
+        else:
+            raise ValueError(f"Unknown pooling operation")
+    
     def forward(self, time_series: Dict[Any, Tensor] | Sequence[Tensor]) -> Tensor:
         """Stacks the time series, optionally 1) resampling them and/or 2) projecting them to a target embedding.
 
@@ -50,5 +82,11 @@ class TimeSeriesEmbedding(nn.Module):
 
         # Stack the embeddings of all the time series (along the batch dimension) to make only one tensor
         x = torch.stack(x, dim=1)  # (S, N, E) -> (N, S, E)
+
+        if self.corruption_rate:
+            x = self.corrupt(x, self.corruption_rate)
+
+        if self.pooling:
+            x = self.sequence_pooling_ts(x) # (N, S, E) -> (N, E)
 
         return x

@@ -98,3 +98,58 @@ class TabularEmbedding(nn.Module):
         if self.cat_tokenizer is not None:
             x.append(self.cat_tokenizer(x_cat))
         return x[0] if len(x) == 1 else torch.cat(x, dim=1)
+
+
+class TabularMLP(nn.Module):
+    """A simple MLP for tabular data.
+
+    The "MLP" module from "Revisiting Deep Learning Models for Tabular Data" by Gorishniy et al. (2021).
+    The module is a simple MLP that can be used for tabular data.
+
+    Notes:
+        - This is a port of the `MLP` class from v0.0.13 of the `rtdl` package using the updated underlying `MLP`
+          from v0.0.2 of the `rtdl_revisiting_models` package.
+
+    References:
+        - Original implementation is here:
+    """ 
+    
+    def __init__(
+        self,
+        in_features: int,
+        n_layers: int = 2,
+        n_hidden: int = 192,
+        dropout: float = 0.0,
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            in_features: the number of input features.
+            n_layers: the number of hidden layers.
+            n_hidden: the number of hidden units in each layer.
+            dropout: the dropout rate.
+        """
+        super().__init__()
+        self.layers = nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Linear(in_features if i == 0 else n_hidden, n_hidden),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                )
+                for i in range(n_layers)
+            ]
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Perform the forward pass.
+
+        Args:
+            x: the input tensor.
+
+        Returns:
+            the output tensor.
+        """
+        for layer in self.layers:
+            x = layer(x)
+        return x
