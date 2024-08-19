@@ -27,6 +27,7 @@ from IRENE.models.configs import get_IRENE_config
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
+from didactic.models.tabular import TabularMLP
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -271,6 +272,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = self.encoder.layers[0].self_attn.num_heads
         elif isinstance(self.encoder, autogluon.multimodal.models.ft_transformer.FT_Transformer):  # XTab FT-Transformer
             self.nhead = self.encoder.blocks[0]["attention"].n_heads
+        elif isinstance(self.encoder, TabularMLP):
+            self.nhead = 1
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
