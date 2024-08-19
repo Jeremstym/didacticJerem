@@ -258,14 +258,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if self.hparams.irene_baseline:
             self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
-
-        if self.hparams.use_tabularMLP:
-            self.tabularMLPEncoder = hydra.utils.instantiate(
-                self.hparams.model.encoder,
-                in_features=len(self.tabular_num_attrs) + len(self.tabular_cat_attrs),
-                out_features=self.hparams.embed_dim
-                )
-            self.last_fc = torch.nn.Parameter(torch.randn(self.hparams.embed_dim, self.hparams.embed_dim * 2)) # (E, 2E), will be transposed to (2E, E) in forward pass 
             
         # Configure tokenizers and extract relevant info about the models' architectures
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
@@ -366,7 +358,15 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     ) -> Tuple[nn.Module, Optional[nn.Module], Optional[nn.ModuleDict]]:
         """Build the model, which must return a transformer encoder, and self-supervised or prediction heads."""
         # Build the transformer encoder
-        encoder = hydra.utils.instantiate(self.hparams.model.encoder)
+        if self.hparams.use_tabularMLP:
+            encoder = hydra.utils.instantiate(
+                self.hparams.model.encoder,
+                in_features=len(self.tabular_num_attrs) + len(self.tabular_cat_attrs),
+                out_features=self.hparams.embed_dim
+                )
+            self.last_fc = torch.nn.Parameter(torch.randn(self.hparams.embed_dim, self.hparams.embed_dim * 2)) # (E, 2E), will be transposed to (2E, E) in forward pass 
+        else:
+            encoder = hydra.utils.instantiate(self.hparams.model.encoder)
 
         # Build the projection head for contrastive learning, if contrastive learning is enabled
         contrastive_head = None
@@ -695,7 +695,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         ts_avail_mask,
     ):
         # tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
-        tab_features = self.tabularMLPEncoder(tab_tokens)
+        tab_features = self.encoder(tab_tokens)
 
         out_features = torch.cat([tab_features, ts_tokens], dim=1) # (N, E_tab + E_ts)
         out_features = F.linear(out_features, self.last_fc) # (N, E_tab + E_ts) -> (N, E)
