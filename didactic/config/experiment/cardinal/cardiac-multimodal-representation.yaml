@@ -127,7 +127,7 @@ pretrainer:
     attention_dropout: 0.2
     attention_initialization: kaiming
     attention_normalization: layer_norm
-    ffn_d_hidden: ${task.model.encoder.d_token}
+    ffn_d_hidden: ${task.embed_dim} #${task.model.encoder.d_token}
     ffn_dropout: 0.1
     ffn_activation: reglu
     ffn_normalization: layer_norm
