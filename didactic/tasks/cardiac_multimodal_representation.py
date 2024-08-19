@@ -694,7 +694,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         ts_tokens,
         ts_avail_mask,
     ):
-        tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
+        # tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
         tab_features = self.tabularMLPEncoder(tab_tokens)
 
         out_features = torch.cat([tab_features, ts_tokens], dim=1) # (N, E_tab + E_ts)
