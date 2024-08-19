@@ -745,9 +745,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.use_tabularMLP:
             tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
             out_features = self.encodeMLP(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
-        
-        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
-        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
+        else:
+            in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
+            out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
