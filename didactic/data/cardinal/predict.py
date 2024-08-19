@@ -375,10 +375,6 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     for attr in target_categorical_attrs
                 }
                 probs = np.array(subset_categorical_to_numeric[f"{attr}_probs"].values.tolist(), dtype=np.float32)
-                print(f"probs shape {probs.shape}")
-                print(f"probs {probs}")
-                print(f"target shape {subset_categorical_to_numeric[f'{attr}_target'].shape}")
-                print(f"target {subset_categorical_to_numeric[f'{attr}_target']}")
                 subset_categorical_stats.loc["roc_auc"] = {
                     f"{attr}_prediction": roc_auc_score(
                         subset_categorical_to_numeric[f"{attr}_target"][notna_mask[f"{attr}_target"]],
