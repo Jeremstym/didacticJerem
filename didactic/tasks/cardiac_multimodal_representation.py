@@ -265,7 +265,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 in_features=len(self.tabular_num_attrs) + len(self.tabular_cat_attrs),
                 out_features=self.hparams.embed_dim
                 )
-            self.last_fc = torch.nn.Parameter(torch.randn(self.hparams.embed_dim * 2, self.hparams.embed_dim)) # (2 * E, E) 
+            self.last_fc = torch.nn.Parameter(torch.randn(self.hparams.embed_dim, self.hparams.embed_dim * 2)) # (E, 2E), will be transposed to (2E, E) in forward pass 
             
         # Configure tokenizers and extract relevant info about the models' architectures
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
