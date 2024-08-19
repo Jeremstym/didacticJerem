@@ -1040,6 +1040,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Retrieve custom attention with Attention generator
         if self.hparams.use_tabularMLP or self.hparams.irene_baseline:
+            out_features = out_features.squeeze(dim=0)
+            if predictions is not None:
+                predictions = {attr: prediction.squeeze(dim=0) for attr, prediction in predictions.items()}
             return out_features, predictions, None, None, None, None
         with torch.enable_grad():
             targets = {attr: batch[attr] for attr in self.prediction_heads}
