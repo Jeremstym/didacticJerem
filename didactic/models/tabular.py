@@ -118,7 +118,7 @@ class TabularMLP(nn.Module):
         self,
         in_features: int,
         n_layers: int = 2,
-        n_hidden: int = 192,
+        d_hidden: int = 192,
         dropout: float = 0.0,
     ) -> None:
         """Initializes class instance.
@@ -126,14 +126,14 @@ class TabularMLP(nn.Module):
         Args:
             in_features: the number of input features.
             n_layers: the number of hidden layers.
-            n_hidden: the number of hidden units in each layer.
+            d_hidden: the number of hidden units in each layer.
             dropout: the dropout rate.
         """
         super().__init__()
         self.layers = nn.ModuleList(
             [
                 nn.Sequential(
-                    nn.Linear(in_features if i == 0 else n_hidden, n_hidden),
+                    nn.Linear(in_features if i == 0 else d_hidden, d_hidden),
                     nn.ReLU(),
                     nn.Dropout(dropout),
                 )

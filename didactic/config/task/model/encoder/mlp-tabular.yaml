@@ -1,6 +1,6 @@
 _target_: didactic.models.tabular.TabularMLP
 
 n_layers: 2
-n_hidden: ${d_token}
+d_hidden: ${d_token}
 dropout: 0.1
 d_token: 192
