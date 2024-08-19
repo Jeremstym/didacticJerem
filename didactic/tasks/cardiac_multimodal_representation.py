@@ -893,7 +893,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if self.cross_attention:
                 metrics.update(self._cross_contrastive_shared_step(batch, batch_idx, tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask, out_features))
             elif self.hparams.use_tabularMLP:
-                metrics.update(self._contrastive_shared_step(batch, batch_idx, tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask, out_features))
+                metrics.update(self._contrastive_shared_step(batch, batch_idx, tab_tokens, tab_avail_mask, out_features))
             else:
                 metrics.update(self._contrastive_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
             losses.append(self.hparams.contrastive_loss_weight * metrics["cont_loss"])
