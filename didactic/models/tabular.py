@@ -117,9 +117,10 @@ class TabularMLP(nn.Module):
     def __init__(
         self,
         in_features: int,
+        out_features: int,
         n_layers: int = 2,
         d_token: int = 192,
-        dropout: float = 0.0,
+        dropout: float = 0.1,
     ) -> None:
         """Initializes class instance.
 
