@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard,electronic
-#SBATCH --job-name=ht-severity-cross-summation
+#SBATCH --job-name=ht-severity-cross-summation-xtab
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2-16:00:00
@@ -12,7 +12,7 @@ nvidia-smi
 
 ulimit -n 4096
 
-for seed in {43..51}; do
+for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/irene-sanity${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.irene_baseline=True task.cross_attention=True task.embed_dim=768
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/irene_ternary-no-echo${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.irene_baseline=True
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/cross-xtab-prenorm${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
@@ -69,5 +69,5 @@ for seed in {43..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-cross-ordinal-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=False task.ordinal_mode=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tabMLP_baseline${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False
 
-    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/cross_summation${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] task.cross_attention=True +seed=$seed 
+    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/cross_summation${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] task.cross_attention=True +seed=$seed ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
 done
