@@ -605,6 +605,7 @@ class FT_Transformer(nn.Module):
         row_attention_layer: Optional[str] = None,
         global_token: Optional[bool] = False,
         cross_attention: Optional[bool] = False,
+        latent_summation: Optional[bool] = False,
         final_module: Optional[bool] = False,
     ) -> None:
         """
@@ -730,6 +731,7 @@ class FT_Transformer(nn.Module):
         self.row_attention_layer = row_attention_layer
         self.global_token = global_token
         self.cross_attention = cross_attention
+        self.latent_summation = latent_summation
         self.final_module = final_module
 
         self.blocks = nn.ModuleList([])
@@ -1122,55 +1124,106 @@ class FT_Transformer(nn.Module):
                     x_context = self._end_global_token(x_context)
                                  
                 if layer_idx in list(range(self.n_self_blocks, self.n_self_blocks + self.n_cross_blocks)): 
-                    x = x_ctx_img = self._start_global_token(x)
-                    x_context = self._start_global_token(x_context)     
-                    x_residual = self._start_residual(layer, "cross_attention_tabimg", x, cross_attention=True)
-                    x_residual = layer["cross_attention_tabimg"](
-                        x_residual,
-                        x_context,
-                        None,
-                        None,
-                    )
-                    x = self._end_residual(layer, "cross_attention_tabimg", x, x_residual, cross_attention=True)
-                    x_residual = self._start_residual(layer, "cross_attention_ffn_tabimg", x, cross_attention=True)
-                    x_residual = layer["cross_attention_ffn_tabimg"](x_residual)
-                    x = self._end_residual(layer, "cross_attention_ffn_tabimg", x, x_residual, cross_attention=True)
-                    # x = layer["cross_attention_tabimg_normalization"](x)
-                    x_residual = self._start_residual(layer, "self_attention_tabtab", x, cross_attention=True)
-                    x_residual = layer["self_attention_tabtab"](
-                        x_residual,
-                        x_residual,
-                        None,
-                        None,
-                    )
-                    x = self._end_residual(layer, "self_attention_tabtab", x, x_residual, cross_attention=True)
-                    x_residual = self._start_residual(layer, "self_attention_ffn_tabtab", x, cross_attention=True)
-                    x_residual = layer["self_attention_ffn_tabtab"](x_residual)
-                    x = self._end_residual(layer, "self_attention_ffn_tabtab", x, x_residual, cross_attention=True)
+                    if self.latent_summation:
+                        x = x_ctx_img = self._start_global_token(x)
+                        x_context = self._start_global_token(x_context)
+                        x_tabimg = self._start_residual(layer, "cross_attention_tabimg", x, cross_attention=True)
+                        x_tabimg = layer["cross_attention_tabimg"](
+                            x_tabimg,
+                            x_context,
+                            None,
+                            None,
+                        )
+                        x_tabimg = self._end_residual(layer, "cross_attention_tabimg", x, x_tabimg, cross_attention=True)
+                        x_tabtab = self._start_residual(layer, "self_attention_tabtab", x, cross_attention=True)
+                        x_tabtab = layer["self_attention_tabtab"](
+                            x_tabtab,
+                            x_tabtab,
+                            None,
+                            None,
+                        )
+                        x_tabtab = self._end_residual(layer, "self_attention_tabtab", x, x_tabtab, cross_attention=True)
+                        x = (x_tabimg + x_tabtab)/2
 
-                    x_residual = self._start_residual(layer, "cross_attention_imgtab", x_context, cross_attention=True)
-                    x_residual = layer["cross_attention_imgtab"](
-                        x_residual,
-                        x_ctx_img,
-                        None,
-                        None,
-                    )
-                    x_context = self._end_residual(layer, "cross_attention_imgtab", x_context, x_residual, cross_attention=True)
-                    x_residual = self._start_residual(layer, "cross_attention_ffn_imgtab", x_context, cross_attention=True)
-                    x_residual = layer["cross_attention_ffn_imgtab"](x_residual)
-                    x_context = self._end_residual(layer, "cross_attention_ffn_imgtab", x_context, x_residual, cross_attention=True)
-                    # x_context = layer["cross_attention_imgtab_normalization"](x_context)
-                    x_residual = self._start_residual(layer, "self_attention_imgimg", x_context, cross_attention=True)
-                    x_residual = layer["self_attention_imgimg"](
-                        x_residual,
-                        x_residual,
-                        None,
-                        None,
-                    )
-                    x_context = self._end_residual(layer, "self_attention_imgimg", x_context, x_residual, cross_attention=True)
-                    x_residual = self._start_residual(layer, "self_attention_ffn_imgimg", x_context, cross_attention=True)
-                    x_residual = layer["self_attention_ffn_imgimg"](x_residual)
-                    x_context = self._end_residual(layer, "self_attention_ffn_imgimg", x_context, x_residual, cross_attention=True)
+                        x_tab_ffn = self._start_residual(layer, "self_attention_ffn_tabtab", x, cross_attention=True)
+                        x_tab_ffn = layer["self_attention_ffn_tabtab"](x_tab_ffn)
+                        x = self._end_residual(layer, "self_attention_ffn_tabtab", x, x_tab_ffn, cross_attention=True)
+
+                        x_imgtab = self._start_residual(layer, "cross_attention_imgtab", x_context, cross_attention=True)
+                        x_imgtab = layer["cross_attention_imgtab"](
+                            x_imgtab,
+                            x_ctx_img,
+                            None,
+                            None,
+                        )
+                        x_imgtab = self._end_residual(layer, "cross_attention_imgtab", x_context, x_imgtab, cross_attention=True)
+                        x_imgimg = self._start_residual(layer, "self_attention_imgimg", x_context, cross_attention=True)
+                        x_imgimg = layer["self_attention_imgimg"](
+                            x_imgimg,
+                            x_imgimg,
+                            None,
+                            None,
+                        )
+                        x_imgimg = self._end_residual(layer, "self_attention_imgimg", x_context, x_imgimg, cross_attention=True)
+                        x_context = (x_imgtab + x_imgimg)/2
+
+                        x_img_ffn = self._start_residual(layer, "self_attention_ffn_imgimg", x_context, cross_attention=True)
+                        x_img_ffn = layer["self_attention_ffn_imgimg"](x_img_ffn)
+                        x_context = self._end_residual(layer, "self_attention_ffn_imgimg", x_context, x_img_ffn, cross_attention=True)
+
+                        x = self._end_global_token(x)
+                        x_context = self._end_global_token(x_context)
+
+                    else:
+                        x = x_ctx_img = self._start_global_token(x)
+                        x_context = self._start_global_token(x_context)     
+                        x_residual = self._start_residual(layer, "cross_attention_tabimg", x, cross_attention=True)
+                        x_residual = layer["cross_attention_tabimg"](
+                            x_residual,
+                            x_context,
+                            None,
+                            None,
+                        )
+                        x = self._end_residual(layer, "cross_attention_tabimg", x, x_residual, cross_attention=True)
+                        x_residual = self._start_residual(layer, "cross_attention_ffn_tabimg", x, cross_attention=True)
+                        x_residual = layer["cross_attention_ffn_tabimg"](x_residual)
+                        x = self._end_residual(layer, "cross_attention_ffn_tabimg", x, x_residual, cross_attention=True)
+                        # x = layer["cross_attention_tabimg_normalization"](x)
+                        x_residual = self._start_residual(layer, "self_attention_tabtab", x, cross_attention=True)
+                        x_residual = layer["self_attention_tabtab"](
+                            x_residual,
+                            x_residual,
+                            None,
+                            None,
+                        )
+                        x = self._end_residual(layer, "self_attention_tabtab", x, x_residual, cross_attention=True)
+                        x_residual = self._start_residual(layer, "self_attention_ffn_tabtab", x, cross_attention=True)
+                        x_residual = layer["self_attention_ffn_tabtab"](x_residual)
+                        x = self._end_residual(layer, "self_attention_ffn_tabtab", x, x_residual, cross_attention=True)
+
+                        x_residual = self._start_residual(layer, "cross_attention_imgtab", x_context, cross_attention=True)
+                        x_residual = layer["cross_attention_imgtab"](
+                            x_residual,
+                            x_ctx_img,
+                            None,
+                            None,
+                        )
+                        x_context = self._end_residual(layer, "cross_attention_imgtab", x_context, x_residual, cross_attention=True)
+                        x_residual = self._start_residual(layer, "cross_attention_ffn_imgtab", x_context, cross_attention=True)
+                        x_residual = layer["cross_attention_ffn_imgtab"](x_residual)
+                        x_context = self._end_residual(layer, "cross_attention_ffn_imgtab", x_context, x_residual, cross_attention=True)
+                        # x_context = layer["cross_attention_imgtab_normalization"](x_context)
+                        x_residual = self._start_residual(layer, "self_attention_imgimg", x_context, cross_attention=True)
+                        x_residual = layer["self_attention_imgimg"](
+                            x_residual,
+                            x_residual,
+                            None,
+                            None,
+                        )
+                        x_context = self._end_residual(layer, "self_attention_imgimg", x_context, x_residual, cross_attention=True)
+                        x_residual = self._start_residual(layer, "self_attention_ffn_imgimg", x_context, cross_attention=True)
+                        x_residual = layer["self_attention_ffn_imgimg"](x_residual)
+                        x_context = self._end_residual(layer, "self_attention_ffn_imgimg", x_context, x_residual, cross_attention=True)
 
                     # if layer_idx == self.n_cross_blocks - 1:
                     #     x = torch.cat([x, x_context], dim=1)
@@ -1179,8 +1232,8 @@ class FT_Transformer(nn.Module):
                     #     x = x_tab
                     #     x_context = x_ts
 
-                    x = self._end_global_token(x)
-                    x_context = self._end_global_token(x_context)
+                        x = self._end_global_token(x)
+                        x_context = self._end_global_token(x_context)
 
                 if layer_idx == self.n_self_blocks + self.n_cross_blocks - 1:
                     x = torch.cat([x, x_context], dim=1)
