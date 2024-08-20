@@ -168,6 +168,7 @@ task:
   mt_by_attr: False
   use_custom_attention: False
   cross_attention: True
+  latent_summation: False
   first_prenormalization: False
   final_module: False
   irene_baseline: False
