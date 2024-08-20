@@ -508,7 +508,8 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             log_dataframe(trainer.logger, attention_df, filename=data_filepath.name)
             attention_df.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
         else:
-            raise ValueError("Unexpected attention configuration, have to be either cross_attention or custom_attention, or both")
+            pass
+            # raise ValueError("Unexpected attention configuration, have to be either cross_attention or custom_attention, or both")
 
     def _convert_cat_to_num(
         self,
