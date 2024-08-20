@@ -16,6 +16,7 @@ prenormalization: True
 first_prenormalization: ${task.first_prenormalization}
 last_layer_query_idx: null
 cross_attention: ${task.cross_attention}
+latent_summation: True
 final_module: ${task.final_module}
 n_tokens: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
 kv_compression_ratio: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
