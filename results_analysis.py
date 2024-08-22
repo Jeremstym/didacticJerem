@@ -17,6 +17,7 @@ def load_results(model_name: str) -> pd.DataFrame:
     print(results.columns)
     print(results)
     results = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
+    print(results)
     return results.groupby("Metric").mean(), results.groupby("Metric").std()
 
 if __name__ == "__main__":
