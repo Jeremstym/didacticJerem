@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard,electronic
-#SBATCH --job-name=ht-severity-cross-simple-baselines-noPE-xtab
+#SBATCH --job-name=ht-severity-crossatt-singleFFN-PE-xtab
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2-16:00:00
