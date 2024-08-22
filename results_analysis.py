@@ -13,11 +13,10 @@ def load_results(model_name: str) -> pd.DataFrame:
     for file in files:
         df = pd.read_csv(file, index_col=0) 
         df = df.loc[["acc", "roc_auc", "pr_auc"]]["ht_severity_prediction"].reset_index()
-        df = df.rename(columns={0:"Values"})
         results = pd.concat([results, df], axis=0)
     print(results.columns)
     print(results)
-    results = pd.to_numeric(results["Values"], downcast="float")
+    results = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
     return results.groupby(results.index).mean(), results.groupby(results.index).std()
 
 if __name__ == "__main__":
