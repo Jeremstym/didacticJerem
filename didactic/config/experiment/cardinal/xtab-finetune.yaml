@@ -12,8 +12,8 @@ exclude_tabular_attrs: ${oc.dict.keys:task.predict_losses}
 task:
   predict_losses: ???
   ordinal_mode: False
-  # contrastive_loss:
-  #   _target_: vital.metrics.train.metric.NTXent
+  contrastive_loss:
+    _target_: vital.metrics.train.metric.NTXent
   contrastive_loss_weight: 0
   mtr_p: [ 0.3, 0 ]
   use_tabularMLP: False
