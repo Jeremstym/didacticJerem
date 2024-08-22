@@ -299,11 +299,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize learnable positional embedding parameters
         if self.cross_attention:
             tab_sequence_length = len(self.tabular_num_attrs) + len(self.tabular_cat_attrs) + 1
-            # self.positional_encoding_tabular = PositionalEncoding(tab_sequence_length, self.hparams.embed_dim)
+            self.positional_encoding_tabular = PositionalEncoding(tab_sequence_length, self.hparams.embed_dim)
             ts_sequence_length = len(self.hparams.views) * len(self.hparams.time_series_attrs)
             if self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
                 ts_sequence_length += 1
-            # self.positional_encoding_time_series = PositionalEncoding(ts_sequence_length, self.hparams.embed_dim) 
+            self.positional_encoding_time_series = PositionalEncoding(ts_sequence_length, self.hparams.embed_dim) 
         else:
             self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
 
@@ -605,9 +605,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Forward pass through the transformer encoder
         if self.hparams.late_concat:
             assert self.hparams.cls_token, "Late concatenation requires the presence of a CLS token."
-            # tab_tokens = self.positional_encoding_tabular(tab_tokens)
+            tab_tokens = self.positional_encoding_tabular(tab_tokens)
             ts_tokens = self.cls_token(ts_tokens)
-            # ts_tokens = self.positional_encoding_time_series(ts_tokens)
+            ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tab_tokens = self.encoder(tab_tokens)
             out_ts_tokens = self.encoder(ts_tokens)
             out_tab_features = out_tab_tokens[:, -1, :]  # (N, S, E) -> (N, E)
@@ -615,9 +615,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_features = torch.cat([out_tab_features, out_ts_features], dim=1)
         elif self.hparams.sum_fusion:
             assert self.hparams.cls_token, "Sum fusion requires the presence of a CLS token."
-            # tab_tokens = self.positional_encoding_tabular(tab_tokens)
+            tab_tokens = self.positional_encoding_tabular(tab_tokens)
             ts_tokens = self.cls_token(ts_tokens)
-            # ts_tokens = self.positional_encoding_time_series(ts_tokens)
+            ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tab_tokens = self.encoder(tab_tokens)
             out_ts_tokens = self.encoder(ts_tokens)
             num_tab_tokens = tab_tokens.size(1)
@@ -627,9 +627,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_features = out_tab_features + out_ts_features
         elif self.hparams.product_fusion:
             assert self.hparams.cls_token, "Product fusion requires the presence of a CLS token."
-            # tab_tokens = self.positional_encoding_tabular(tab_tokens)
+            tab_tokens = self.positional_encoding_tabular(tab_tokens)
             ts_tokens = self.cls_token(ts_tokens)          
-            # ts_tokens = self.positional_encoding_time_series(ts_tokens)
+            ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tab_tokens = self.encoder(tab_tokens)
             out_ts_tokens = self.encoder(ts_tokens)
             num_tab_tokens = tab_tokens.size(1)
@@ -638,8 +638,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_ts_features = out_ts_tokens[:, num_ts_tokens - 1, :]
             out_features = out_tab_features * out_ts_features
         else:
-            # tab_tokens = self.positional_encoding_tabular(tab_tokens)
-            # ts_tokens = self.positional_encoding_time_series(ts_tokens)
+            tab_tokens = self.positional_encoding_tabular(tab_tokens)
+            ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tokens = self.encoder(tab_tokens, ts_tokens)
 
             if self.hparams.sequence_pooling:
