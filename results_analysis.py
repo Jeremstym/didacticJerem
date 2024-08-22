@@ -17,7 +17,6 @@ def load_results(model_name: str) -> pd.DataFrame:
         df = pd.read_csv(file, index_col=0) 
         df = df.loc[["acc", "roc_auc", "pr_auc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         results = pd.concat([results, df], axis=0)
-    print(results)
     results["ht_severity_prediction"] = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
     return results.groupby("Metric").mean(), results.groupby("Metric").std()
 
