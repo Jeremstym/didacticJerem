@@ -16,7 +16,7 @@ def load_results(model_name: str) -> pd.DataFrame:
         results = pd.concat([results, df], axis=0)
     print(results.columns)
     print(results)
-    results = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
+    results["ht_severity_prediction"] = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
     print(results)
     return results.groupby("Metric").mean(), results.groupby("Metric").std()
 
