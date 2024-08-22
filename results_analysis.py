@@ -1,9 +1,12 @@
 import pandas as pd 
 from glob import glob
+import click
 
 # Load the results in several csv files named 'test_categorical_scores.csv .csv', just keep acc, roc_auc and pr_auc
 # The files are in folder which path is "~/didactcWORKSHOP/name_of_the_model{seed}/predictions"
 
+@click.command()
+@click.option("--model_name", help="Name of the model to load results from")
 def load_results(model_name: str) -> pd.DataFrame:
     path = '/home/stympopper/didacticWORKSHOP/' + model_name + '[0-9][0-9]/predictions/test_categorical_scores.csv'
     files = glob(path)
@@ -19,6 +22,5 @@ def load_results(model_name: str) -> pd.DataFrame:
     return results.groupby("Metric").mean(), results.groupby("Metric").std()
 
 if __name__ == "__main__":
-    model_name = "cross-summation-noPE"
-    results = load_results(model_name)
+    results = load_results()
     print(results)
