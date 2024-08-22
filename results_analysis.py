@@ -9,7 +9,7 @@ def load_results(model_name: str) -> pd.DataFrame:
     files = glob(path)
     if not files:
         raise ValueError("No files found")
-    results = pd.DataFrame(columns=["Values"])
+    results = pd.DataFrame()
     for file in files:
         df = pd.read_csv(file, index_col=0) 
         df = df.loc[["acc", "roc_auc", "pr_auc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
