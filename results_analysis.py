@@ -16,6 +16,7 @@ def load_results(model_name: str) -> pd.DataFrame:
         df = df.rename({0:"Values"})
         results = pd.concat([results, df], axis=0)
     print(results.columns)
+    print(results)
     results = pd.to_numeric(results["Values"], downcast="float")
     return results.groupby(results.index).mean(), results.groupby(results.index).std()
 
