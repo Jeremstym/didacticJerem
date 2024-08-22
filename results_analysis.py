@@ -13,7 +13,7 @@ def load_results(model_name: str) -> pd.DataFrame:
     for file in files:
         df = pd.read_csv(file, index_col=0) 
         df = df.loc[["acc", "roc_auc", "pr_auc"]]["ht_severity_prediction"]
-        df = df.rename("Values")
+        df = df.rename({0:"Values"})
         results = pd.concat([results, df], axis=0)
     print(results.columns)
     results = pd.to_numeric(results["Values"], downcast="float")
