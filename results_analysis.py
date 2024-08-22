@@ -17,6 +17,6 @@ def load_results(model_name: str) -> pd.DataFrame:
     return results
 
 if __name__ == "__main__":
-    model_name = "name_of_the_model"
+    model_name = "cross-summation-noPE"
     results = load_results(model_name)
     print(results)
