@@ -297,7 +297,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize modules/parameters dependent on the encoder's configuration
 
         # Initialize learnable positional embedding parameters
-        if self.cross_attention and self.hparams.use_postional_encoding:
+        if self.cross_attention and self.hparams.use_positional_encoding:
             tab_sequence_length = len(self.tabular_num_attrs) + len(self.tabular_cat_attrs) + 1
             self.positional_encoding_tabular = PositionalEncoding(tab_sequence_length, self.hparams.embed_dim)
             ts_sequence_length = len(self.hparams.views) * len(self.hparams.time_series_attrs)
@@ -606,7 +606,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.late_concat:
             assert self.hparams.cls_token, "Late concatenation requires the presence of a CLS token."
             ts_tokens = self.cls_token(ts_tokens)
-            if self.hparams.use_postional_encoding:
+            if self.hparams.use_positional_encoding:
                 tab_tokens = self.positional_encoding_tabular(tab_tokens)
                 ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tab_tokens = self.encoder(tab_tokens)
@@ -617,7 +617,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif self.hparams.sum_fusion:
             assert self.hparams.cls_token, "Sum fusion requires the presence of a CLS token."
             ts_tokens = self.cls_token(ts_tokens)
-            if self.hparams.use_postional_encoding:
+            if self.hparams.use_positional_encoding:
                 tab_tokens = self.positional_encoding_tabular(tab_tokens)
                 ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tab_tokens = self.encoder(tab_tokens)
@@ -630,7 +630,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif self.hparams.product_fusion:
             assert self.hparams.cls_token, "Product fusion requires the presence of a CLS token."
             ts_tokens = self.cls_token(ts_tokens)   
-            if self.hparams.use_postional_encoding:
+            if self.hparams.use_positional_encoding:
                 tab_tokens = self.positional_encoding_tabular(tab_tokens)
                 ts_tokens = self.positional_encoding_time_series(ts_tokens)       
             out_tab_tokens = self.encoder(tab_tokens)
@@ -641,7 +641,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_ts_features = out_ts_tokens[:, num_ts_tokens - 1, :]
             out_features = out_tab_features * out_ts_features
         else:
-            if self.hparams.use_postional_encoding:
+            if self.hparams.use_positional_encoding:
                 tab_tokens = self.positional_encoding_tabular(tab_tokens)
                 ts_tokens = self.positional_encoding_time_series(ts_tokens)
             out_tokens = self.encoder(tab_tokens, ts_tokens)
