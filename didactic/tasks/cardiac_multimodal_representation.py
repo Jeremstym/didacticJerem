@@ -305,7 +305,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 ts_sequence_length += 1
             self.positional_encoding_time_series = PositionalEncoding(ts_sequence_length, self.hparams.embed_dim) 
         else:
-            self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
+            if self.hparams.use_positional_encoding:
+                self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
 
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
@@ -552,7 +553,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             tokens = self.cls_token(tokens)
 
         # Forward pass through the transformer encoder
-        out_tokens = self.encoder(self.positional_encoding(tokens))
+        if self.hparams.use_positional_encoding:
+            out_tokens = self.encoder(self.positional_encoding(tokens))
+        else:
+            out_tokens = self.encoder(tokens)
 
         if self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
