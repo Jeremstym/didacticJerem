@@ -193,6 +193,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.tabular_cat_attrs_cardinalities = [
             len(TABULAR_CAT_ATTR_LABELS[cat_attr]) for cat_attr in self.tabular_cat_attrs
         ]
+        self.tabular_attrs = [attr for attr in self.hparams.tabular_attrs]
 
         # Extract train/test masking probabilities from their configs
         if isinstance(self.hparams.mtr_p, tuple):
@@ -275,10 +276,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             )
 
         if tabular_attrs:
+            self.tabular_cat_attrs_cardinalities = []
             if isinstance(tabular_tokenizer, DictConfig):
                 tabular_tokenizer = hydra.utils.instantiate(
                     tabular_tokenizer,
-                    n_num_features=len(self.tabular_num_attrs),
+                    n_num_features=len(self.tabular_attrs),
                     cat_cardinalities=self.tabular_cat_attrs_cardinalities,
                 )
         else:
@@ -467,6 +469,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 cat_attrs = torch.hstack(
                     [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
                 )  # (N, S_cat)
+
+            tabular_attrs = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1)  # (N, S_tab)
+            cat_attrs = None
+            self.tabular_cat_attrs = None
+            num_attrs = tabular_attrs
             # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
             # tokenization process. This is done to avoid propagating NaNs to available/valid values.
             # If the embeddings cannot be ignored later on (e.g. by using an attention mask during inference), they
