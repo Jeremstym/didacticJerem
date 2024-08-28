@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=hard,electronic
+#SBATCH --partition=funky
 #SBATCH --job-name=uniform-tokenization
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
