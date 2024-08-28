@@ -471,9 +471,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 )  # (N, S_cat)
 
             tabular_attrs_tokens = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1)  # (N, S_tab)
-            cat_attrs = None
-            self.tabular_cat_attrs = []
-            num_attrs = tabular_attrs_tokens
             # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
             # tokenization process. This is done to avoid propagating NaNs to available/valid values.
             # If the embeddings cannot be ignored later on (e.g. by using an attention mask during inference), they
@@ -486,8 +483,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 tab_attrs_tokens = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1) # (N, S_tab)
             else:
                 tab_attrs_tokens = self.tabular_tokenizer(
-                    x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
-                    x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
+                    x_num=tabular_attrs_tokens,
+                    x_cat=None,
                 )  # (N, S_tab, E)
                 tokens.append(tab_attrs_tokens)
 
@@ -497,10 +494,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 tab_num_notna_mask = ~(num_attrs.isnan())
                 tab_notna_mask.append(tab_num_notna_mask)
                 notna_mask.append(tab_num_notna_mask)
-            if self.tabular_cat_attrs:
-                tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
-                tab_notna_mask.append(tab_cat_notna_mask)
-                notna_mask.append(tab_cat_notna_mask)
+            # if self.tabular_cat_attrs:
+            #     tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
+            #     tab_notna_mask.append(tab_cat_notna_mask)
+            #     notna_mask.append(tab_cat_notna_mask)
 
         if time_series_attrs:
             time_series_attrs_tokens = self.time_series_tokenizer(time_series_attrs)  # S * (N, ?) -> (N, S_ts, E)
