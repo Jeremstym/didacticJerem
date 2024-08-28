@@ -95,8 +95,9 @@ class TabularEmbedding(nn.Module):
         x = []
         if self.num_tokenizer is not None:
             x.append(self.num_tokenizer(x_num))
-        if self.cat_tokenizer is not None:
-            x.append(self.cat_tokenizer(x_cat))
+            x.append(self.num_tokenizer(x_cat))
+        # if self.cat_tokenizer is not None:
+        #     x.append(self.cat_tokenizer(x_cat))
         return x[0] if len(x) == 1 else torch.cat(x, dim=1)
 
 
