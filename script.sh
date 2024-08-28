@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard,electronic
-#SBATCH --job-name=nocontrastive-noprenorm-run
+#SBATCH --job-name=uniform-tokenization
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2-16:00:00
@@ -136,6 +136,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-cross-PE-nocontrastiveloss-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-cross-noPE-nocontrastiveloss-xtab${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=True task.use_positional_encoding=False ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
 
-    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-cross-noPE-nocontrastiveloss${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=False task.use_positional_encoding=False
+    # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-cross-noPE-nocontrastiveloss${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=False task.use_positional_encoding=False
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-selfatt-prenorm-nocontrastiveloss-noPE${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False task.first_prenormalization=True task.use_positional_encoding=False
+
+    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/ht-severity-uniformtoken${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] task.cross_attention=True +seed=$seed task.first_prenormalization=True task.use_positional_encoding=False
 done
