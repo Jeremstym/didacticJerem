@@ -472,7 +472,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
             tabular_attrs_tokens = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1)  # (N, S_tab)
             cat_attrs = None
-            self.tabular_cat_attrs = None
+            self.tabular_cat_attrs = []
             num_attrs = tabular_attrs_tokens
             # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
             # tokenization process. This is done to avoid propagating NaNs to available/valid values.
