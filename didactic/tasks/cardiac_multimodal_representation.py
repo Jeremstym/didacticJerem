@@ -279,6 +279,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 tabular_tokenizer = hydra.utils.instantiate(
                     tabular_tokenizer,
                     n_num_features=len(self.tabular_num_attrs),
+                    n_cat_features=len(self.tabular_cat_attrs),
                     cat_cardinalities=self.tabular_cat_attrs_cardinalities,
                 )
         else:
