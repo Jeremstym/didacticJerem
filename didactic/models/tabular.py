@@ -59,7 +59,7 @@ class TabularEmbedding(nn.Module):
             n_num_features or cat_cardinalities
         ), "at least one of n_num_features or cat_cardinalities must be positive/non-empty"
         self.num_tokenizer = LinearEmbeddings(n_num_features, d_token) if n_num_features else None
-        self.catnum_tokenizer = LinearEmbeddings(n_cat_features, d_token) if n_cat_features else None
+        # self.catnum_tokenizer = LinearEmbeddings(n_cat_features, d_token) if n_cat_features else None
         self.cat_tokenizer = CategoricalEmbeddings(cat_cardinalities, d_token) if cat_cardinalities else None
 
     @property
@@ -97,9 +97,9 @@ class TabularEmbedding(nn.Module):
         x = []
         if self.num_tokenizer is not None:
             x.append(self.num_tokenizer(x_num))
-            x.append(self.catnum_tokenizer(x_cat))
-        # if self.cat_tokenizer is not None:
-        #     x.append(self.cat_tokenizer(x_cat))
+            # x.append(self.catnum_tokenizer(x_cat))
+        if self.cat_tokenizer is not None:
+            x.append(self.cat_tokenizer(x_cat))
         return x[0] if len(x) == 1 else torch.cat(x, dim=1)
 
 
