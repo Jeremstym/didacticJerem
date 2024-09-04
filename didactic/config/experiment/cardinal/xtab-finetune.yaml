@@ -15,7 +15,7 @@ task:
   contrastive_loss:
     _target_: vital.metrics.train.metric.NTXent
   contrastive_loss_weight: 0
-  mtr_p: [ 0.3, 0 ]
+  mtr_p: [ 0.6, 0 ]
   use_tabularMLP: False
 
   # Architecture parameters to define the same architecture as XTab
@@ -30,6 +30,12 @@ task:
       _target_: torch.optim.AdamW
       lr: 1e-4
       weight_decay: 1e-5
+
+callbacks:
+  transformer_encoder_freeze:
+    finetune_layers: null
+  learning_rate_finder:
+    _target_: pytorch_lightning.callbacks.LearningRateFinder
 
 # Change checkpoint loading defaults to:
 ckpt: ??? # Make it mandatory to provide a checkpoint
