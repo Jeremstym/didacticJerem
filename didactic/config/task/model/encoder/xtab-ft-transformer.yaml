@@ -6,11 +6,19 @@ n_cross_blocks: 3
 attention_n_heads: 8
 attention_dropout: 0.2
 attention_initialization: kaiming
-attention_normalization: layer_norm
+# attention_normalization: layer_norm
+attention_normalization:
+  _target_: torch.nn.LayerNorm
+  normalized_shape: ${task.model.encoder.d_token}
+  _partial_: True
 ffn_d_hidden: ${task.model.encoder.d_token}
 ffn_dropout: 0.1
 ffn_activation: reglu
-ffn_normalization: layer_norm
+# ffn_normalization: layer_norm
+ffn_normalization:
+  _target_: torch.nn.LayerNorm
+  normalized_shape: ${task.model.encoder.d_token}
+  _partial_: True
 residual_dropout: 0.1
 prenormalization: True
 first_prenormalization: ${task.first_prenormalization}
