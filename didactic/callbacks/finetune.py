@@ -44,7 +44,10 @@ class TransformerEncoderFreeze(Callback):
             )
 
         # If no specific layers were set to be finetuned, default to finetuning all the layers
+        print(f"We have {len(pl_module.encoder.layers)} layers in the encoder.")
+        print(f"Finetuning layers: {self.finetune_layers}")
         if self.finetune_layers is None:
+            print(f"Encoder has {len(pl_module.encoder.layers)} layers. Finetuning all layers.")
             self.finetune_layers = tuple(range(len(pl_module.encoder.layers)))
 
         # Identifies layers to freeze based on the config and a dynamic inspection of the model's architecture
