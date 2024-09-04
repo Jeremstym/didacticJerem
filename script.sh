@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard,electronic
-#SBATCH --job-name=unimodam-explore
+#SBATCH --job-name=unimodam-explore-tokenizer
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=2-16:00:00
@@ -143,6 +143,6 @@ for seed in {42..51}; do
 
     # EXPLORATION AFTER THE WORKSHOP
 
-    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tabular-data-test${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False task.first_prenormalization=False task/data=tabular
+    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/tabular-data-test-tok${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=False task.first_prenormalization=False task/data=tabular
 
 done
