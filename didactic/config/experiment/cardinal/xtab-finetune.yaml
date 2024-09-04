@@ -2,7 +2,8 @@
 
 defaults:
   - cardinal/cardiac-multimodal-representation
-  - /callbacks: transformer_encoder_freeze
+  # - /callbacks: 
+  #   - transformer_encoder_freeze
   - override /task/model/encoder: xtab-ft-transformer
 
 trainer:
@@ -33,8 +34,8 @@ task:
       weight_decay: 1e-5
 
 callbacks:
-  transformer_encoder_freeze:
-    finetune_layers: null
+  # transformer_encoder_freeze:
+  #   finetune_layers: null
   learning_rate_finder:
     _target_: pytorch_lightning.callbacks.LearningRateFinder
 
