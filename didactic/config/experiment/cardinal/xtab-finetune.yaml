@@ -3,6 +3,8 @@
 defaults:
   - cardinal/cardiac-multimodal-representation
   - override /task/model/encoder: xtab-ft-transformer
+  - /callbacks:
+      - transformer_encoder_freeze
 
 trainer:
   max_steps: 2000
