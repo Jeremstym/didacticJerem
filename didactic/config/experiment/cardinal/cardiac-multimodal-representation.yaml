@@ -164,7 +164,7 @@ task:
   cls_token: True
   ordinal_mode: False
   sequence_pooling: False
-  mtr_p: 0
+  mtr_p: [ 0.6, 0 ]
   mt_by_attr: False
   use_custom_attention: False
   use_positional_encoding: True
