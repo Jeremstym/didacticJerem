@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=funky
+#SBATCH --partition=hard,electronic
 #SBATCH --job-name=unimodam-explore
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
