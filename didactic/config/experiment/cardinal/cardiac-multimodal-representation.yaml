@@ -2,7 +2,7 @@
 
 defaults:
   - /task/data: tabular+time-series
-  - /task/time_series_tokenizer/model: transformer
+  - /task/time_series_tokenizer/model: null #transformer
   - /task/model/encoder: ???
   - /task/model/contrastive_head: mlp
   - /task/model/prediction_head: ft-prediction
@@ -13,13 +13,13 @@ defaults:
 
 test: True
 
-pretrain: False
+# pretrain: False
 
-state_dict: True
+# state_dict: True
 
 trainer:
   devices: 1
-  precision: 32
+  precision: 16-mixed #32
 
 data:
   batch_size: 128
@@ -111,51 +111,51 @@ exclude_tabular_attrs: []
 n_tabular_attrs: ${builtin.len:${task.tabular_attrs}}
 n_time_series_attrs: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
 
-pretrainer:
-  _target_: didactic.models.pretraining.MultimodalSimCLR
+# pretrainer:
+#   _target_: didactic.models.pretraining.MultimodalSimCLR
   
-  tabular_tokenizer:
-    _target_: didactic.models.tabular.TabularEmbedding
-    d_token: ${pretrainer.embed_dim}
+#   tabular_tokenizer:
+#     _target_: didactic.models.tabular.TabularEmbedding
+#     d_token: ${pretrainer.embed_dim}
   
-  tabular_encoder:
-    _target_: autogluon.multimodal.models.ft_transformer.FT_Transformer
-    d_token: 192
-    n_self_blocks: 3
-    n_cross_blocks: 3
-    attention_n_heads: 8
-    attention_dropout: 0.2
-    attention_initialization: kaiming
-    attention_normalization: layer_norm
-    ffn_d_hidden: ${task.model.encoder.d_token}
-    ffn_dropout: 0.1
-    ffn_activation: reglu
-    ffn_normalization: layer_norm
-    residual_dropout: 0.1
-    prenormalization: True
-    first_prenormalization: False
-    last_layer_query_idx: null
-    cross_attention: False
-    final_module: null
-    n_tokens: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
-    kv_compression_ratio: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
-    kv_compression_sharing: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
-    head_activation: False # Only used when using a projection head (`projection=True`)
-    head_normalization: null # Only used when using a projection head (`projection=True`)
-    d_out: null # Only used when using a projection head (`projection=True`)
+#   tabular_encoder:
+#     _target_: autogluon.multimodal.models.ft_transformer.FT_Transformer
+#     d_token: 192
+#     n_self_blocks: 3
+#     n_cross_blocks: 3
+#     attention_n_heads: 8
+#     attention_dropout: 0.2
+#     attention_initialization: kaiming
+#     attention_normalization: layer_norm
+#     ffn_d_hidden: ${task.model.encoder.d_token}
+#     ffn_dropout: 0.1
+#     ffn_activation: reglu
+#     ffn_normalization: layer_norm
+#     residual_dropout: 0.1
+#     prenormalization: True
+#     first_prenormalization: False
+#     last_layer_query_idx: null
+#     cross_attention: False
+#     final_module: null
+#     n_tokens: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
+#     kv_compression_ratio: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
+#     kv_compression_sharing: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
+#     head_activation: False # Only used when using a projection head (`projection=True`)
+#     head_normalization: null # Only used when using a projection head (`projection=True`)
+#     d_out: null # Only used when using a projection head (`projection=True`)
 
-  time_series_tokenizer:
-    _target_: didactic.models.time_series.TimeSeriesEmbedding
-    resample_dim: 64
-    d_token: ${pretrainer.embed_dim}
-    corruption_rate: 0.1
+#   time_series_tokenizer:
+#     _target_: didactic.models.time_series.TimeSeriesEmbedding
+#     resample_dim: 64
+#     d_token: ${pretrainer.embed_dim}
+#     corruption_rate: 0.1
 
-  pretrain_loss:
-    _target_: vital.metrics.train.metric.NTXent
+#   pretrain_loss:
+#     _target_: vital.metrics.train.metric.NTXent
     
-  pretrain_loss_weight: 1
-  embed_dim: 192
-  projection_dim: 64
+#   pretrain_loss_weight: 1
+#   embed_dim: 192
+#   projection_dim: 64
 
 task:
   _target_: didactic.tasks.cardiac_multimodal_representation.CardiacMultimodalRepresentationTask
