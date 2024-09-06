@@ -67,9 +67,9 @@ class VitalRunner(ABC):
         # https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
         torch.set_float32_matmul_precision(cfg.float32_matmul_precision)
 
-        if cfg.pretrain:
-            # Pretrain the model
-            raise NotImplementedError("Pretraining is not yet implemented")
+        # if cfg.pretrain:
+        #     # Pretrain the model
+        #     raise NotImplementedError("Pretraining is not yet implemented")
         
         if cfg.ckpt:
             ckpt_path = resolve_model_checkpoint_path(cfg.ckpt)
