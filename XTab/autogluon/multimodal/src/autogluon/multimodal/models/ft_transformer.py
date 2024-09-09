@@ -1197,9 +1197,9 @@ class FT_Transformer(nn.Module):
                             None,
                         )
                         x = self._end_residual(layer, "self_attention_tabtab", x, x_residual, cross_attention=True)
-                        # x_residual = self._start_residual(layer, "self_attention_ffn_tabtab", x, cross_attention=True)
-                        # x_residual = layer["self_attention_ffn_tabtab"](x_residual)
-                        # x = self._end_residual(layer, "self_attention_ffn_tabtab", x, x_residual, cross_attention=True)
+                        x_residual = self._start_residual(layer, "self_attention_ffn_tabtab", x, cross_attention=True)
+                        x_residual = layer["self_attention_ffn_tabtab"](x_residual)
+                        x = self._end_residual(layer, "self_attention_ffn_tabtab", x, x_residual, cross_attention=True)
 
                         x_residual = self._start_residual(layer, "cross_attention_imgtab", x_context, cross_attention=True)
                         x_residual = layer["cross_attention_imgtab"](
@@ -1221,9 +1221,9 @@ class FT_Transformer(nn.Module):
                             None,
                         )
                         x_context = self._end_residual(layer, "self_attention_imgimg", x_context, x_residual, cross_attention=True)
-                        # x_residual = self._start_residual(layer, "self_attention_ffn_imgimg", x_context, cross_attention=True)
-                        # x_residual = layer["self_attention_ffn_imgimg"](x_residual)
-                        # x_context = self._end_residual(layer, "self_attention_ffn_imgimg", x_context, x_residual, cross_attention=True)
+                        x_residual = self._start_residual(layer, "self_attention_ffn_imgimg", x_context, cross_attention=True)
+                        x_residual = layer["self_attention_ffn_imgimg"](x_residual)
+                        x_context = self._end_residual(layer, "self_attention_ffn_imgimg", x_context, x_residual, cross_attention=True)
 
                     # if layer_idx == self.n_cross_blocks - 1:
                     #     x = torch.cat([x, x_context], dim=1)
