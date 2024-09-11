@@ -265,9 +265,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = self.encoder.layers[0].self_attn.num_heads
         elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # XTab FT-Transformer
             if self.encoder.n_cross_blocks > 0:
-                self.nhead = self.encoder.blocks[0]["l_attention"].n_heads
+                self.nhead = self.encoder.blocks[0]["l_attention"].attention_n_heads
             else:
-                self.nhead = self.encoder.blocks[0]["attention"].n_heads
+                self.nhead = self.encoder.blocks[0]["attention"].attention_n_heads
         elif isinstance(self.encoder, TabularMLP):
             self.nhead = 1
         else:
