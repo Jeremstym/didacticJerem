@@ -24,6 +24,7 @@ from vital.utils.decorators import auto_move_data
 from IRENE.models.encoder import Encoder as IRENEncoder
 from IRENE.models.configs import get_IRENE_config
 
+import didactic.models.transformer
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
