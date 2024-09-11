@@ -262,8 +262,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Configure tokenizers and extract relevant info about the models' architectures
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
-        elif isinstance(self.encoder, autogluon.multimodal.models.ft_transformer.FT_Transformer):  # XTab FT-Transformer
-            self.nhead = self.encoder.blocks[0]["attention"].n_heads
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # XTab FT-Transformer
+            if self.encoder.n_cross_blocks > 0:
+                self.nhead = self.encoder.cross_blocks[0]["l_attention"].n_heads
+            else:
+                self.nhead = self.encoder.blocks[0]["attention"].n_heads
         elif isinstance(self.encoder, TabularMLP):
             self.nhead = 1
         else:
