@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
-from layers import get_nn_module, MultiheadAttention, MultiheadCrossAttention
+from .layers import get_nn_module, MultiheadAttention, MultiheadCrossAttention
 
 ModuleType = Union[str, Callable[..., nn.Module]]
 _INTERNAL_ERROR_MESSAGE = "Internal error. Please, open an issue."
