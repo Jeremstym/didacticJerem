@@ -63,13 +63,13 @@ class FT_Transformer(nn.Module):
             activation: ModuleType,
         ):
             super().__init__()
+            self.activation = _make_nn_module(activation)
             _is_glu_activation = self.activation.__class__.__name__.lower().endswith("glu")
             self.linear_first = nn.Linear(
                 d_token,
                 d_hidden * (2 if _is_glu_activation(activation) else 1),
                 bias_first,
             )
-            self.activation = _make_nn_module(activation)
             self.dropout = nn.Dropout(dropout)
             self.linear_second = nn.Linear(d_hidden, d_token, bias_second)
 
