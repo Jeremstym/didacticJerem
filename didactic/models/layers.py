@@ -7,6 +7,8 @@ from torch.nn import Parameter
 from torch.nn import functional as F
 from torch.nn import init
 
+ModuleType = Union[str, Callable[..., nn.Module]]
+
 
 def get_nn_module(module: ModuleType, *module_args, **module_kwargs) -> nn.Module:
     """Instantiates an ``nn.Module`` with the requested parameters.
