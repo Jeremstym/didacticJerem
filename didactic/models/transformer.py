@@ -8,7 +8,6 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
-from .utils import init_weights
 from layers import get_nn_module, MultiheadAttention, MultiheadCrossAttention
 
 ModuleType = Union[str, Callable[..., nn.Module]]
