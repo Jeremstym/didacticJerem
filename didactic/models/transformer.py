@@ -278,7 +278,7 @@ class FT_Transformer(nn.Module):
 
             layer.update(
                 {
-                    f"{modality_side}_self_attention": self.MultiheadAttention(
+                    f"{modality_side}_self_attention": MultiheadAttention(
                         d_token=self.d_token,
                         n_heads=self.attention_n_heads,
                         dropout=self.attention_dropout,
