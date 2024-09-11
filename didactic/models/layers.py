@@ -1,4 +1,4 @@
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Union, Dict, Callable
 
 import torch
 from scipy.special import binom, factorial
