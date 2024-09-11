@@ -168,7 +168,6 @@ class FT_Transformer(nn.Module):
         self.residual_dropout = residual_dropout
         self.prenormalization = prenormalization
         self.first_prenormalization = first_prenormalization       
-        self.latent_summation = latent_summation
 
         self.n_self_blocks = n_self_blocks
         self.n_cross_blocks = n_cross_blocks
