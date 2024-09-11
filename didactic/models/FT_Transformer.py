@@ -99,10 +99,6 @@ class FT_Transformer(nn.Module):
         residual_dropout: float,
         prenormalization: bool,
         first_prenormalization: bool,
-        last_layer_query_idx: Union[None, List[int], slice],
-        cross_attention: Optional[bool] = False,
-        latent_summation: Optional[bool] = False,
-        final_module: Optional[bool] = False,
     ) -> None:
         """
         Parameters
