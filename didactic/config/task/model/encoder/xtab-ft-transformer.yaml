@@ -9,7 +9,8 @@ attention_initialization: kaiming
 attention_normalization:
   _target_: torch.nn.LayerNorm
   normalized_shape: ${task.model.encoder.d_token}
-  _partial_: Trueffn_d_hidden: ${task.model.encoder.d_token}
+  _partial_: True
+ffn_d_hidden: ${task.model.encoder.d_token}
 ffn_dropout: 0.1
 ffn_activation:
   _target_: didactic.models.layers.ReGLU
