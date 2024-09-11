@@ -8,6 +8,267 @@ from torch.nn import functional as F
 from torch.nn import init
 
 
+def get_nn_module(module: ModuleType, *module_args, **module_kwargs) -> nn.Module:
+    """Instantiates an ``nn.Module`` with the requested parameters.
+
+    Args:
+        module: Name of the ``nn.Module`` to instantiate, or function that initializes the module.
+        *module_args: Positional arguments to pass to the ``nn.Module``'s constructor or generator function.
+        **module_kwargs: Keyword arguments to pass to the ``nn.Module``'s constructor or generator function.
+
+    Returns:
+        Instance of the ``nn.Module``.
+    """
+    if callable(module):
+        return module(*module_args, **module_kwargs)
+    else:
+        return getattr(nn, module)(*module_args, **module_kwargs)
+
+def reglu(x: Tensor) -> Tensor:
+    """The ReGLU activation function from [1].
+
+    References:
+    ----------
+    [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
+    """
+    assert x.shape[-1] % 2 == 0
+    a, b = x.chunk(2, dim=-1)
+    return a * F.relu(b)
+
+def geglu(x: Tensor) -> Tensor:
+    """The GEGLU activation function from [1].
+
+    References:
+    ----------
+    [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
+    """
+    assert x.shape[-1] % 2 == 0
+    a, b = x.chunk(2, dim=-1)
+    return a * F.gelu(b)
+
+
+class ReGLU(nn.Module):
+    """
+    The ReGLU activation function from [1].
+
+    References:
+    ----------
+    [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
+    """
+
+    def forward(self, x: Tensor) -> Tensor:
+        return reglu(x)
+
+
+class GEGLU(nn.Module):
+    """
+    The GEGLU activation function from [1].
+
+    References:
+    ----------
+    [1] Noam Shazeer, "GLU Variants Improve Transformer", 2020
+    """
+
+    def forward(self, x: Tensor) -> Tensor:
+        return geglu(x)
+
+class _QKVLinearProjection(nn.Module):
+    def __init__(
+        self, d_token: int, n_heads: int, bias: bool = True, initialization: Literal["kaiming", "xavier"] = "kaiming"
+    ):
+        """Initializes class instance.
+
+        Args:
+            d_token: Token size.
+            n_heads: Number of attention heads. If equal to 1, then value projection matrix will always be initialized
+                with Kaiming (regardless of `initialization` parameter), to follow torch.nn.MultiheadAttention.
+            bias: If `True`, then input (and output, if presented) layers also have bias.
+            initialization: Initialization for input projection layers. Must be one of ['kaiming', 'xavier'].
+        """
+        super().__init__()
+
+        if initialization not in ["kaiming", "xavier"]:
+            raise ValueError("`initialization` must be one of ['kaiming', 'xavier']")
+
+        self.W_q = nn.Linear(d_token, d_token, bias)
+        self.W_k = nn.Linear(d_token, d_token, bias)
+        self.W_v = nn.Linear(d_token, d_token, bias)
+
+        for m in [self.W_q, self.W_k, self.W_v]:
+            # the "xavier" branch tries to follow torch.nn.MultiheadAttention;
+            # the second condition checks if V is directly used to compute output (i.e. not multi-head);
+            # the latter one is initialized with Kaiming in torch
+            if initialization == "xavier" and (m is not self.W_v or n_heads > 1):
+                # gain is needed since W_qkv is represented with 3 separate layers (it
+                # implies different fan_out)
+                nn.init.xavier_uniform_(m.weight, gain=1 / math.sqrt(2))
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+
+    def forward(self, x_q: Tensor, x_kv: Tensor) -> Tuple[Tensor, Tensor, Tensor]:
+        """Computes the query/key/value linear projections of tokens.
+
+        Args:
+            x_q: (N, S_q, E), Tokens from which to compute the query matrix.
+            x_kv: (N, S_kv, E), Tokens from which to compute the key/value matrices.
+
+        Returns:
+            (N, S_q, E) + 2 x (N, S_kv, E), query/key/value linear projections of input tokens.
+        """
+        return self.W_q(x_q), self.W_k(x_kv), self.W_v(x_kv)
+
+
+class _QKVMatrixMultiplication(nn.Module):
+    def __init__(self, d_token: int, n_heads: int, dropout: float, bias: bool = True):
+        """Initializes class instance.
+
+        Args:
+            d_token: Token size. Must be a multiple of `n_heads`.
+            n_heads: Number of attention heads. If greater than 1, then the module will have an additional output layer
+                (so called "mixing" layer).
+            dropout: Dropout rate for the attention map. The dropout is applied to *probabilities* and does not affect
+                logits.
+            bias: If `True`, then input (and output, if presented) layers also have bias.
+        """
+        super().__init__()
+
+        if n_heads > 1:
+            if d_token % n_heads != 0:
+                raise ValueError("d_token must be a multiple of n_heads")
+
+        self.W_out = nn.Linear(d_token, d_token, bias) if n_heads > 1 else None
+        self.n_heads = n_heads
+        self.dropout = nn.Dropout(dropout) if dropout else None
+
+        if self.W_out is not None:
+            nn.init.zeros_(self.W_out.bias)
+
+    def _reshape(self, x: Tensor) -> Tensor:
+        batch_size, n_tokens, d = x.shape
+        d_head = d // self.n_heads
+        return (
+            x.reshape(batch_size, n_tokens, self.n_heads, d_head)
+            .transpose(1, 2)
+            .reshape(batch_size * self.n_heads, n_tokens, d_head)
+        )
+
+    def forward(self, q: Tensor, k: Tensor, v: Tensor) -> Tuple[Tensor, Dict[str, Tensor]]:
+        """Performs the multiplications between query/key/value matrices.
+
+        Args:
+            q: (N, S_q, E), query matrix.
+            k: (N, S_kv, E), key matrix.
+            v: (N, S_kv, E), value matrix.
+
+        Returns:
+            (N, S_q, E), attention output tokens, and attention statistics.
+        """
+        batch_size = len(q)
+        d_head_key = k.shape[-1] // self.n_heads
+        d_head_value = v.shape[-1] // self.n_heads
+        n_q_tokens = q.shape[1]
+
+        q = self._reshape(q)
+        k = self._reshape(k)
+        attention_logits = q @ k.transpose(1, 2) / math.sqrt(d_head_key)
+        attention_probs = F.softmax(attention_logits, dim=-1)
+        if self.dropout is not None:
+            attention_probs = self.dropout(attention_probs)
+        x = attention_probs @ self._reshape(v)
+        x = (
+            x.reshape(batch_size, self.n_heads, n_q_tokens, d_head_value)
+            .transpose(1, 2)
+            .reshape(batch_size, n_q_tokens, self.n_heads * d_head_value)
+        )
+        if self.W_out is not None:
+            x = self.W_out(x)
+        return x, {
+            "attention_logits": attention_logits,
+            "attention_probs": attention_probs,
+        }
+
+
+class MultiheadAttention(nn.Module):
+    """Multihead Attention (self-/cross-)."""
+
+    def __init__(
+        self,
+        d_token: int,
+        n_heads: int,
+        dropout: float,
+        bias: bool = True,
+        initialization: Literal["kaiming", "xavier"] = "kaiming",
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            d_token: Token size. Must be a multiple of `n_heads`.
+            n_heads: Number of attention heads. If greater than 1, then the module will have an additional output layer
+                (so called "mixing" layer).
+            dropout: Dropout rate for the attention map. The dropout is applied to *probabilities* and does not affect
+                logits.
+            bias: If `True`, then input (and output, if presented) layers also have bias.
+            initialization: Initialization for input projection layers. Must be one of ['kaiming', 'xavier'].
+        """
+        super().__init__()
+        self.linear_proj = _QKVLinearProjection(d_token, n_heads, bias=bias, initialization=initialization)
+        self.mat_mul = _QKVMatrixMultiplication(d_token, n_heads, dropout, bias=bias)
+
+    def forward(self, x_q: Tensor, x_kv: Tensor) -> Tuple[Tensor, Dict[str, Tensor]]:
+        """Performs a forward pass through the attention operations.
+
+        Args:
+            x_q: (N, S_q, E), query tokens.
+            x_kv: (N, S_kv, E), key-value tokens.
+
+        Returns:
+            (N, S_q, E), attention output tokens, and attention statistics.
+        """
+        q, k, v = self.linear_proj(x_q, x_kv)
+        return self.mat_mul(q, k, v)
+
+class MultiheadCrossAttention(nn.Module):
+    """Multihead Cross-Attention."""
+
+    def __init__(
+        self,
+        d_token: int,
+        n_heads: int,
+        dropout: float,
+        bias: bool = True,
+        initialization: Literal["kaiming", "xavier"] = "kaiming",
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            d_token: Token size. Must be a multiple of `n_heads`.
+            n_heads: Number of attention heads. If greater than 1, then the module will have an additional output layer
+                (so called "mixing" layer).
+            dropout: Dropout rate for the attention map. The dropout is applied to *probabilities* and does not affect
+                logits.
+            bias: If `True`, then input (and output, if presented) layers also have bias.
+            initialization: Initialization for input projection layers. Must be one of ['kaiming', 'xavier'].
+        """
+        super().__init__()
+        # We follow LXMERT https://github.com/airsplay/lxmert/blob/master/src/lxrt/modeling.py by implementing only one cross-attention
+        # module for both tabular and time-series data, to use two times, interverting the inputs in the forward pass
+        self.attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
+
+    def forward(self, x_q: Tensor, x_kv: Tensor) -> Tuple[Tensor, Dict[str, Tensor]]:
+        """Performs a forward pass through the attention operations.
+
+        Args:
+            x_q: (N, S_q, E), query tokens.
+            x_kv: (N, S_kv, E), key-value tokens.
+
+        Returns:
+            (N, S_q, E), attention output tokens, and attention statistics.
+        """
+        tabular_tensor, _ = self.attention_module(x_q, x_kv)
+        ts_tensor, _ = self.attention_module(x_kv, x_q)
+
+        return tabular_tensor, ts_tensor
+
 class PositionalEncoding(nn.Module):
     """Positional encoding layer."""
 
@@ -130,7 +391,7 @@ class SequencePooling(nn.Module):
 class FTPredictionHead(nn.Module):
     """Prediction head architecture described in the Feature Tokenizer transformer (FT-Transformer) paper."""
 
-    def __init__(self, in_features: int, out_features: int, is_classification: bool = True):
+    def __init__(self, in_features: int, out_features: int):
         """Initializes class instance.
 
         Args:
@@ -138,8 +399,7 @@ class FTPredictionHead(nn.Module):
             out_features: Number of features to output.
         """
         super().__init__()
-        self.output = nn.Sigmoid if is_classification else nn.Identity
-        self.head = nn.Sequential(nn.LayerNorm(in_features), nn.ReLU(), nn.Linear(in_features, out_features), self.output())
+        self.head = nn.Sequential(nn.LayerNorm(in_features), nn.ReLU(), nn.Linear(in_features, out_features), nn.Identity())
 
     def forward(self, x: Tensor) -> Tensor:
         """Predicts unnormalized features from a feature vector input.
@@ -150,8 +410,8 @@ class FTPredictionHead(nn.Module):
         Returns:
             - (N, `out_features`), Batch of output features.
         """
-        if type(x) == tuple:
-            x = x[0]
+        # if type(x) == tuple:
+        #     x = x[0]
 
         return self.head(x)
 
