@@ -191,8 +191,9 @@ class FT_Transformer(nn.Module):
 
     def _init_attention_block(self, layer_idx: int) -> nn.ModuleDict:
         if self.n_cross_blocks:
+            layer = nn.ModuleDict()
             for modality_side in ["l", "r"]:
-                layer = nn.ModuleDict(
+                layer.update(
                     {
                         f"{modality_side}_attention": MultiheadAttention(
                             d_token=self.d_token,
