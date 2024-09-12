@@ -454,13 +454,13 @@ class FT_Transformer(nn.Module):
             x_context = self._end_residual(block, "r_cross_attention", x_context, x_context_residual, stage="cross_attention")
 
             # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "ffn_0", x, stage="cross_attention")
-            x_residual = block["ffn_0"](x_residual)
-            x = self._end_residual(block, "ffn_0", x, x_residual, stage="cross_attention")
+            x_residual = self._start_residual(block, "l_ffn_0", x, stage="cross_attention")
+            x_residual = block["l_ffn_0"](x_residual)
+            x = self._end_residual(block, "l_ffn_0", x, x_residual, stage="cross_attention")
 
-            x_context_residual = self._start_residual(block, "ffn_0", x_context, stage="cross_attention")
-            x_context_residual = block["ffn_0"](x_context_residual)
-            x_context = self._end_residual(block, "ffn_0", x_context, x_context_residual, stage="cross_attention")
+            x_context_residual = self._start_residual(block, "r_ffn_0", x_context, stage="cross_attention")
+            x_context_residual = block["r_ffn_0"](x_context_residual)
+            x_context = self._end_residual(block, "r_ffn_0", x_context, x_context_residual, stage="cross_attention")
 
             # Forward pass through the self-attention block inside the cross-attention module for both modalities
             x_residual = self._start_residual(block, "l_self_attention", x, stage="cross_attention")
