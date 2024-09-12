@@ -451,7 +451,7 @@ class FT_Transformer(nn.Module):
 
         self_attention_blocks = self.blocks[: self.n_self_blocks]
         cross_attention_blocks = self.blocks[self.n_self_blocks :]
-        bidirectional_attention_blocks = self.blocks[self.n_self_blocks :]
+        bidirectional_attention_blocks = [] #FIXME: build bidirectional attention blocks later
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
