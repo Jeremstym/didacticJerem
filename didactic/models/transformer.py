@@ -242,7 +242,6 @@ class FT_Transformer(nn.Module):
                 layer[ f"attention_normalization"] = get_nn_module(self.attention_normalization)
             layer[ f"ffn_normalization"] = get_nn_module(self.ffn_normalization)
         
-        print(layer)
         return layer
 
     def _init_cross_attention_block(self, layer_idx: int) -> nn.ModuleDict:
