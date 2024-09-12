@@ -335,7 +335,7 @@ class FT_Transformer(nn.Module):
                 x_residual = layer[norm_key](x_residual)
         return x_residual
 
-    def _end_residual(self, layer: nn.ModuleDict, x: Tensor, x_residual: Tensor, stage: str = "self_attention") -> Tensor:
+    def _end_residual(self, layer: nn.ModuleDict, layer_name: str, x: Tensor, x_residual: Tensor, stage: str = "self_attention") -> Tensor:
         match stage:
             case "cross_attention":
                 assert layer_name in [
