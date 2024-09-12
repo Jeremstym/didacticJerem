@@ -394,6 +394,8 @@ class FT_Transformer(nn.Module):
         if x_context is not None and x.shape[-1] != x_context.shape[-1]:
             raise ValueError("The input tensors must have the same embedding dimension")
 
+        self.batch_size = x.shape[0] # Save the batch size for later use in explainability
+
         self_attention_blocks = self.blocks[: self.n_self_blocks]
         cross_attention_blocks = self.blocks[self.n_self_blocks :]
 
