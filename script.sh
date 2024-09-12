@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=hard,electronic
+#SBATCH --partition=electronic
 #SBATCH --job-name=TEST-comparison-on-model
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
