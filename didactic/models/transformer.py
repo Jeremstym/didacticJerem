@@ -311,7 +311,7 @@ class FT_Transformer(nn.Module):
                 assert layer_name in [
                     "l_cross_attention",
                     "r_cross_attention",
-                    "l_ffn_0"
+                    "l_ffn_0",
                     "r_ffn_0",
                     "l_self_attention",
                     "r_self_attention",
@@ -342,7 +342,7 @@ class FT_Transformer(nn.Module):
                 assert layer_name in [
                     "l_cross_attention",
                     "r_cross_attention",
-                    "l_ffn_0"
+                    "l_ffn_0",
                     "r_ffn_0",
                     "l_self_attention",
                     "r_self_attention",
