@@ -261,7 +261,7 @@ class FT_Transformer(nn.Module):
         for modality_side in ["l", "r"]:
             layer.update(
                 {
-                    f"{modality_side}_attention_residual_dropout": nn.Dropout(self.residual_dropout),
+                    f"{modality_side}_cross_attention_residual_dropout": nn.Dropout(self.residual_dropout),
                     f"{modality_side}_ffn_0": self.FFN(
                         d_token=self.d_token,
                         d_hidden=self.ffn_d_hidden,
@@ -309,7 +309,8 @@ class FT_Transformer(nn.Module):
         match stage:
             case "cross_attention":
                 assert layer_name in [
-                    "cross_attention",
+                    "l_cross_attention",
+                    "r_cross_attention",
                     "l_ffn_0"
                     "r_ffn_0",
                     "l_self_attention",
@@ -339,7 +340,8 @@ class FT_Transformer(nn.Module):
         match stage:
             case "cross_attention":
                 assert layer_name in [
-                    "cross_attention",
+                    "l_cross_attention",
+                    "r_cross_attention",
                     "l_ffn_0"
                     "r_ffn_0",
                     "l_self_attention",
@@ -441,15 +443,15 @@ class FT_Transformer(nn.Module):
             block = cast(nn.ModuleDict, block)
 
             # Normalize the tokens from both modalities if prenormalization is enabled
-            x_residual = self._start_residual(block, "cross_attention", x, stage="cross_attention")
-            x_context_residual = self._start_residual(block, "cross_attention", x_context, stage="cross_attention")
+            x_residual = self._start_residual(block, "l_cross_attention", x, stage="cross_attention")
+            x_context_residual = self._start_residual(block, "r_cross_attention", x_context, stage="cross_attention")
 
             # Forward pass through the cross-attention block
             x_residual, x_context_residual = block["cross_attention"](x_residual, x_context_residual)
 
             # Residual connections after the attention layer for both modalities
-            x = self._end_residual(block, "cross_attention", x, x_residual, stage="cross_attention")
-            x_context = self._end_residual(block, "cross_attention", x_context, x_context_residual, stage="cross_attention")
+            x = self._end_residual(block, "l_cross_attention", x, x_residual, stage="cross_attention")
+            x_context = self._end_residual(block, "r_cross_attention", x_context, x_context_residual, stage="cross_attention")
 
             # Forward pass through the normalization, FFN layer, and residual connection for both modalities
             x_residual = self._start_residual(block, "ffn_0", x, stage="cross_attention")
