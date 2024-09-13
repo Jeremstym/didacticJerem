@@ -406,7 +406,7 @@ class FTPredictionHead(nn.Module):
             out_features: Number of features to output.
         """
         super().__init__()
-        self.head = nn.Sequential(nn.LayerNorm(in_features), nn.ReLU(), nn.Linear(in_features, out_features), nn.Identity())
+        self.head = nn.Sequential(nn.LayerNorm(in_features), nn.ReLU(), nn.Linear(in_features, out_features))
 
     def forward(self, x: Tensor) -> Tensor:
         """Predicts unnormalized features from a feature vector input.
