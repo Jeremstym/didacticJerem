@@ -189,7 +189,7 @@ class FT_Transformer(nn.Module):
         if self.n_cross_blocks:
             layers += [
                 self._init_cross_attention_block(layer_idx)
-                for layer_idx in range(self.n_cross_blocks)
+                for layer_idx in range(self.n_self_blocks, self.n_self_blocks + self.n_cross_blocks)
             ]
 
         self.blocks = nn.ModuleList(layers)
