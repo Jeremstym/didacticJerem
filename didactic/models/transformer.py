@@ -223,7 +223,9 @@ class FT_Transformer(nn.Module):
                     if modality_side == "l":
                         layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization)
                     # layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization)
-                layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
+                if modality_side == "l":
+                    layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
+                # layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
         else:
             layer = nn.ModuleDict(
                 {
