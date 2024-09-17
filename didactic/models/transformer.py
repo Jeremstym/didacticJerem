@@ -15,34 +15,6 @@ ModuleType = Union[str, Callable[..., nn.Module]]
 _INTERNAL_ERROR_MESSAGE = "Internal error. Please, open an issue."
 
 
-def _all_or_none(values):
-    return all(x is None for x in values) or all(x is not None for x in values)
-
-
-class _TokenInitialization(enum.Enum):
-    UNIFORM = "uniform"
-    NORMAL = "normal"
-
-    @classmethod
-    def from_str(cls, initialization: str) -> "_TokenInitialization":
-        try:
-            return cls(initialization)
-        except ValueError:
-            valid_values = [x.value for x in _TokenInitialization]
-            raise ValueError(f"initialization must be one of {valid_values}")
-
-    def apply(self, x: Tensor, d: int) -> None:
-        d_sqrt_inv = 1 / math.sqrt(d)
-        if self == _TokenInitialization.UNIFORM:
-            # used in the paper "Revisiting Deep Learning Models for Tabular Data";
-            # is equivalent to `nn.init.kaiming_uniform_(x, a=math.sqrt(5   ))` (which is
-            # used by torch to initialize nn.Linear.weight, for example)
-            nn.init.uniform_(x, a=-d_sqrt_inv, b=d_sqrt_inv)
-        elif self == _TokenInitialization.NORMAL:
-            nn.init.normal_(x, std=d_sqrt_inv)
-
-
-
 class FT_Transformer(nn.Module):
     """Transformer with extra features.
 
