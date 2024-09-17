@@ -191,9 +191,9 @@ class FT_Transformer(nn.Module):
                         f"{modality_side}_ffn_residual_dropout": nn.Dropout(self.residual_dropout),
                     }
                 )
-                if layer_idx or not self.prenormalization or self.first_prenormalization:
-                    layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization)
-                layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
+                # if layer_idx or not self.prenormalization or self.first_prenormalization:
+                #     layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization)
+                # layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
         else:
             layer = nn.ModuleDict(
                 {
@@ -458,7 +458,7 @@ class FT_Transformer(nn.Module):
                 x_context_residual = block["r_ffn"](x_context_residual)
                 print(f'x_context_residual after encoding r_ffn: {x_context_residual}')
                 x_context = self._end_residual(block, "r_ffn", x_context, x_context_residual, stage="self_attention")
-                
+
             else:
                 # Normalize the tokens from both modalities if prenormalization is enabled
                 x_residual = self._start_residual(block, "attention", x, stage="self_attention")
