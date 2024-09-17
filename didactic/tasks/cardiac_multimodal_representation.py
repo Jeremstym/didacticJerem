@@ -557,11 +557,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Add the CLS token to the end of each item in the batch
             tokens = self.cls_token(tokens)
 
-        # Forward pass through the transformer encoder
         if self.hparams.use_positional_encoding:
-            out_tokens, _ = self.encoder(self.positional_encoding(tokens))
-        else:
-            out_tokens, _= self.encoder(tokens)
+            # Add positional encoding to the tokens
+            out_tokens = self.positional_encoding(tokens)
+       
+       # Forward pass through the transformer encoder
+        out_tokens, _= self.encoder(tokens)
 
         if self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
