@@ -999,6 +999,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         anchor_out_features = out_features
         corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
         if anchor_out_features.isnan().any() or corrupted_out_features.isnan().any():
+            print(f"Anchor features: {anchor_out_features}")
+            print(f"Corrupted features: {corrupted_out_features}")
             raise ValueError("NaNs detected in the contrastive loss computation")
 
         # Compute the contrastive loss/metrics
