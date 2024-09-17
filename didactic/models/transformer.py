@@ -191,7 +191,7 @@ class FT_Transformer(nn.Module):
                         f"{modality_side}_ffn_residual_dropout": nn.Dropout(self.residual_dropout),
                     }
                 )
-                if layer_idx or not self.prenormalization or self.first_prenormalization:
+                if layer_idx or not self.prenormalization: # or self.first_prenormalization:
                     layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization)
                 layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
         else:
