@@ -228,8 +228,6 @@ class MultiheadAttention(nn.Module):
             (N, S_q, E), attention output tokens, and attention statistics.
         """
         q, k, v = self.linear_proj(x_q, x_kv)
-        print(q, k, v, "here are the q, k, v")
-        print(self.mat_mul(q, k, v), "here is the output")
         return self.mat_mul(q, k, v)
 
 class MultiheadCrossAttention(nn.Module):
