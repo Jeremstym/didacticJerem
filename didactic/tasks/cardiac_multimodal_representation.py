@@ -998,6 +998,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Extract features from the original view + from a view corrupted by augmentations
         anchor_out_features = out_features
         corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
+        if anchor_out_features.isnan().any() or corrupted_out_features.isnan().any():
+            raise ValueError("NaNs detected in the contrastive loss computation")
 
         # Compute the contrastive loss/metrics
         metrics = {
