@@ -23,6 +23,7 @@ ffn_normalization: layer_norm
 residual_dropout: 0.1
 prenormalization: True
 first_prenormalization: ${task.first_prenormalization}
+cross_attention: True
 last_layer_query_idx: null
 n_tokens: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
 kv_compression_ratio: null # Only used when compressing the input sequence (`kv_compression_ratio is not None`)
