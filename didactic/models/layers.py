@@ -24,6 +24,8 @@ def get_nn_module(module: ModuleType, *module_args, **module_kwargs) -> nn.Modul
     """
     if callable(module):
         return module(*module_args, **module_kwargs)
+    elif module == "layer_norm":
+        return nn.LayerNorm(normalized_shape=192, *module_args, **module_kwargs)
     else:
         return getattr(nn, module)(*module_args, **module_kwargs)
 
