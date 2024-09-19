@@ -7,7 +7,7 @@ n_bidirectional_blocks: 0
 attention_n_heads: 8
 attention_dropout: 0.2
 attention_initialization: kaiming
-attention_normalization: layer_norm
+attention_normalization: LayerNorm
   # _target_: torch.nn.LayerNorm
   # normalized_shape: ${task.model.encoder.d_token}
   # _partial_: True
@@ -16,7 +16,7 @@ ffn_dropout: 0.1
 ffn_activation:
   _target_: didactic.models.layers.ReGLU
   _partial_: True
-ffn_normalization: layer_norm
+ffn_normalization: LayerNorm
   # _target_: torch.nn.LayerNorm
   # normalized_shape: ${task.model.encoder.d_token}
   # _partial_: True
