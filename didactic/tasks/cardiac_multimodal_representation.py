@@ -567,7 +567,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_tokens = self.positional_encoding(tokens)
        
        # Forward pass through the transformer encoder
-        out_tokens, _= self.encoder(tokens)
+        out_tokens = self.encoder(tokens) #FIXME: double unpack for new version
 
         if self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
