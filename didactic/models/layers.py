@@ -23,7 +23,7 @@ def get_nn_module(module: ModuleType, *module_args, **module_kwargs) -> nn.Modul
         Instance of the ``nn.Module``.
     """
     if isinstance(module, nn.LayerNorm):
-        return nn.LayerNorm(*module_args, **module_kwargs)
+        return nn.LayerNorm(normalized_shape=192, *module_args, **module_kwargs)
     elif callable(module):
         return module(*module_args, **module_kwargs)
     else:
