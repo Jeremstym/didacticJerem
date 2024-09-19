@@ -567,7 +567,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_tokens = self.positional_encoding(tokens)
        
        # Forward pass through the transformer encoder
-        out_tokens = self.encoder(tokens) #FIXME: double unpack for new version
+        out_tokens, _= self.encoder(tokens)
 
         if self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
@@ -659,7 +659,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if self.hparams.use_positional_encoding:
                 tab_tokens = self.positional_encoding_tabular(tab_tokens)
                 ts_tokens = self.positional_encoding_time_series(ts_tokens)
-            out_tokens = self.encoder(tab_tokens, ts_tokens) #FIXME: double unpack for new version
+            out_tokens, _ = self.encoder(tab_tokens, ts_tokens)
 
             if self.hparams.sequence_pooling:
                 # Perform sequence pooling of the transformers' output tokens
