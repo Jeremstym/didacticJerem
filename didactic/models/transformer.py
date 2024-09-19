@@ -193,9 +193,9 @@ class FT_Transformer(nn.Module):
                 )
                 if layer_idx or not self.prenormalization or self.first_prenormalization:
                     if modality_side == "l":
-                        layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization, self.d_token)
+                        layer[f"{modality_side}_attention_normalization"] = get_nn_module(self.attention_normalization)
                 if modality_side == "l":
-                    layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization, self.d_token)
+                    layer[f"{modality_side}_ffn_normalization"] = get_nn_module(self.ffn_normalization)
         else:
             layer = nn.ModuleDict(
                 {
@@ -253,8 +253,8 @@ class FT_Transformer(nn.Module):
                 }
             )
             if layer_idx or not self.prenormalization or self.first_prenormalization:
-                layer[f"{modality_side}_cross_attention_normalization"] = get_nn_module(self.attention_normalization, self.d_token)
-            layer[f"{modality_side}_ffn_0_normalization"] = get_nn_module(self.ffn_normalization, self.d_token)
+                layer[f"{modality_side}_cross_attention_normalization"] = get_nn_module(self.attention_normalization)
+            layer[f"{modality_side}_ffn_0_normalization"] = get_nn_module(self.ffn_normalization)
 
             layer.update(
                 {
@@ -278,8 +278,8 @@ class FT_Transformer(nn.Module):
                 }
             )
             if layer_idx or not self.prenormalization or self.first_prenormalization:
-                layer[f"{modality_side}_self_attention_normalization"] = get_nn_module(self.attention_normalization, self.d_token)
-            layer[f"{modality_side}_ffn_1_normalization"] = get_nn_module(self.ffn_normalization, self.d_token)
+                layer[f"{modality_side}_self_attention_normalization"] = get_nn_module(self.attention_normalization)
+            layer[f"{modality_side}_ffn_1_normalization"] = get_nn_module(self.ffn_normalization)
 
         return layer
 
