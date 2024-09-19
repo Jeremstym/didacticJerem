@@ -440,15 +440,16 @@ class FT_Transformer(nn.Module):
                 # Residual connections after the attention layer for both modalities
                 x = self._end_residual(block, "l_attention", x, x_residual, stage="self_attention")
 
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "l_ffn", x, stage="self_attention")
-                x_residual = block["l_ffn"](x_residual)
-                x = self._end_residual(block, "l_ffn", x, x_residual, stage="self_attention")
 
                 # Do the same for the context modality
                 x_context_residual = self._start_residual(block, "r_attention", x_context, stage="self_attention")
                 x_context_residual, _ = block["r_attention"](x_context_residual, x_context_residual)
                 x_context = self._end_residual(block, "r_attention", x_context, x_context_residual, stage="self_attention")
+                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
+                x_residual = self._start_residual(block, "l_ffn", x, stage="self_attention")
+                x_residual = block["l_ffn"](x_residual)
+                x = self._end_residual(block, "l_ffn", x, x_residual, stage="self_attention")
+               
                 x_context_residual = self._start_residual(block, "r_ffn", x_context, stage="self_attention")
                 x_context_residual = block["r_ffn"](x_context_residual)
                 x_context = self._end_residual(block, "r_ffn", x_context, x_context_residual, stage="self_attention")
