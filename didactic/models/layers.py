@@ -22,9 +22,7 @@ def get_nn_module(module: ModuleType, *module_args, **module_kwargs) -> nn.Modul
     Returns:
         Instance of the ``nn.Module``.
     """
-    if isinstance(module, nn.LayerNorm):
-        return nn.LayerNorm(normalized_shape=192, *module_args, **module_kwargs)
-    elif callable(module):
+    if callable(module):
         return module(*module_args, **module_kwargs)
     else:
         return getattr(nn, module)(*module_args, **module_kwargs)
