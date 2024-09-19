@@ -270,9 +270,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 self.nhead = self.encoder.attention_n_heads
         elif isinstance(self.encoder, autogluon.multimodal.models.ft_transformer.FT_Transformer):  # XTab FT-Transformer old
             if self.encoder.n_cross_blocks > 0:
-                self.nhead = self.encoder.blocks[0].attention_n_heads
+                self.nhead = self.encoder.blocks[0].n_heads
             else:
-                self.nhead = self.encoder.blocks[0].attention_n_heads
+                self.nhead = self.encoder.blocks[0].n_heads
         elif isinstance(self.encoder, TabularMLP):
             self.nhead = 1
         else:
