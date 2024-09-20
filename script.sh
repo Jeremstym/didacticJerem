@@ -152,11 +152,15 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/TEST-unimodal-tab${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task.first_prenormalization=False task.use_positional_encoding=True task/data=tabular
 
-    poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/TEST-unimodal-TS${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.model.encoder.n_cross_blocks=0 task/data=time-series task.cross_attention=False
+    # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/TEST-unimodal-TS${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.model.encoder.n_cross_blocks=0 task/data=time-series task.cross_attention=False
 
     # POST-NORMALIZATION
 
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/TEST-POSTNORM${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt task.model.encoder.prenormalization=False +state_dict=True
 
+    # REDUCE DATASET
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tabular task.model.encoder.n_cross_blocks=0
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-concat${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task.model.encoder.n_cross_blocks=0
 
 done
