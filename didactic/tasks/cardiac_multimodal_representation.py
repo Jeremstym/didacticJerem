@@ -262,7 +262,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
 
-        self.multimodal_encoder = isinstance(self.encoder, FT_Transformer)
+        self.multimodal_encoder = bool(self.encoder.n_cross_blocks)
         if self.hparams.irene_baseline:
             self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
             
@@ -270,15 +270,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
         elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # XTab FT-Transformer
-            if self.encoder.n_cross_blocks > 0:
-                self.nhead = self.encoder.attention_n_heads
-            else:
-                self.nhead = self.encoder.attention_n_heads
+            self.nhead = self.encoder.attention_n_heads
         elif isinstance(self.encoder, autogluon.multimodal.models.ft_transformer.FT_Transformer):  # XTab FT-Transformer old
-            if self.encoder.n_cross_blocks > 0:
-                self.nhead = self.encoder.blocks[0].attention.n_heads
-            else:
-                self.nhead = self.encoder.blocks[0].attention.n_heads
+            self.nhead = self.encoder.blocks[0].attention.n_heads
         elif isinstance(self.encoder, TabularMLP):
             self.nhead = 1
         else:
