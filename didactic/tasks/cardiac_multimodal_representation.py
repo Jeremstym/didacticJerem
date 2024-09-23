@@ -313,7 +313,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize modules/parameters dependent on the encoder's configuration
 
         # Initialize learnable positional embedding parameters
-        if self.late_concat and self.hparams.use_positional_encoding:
+        if self.hparams.late_concat and self.hparams.use_positional_encoding:
             tab_sequence_length = len(self.tabular_num_attrs) + len(self.tabular_cat_attrs) + 1
             self.positional_encoding_tabular = PositionalEncoding(tab_sequence_length, self.hparams.embed_dim)
             ts_sequence_length = len(self.hparams.views) * len(self.hparams.time_series_attrs)
