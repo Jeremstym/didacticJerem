@@ -395,7 +395,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     output_size = 1
 
                 if self.hparams.ordinal_mode and target_tab_attr in TabularAttribute.ordinal_attrs():
-                    print("#################################Using ordinal head")
                     # For ordinal targets, use a separate prediction head config
                     prediction_heads[target_tab_attr] = hydra.utils.instantiate(
                         self.hparams.model.ordinal_head, num_logits=output_size
