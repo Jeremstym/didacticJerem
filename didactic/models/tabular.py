@@ -145,15 +145,20 @@ class TabularMLP(nn.Module):
             ]
         )
 
-    def forward(self, x: Tensor) -> Tensor:
+        self.final_fc = nn.Linear(2 * d_token, out_features)
+
+    def forward(self, x_tab: Tensor, x_ts: Tensor) -> Tensor:
         """Perform the forward pass.
 
         Args:
-            x: the input tensor.
+            x_tab: the input tensor.
 
         Returns:
             the output tensor.
         """
         for layer in self.layers:
-            x = layer(x)
+            x_tab = layer(x_tab)
+
+        x = torch.cat([x_tab, x_ts], dim=1)
+        x = self.final_fc(x)
         return x
