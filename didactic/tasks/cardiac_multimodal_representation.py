@@ -427,20 +427,35 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         """Configure optimizer to ignore parameters that should remain frozen (e.g. tokenizers)."""
         return super().configure_optimizers(params=filter(lambda p: p.requires_grad, self.parameters()))
 
-    def preprocess_tokens(self, tokens, avail_mask, enable_augments: bool = False):
+    def preprocess_tokens(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False) -> Tensor:
+        """Preprocesses the input tokens, optionally masking missing data and random tokens to cause perturbations.
+
+        Args:
+            tokens: (N, S, E) Tokens to preprocess.
+            avail_mask: (N, S), Boolean mask indicating available (i.e. non-missing) tokens.
+            enable_augments: Whether to perform augments on the tokens (e.g. masking) to obtain a "corrupted" view for
+                contrastive learning. Augments are already configured differently for training/testing (to avoid
+                stochastic test-time predictions), so this parameter is simply useful to easily toggle augments on/off
+                to obtain contrasting views.
+
+        Returns:
+            Tokens with missing data masked and/or random tokens replaced by the mask token.
+        """
         mask_token = self.mask_token
         if isinstance(mask_token, ParameterDict):
             mask_token = torch.stack(list(mask_token.values()))
+
         if mask_token is not None:
             # If a mask token is configured, substitute the missing tokens with the mask token to distinguish them from
             # the other tokens
             tokens = mask_tokens(tokens, mask_token, ~avail_mask)
+
         mtr_p = self.train_mtr_p if self.training else self.test_mtr_p
         if mtr_p and enable_augments:
             # Mask Token Replacement (MTR) data augmentation
             # Replace random non-missing tokens with the mask token to perturb the input
             tokens, _ = random_masking(tokens, mask_token, mtr_p)
-      
+
         return tokens
 
     @auto_move_data
