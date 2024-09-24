@@ -868,7 +868,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # (only do this once all downstream inferences have been performed)
         out_features = out_features.squeeze(dim=0)
         if predictions is not None:
-            predictions = {attr: prediction.squeeze(dim=0) for attr, prediction in predictions.items()}
+            if self.hparams.ordinal_mode:
+                predictions = {attr: pred[0].squeeze(dim=0) for attr, pred in predictions.items()}
+            else:
+                predictions = {attr: prediction.squeeze(dim=0) for attr, prediction in predictions.items()}
         if self.hparams.ordinal_mode:
             unimodal_params = {attr: unimodal_param.squeeze(dim=0) for attr, unimodal_param in unimodal_params.items()}
             unimodal_taus = {attr: unimodal_tau.squeeze(dim=0) for attr, unimodal_tau in unimodal_taus.items()}
