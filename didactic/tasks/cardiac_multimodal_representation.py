@@ -815,7 +815,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         }
 
         # Encoder's output
-        out_tab_features, out_ts_features = self(tabular_attrs, time_series_attrs)
+        out_features = self(tabular_attrs, time_series_attrs)
 
         # If the model has targets to predict, output the predictions
         predictions = None
