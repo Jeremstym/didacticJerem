@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=electronic
+#SBATCH --partition=electronic,hard,funky
 #SBATCH --job-name=TEST-comparison-on-model
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
@@ -160,7 +160,9 @@ for seed in {42..51}; do
 
     # REDUCE DATASET
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-ordinal${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tabular task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-concat-ordinal${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-ordinal-tab13${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tab-13 task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-concat-ordinal-tab13+ts${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tab-13+time-series task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-tab13${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tab-13 task.model.encoder.n_cross_blocks=0 task.ordinal_mode=False
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-concat-tab13+ts${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tab-13+time-series task.model.encoder.n_cross_blocks=0 task.ordinal_mode=False
 
 done
