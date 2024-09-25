@@ -848,7 +848,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # If use custom attention is not enabled, return the raw attention map
         if not self.hparams.use_custom_attention:
             with torch.enable_grad():
-                if self.hparams.ordinal_mode:
+                if True:
+                    attention_map = None #FIXME: temporary fix for now
+                elif self.hparams.ordinal_mode:
                     attention_map = None
                 elif self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
                     attention_map = None
