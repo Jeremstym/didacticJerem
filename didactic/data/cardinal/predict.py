@@ -336,10 +336,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                             predicted = TABULAR_CAT_ATTR_LABELS[attr][attr_predictions[attr].round().long()]
                         else:
                             predicted = TABULAR_CAT_ATTR_LABELS[attr][attr_predictions[attr].argmax()]
-                        if pl_module.hparams.ordinal_mode:
-                            probabilities = softmax(attr_predictions[attr].cpu().numpy())
-                        else:
-                            probabilities = attr_predictions[attr].cpu().numpy()
+                        probabilities = softmax(attr_predictions[attr].cpu().numpy())
                         patient_categorical_data.update(
                             {
                                 f"{attr}_prediction": predicted,
