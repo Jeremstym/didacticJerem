@@ -750,6 +750,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if self.hparams.ordinal_mode and attr in TabularAttribute.ordinal_attrs():
                 # For ordinal targets, extract the logits from the multiple outputs of unimodal logits head
                 pred = pred[0]
+            # Squeeze out the singleton dimension from the predictions' features (only relevant for scalar predictions)
             predictions[attr] = pred.squeeze(dim=1)
 
         # Compute the loss/metrics for each target attribute, ignoring items for which targets are missing
