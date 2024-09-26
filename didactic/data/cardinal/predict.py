@@ -444,6 +444,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 log_dataframe(trainer.logger, prediction_scores, filename=data_filepath.name)
 
                 # Save the prediction scores locally
+                print(f"Saving {tag} prediction scores to {data_filepath}")
                 prediction_scores.to_csv(data_filepath, quoting=csv.QUOTE_NONNUMERIC)
 
         token_list = [token.name if isinstance(token, TabularAttribute) else token for token in self.token_tags]
