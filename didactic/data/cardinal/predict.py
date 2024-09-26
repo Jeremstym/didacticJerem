@@ -305,7 +305,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             attr for attr in pl_module.hparams.predict_losses if attr in TabularAttribute.numerical_attrs()
         ]
         attention_list = []
-        if pl_module.hparams.cross_attention and pl_module.hparams.use_custom_attention:
+        if pl_module.hparams.multimodal_encoder and pl_module.hparams.use_custom_attention:
             attention_tab = []
             attention_tabimg = []
             attention_self = []

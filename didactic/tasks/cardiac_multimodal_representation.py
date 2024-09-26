@@ -257,7 +257,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
 
-        self.multimodal_encoder = bool(self.encoder.n_cross_blocks)
+        self.hparams.multimodal_encoder = bool(self.encoder.n_cross_blocks)
         if self.hparams.irene_baseline:
             self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
             
@@ -556,7 +556,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Add positional encoding to the tokens
             out_tokens = self.positional_encoding(tokens)
 
-        if self.multimodal_encoder:
+        if self.hparams.multimodal_encoder:
             # Split the tabular and time-series tokens
             tab_tokens, ts_tokens = tokens[:, :self.n_tabular_attrs, :], tokens[:, self.n_tabular_attrs:, :]
             # Forward pass through the transformer encoder
@@ -833,7 +833,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             targets = {attr: batch[attr] for attr in self.prediction_heads}
             attention_generator = SelfAttentionGenerator(self)
             if self.hparams.use_custom_attention:
-                if self.multimodal_encoder:
+                if self.hparams.multimodal_encoder:
                     raw_attention = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets, cross_modal=True)
                     attention_tab, attention_tabimg, attention_self = attention_generator.generate_cross_attention_score2(tabular_attrs, time_series_attrs, targets)
                     attention_dict = {
@@ -854,7 +854,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     attention_map = None
                 elif self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
                     attention_map = None
-                elif self.multimodal_encoder:
+                elif self.hparams.multimodal_encoder:
                     attention_map = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets)
                 else:
                     attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
@@ -878,6 +878,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             unimodal_params = {attr: unimodal_param.squeeze(dim=0) for attr, unimodal_param in unimodal_params.items()}
             unimodal_taus = {attr: unimodal_tau.squeeze(dim=0) for attr, unimodal_tau in unimodal_taus.items()}
 
-        if self.multimodal_encoder and self.hparams.use_custom_attention:
+        if self.hparams.multimodal_encoder and self.hparams.use_custom_attention:
             return out_features, predictions, unimodal_params, unimodal_taus, attention_dict
         return out_features, predictions, unimodal_params, unimodal_taus, attention_map, custom_attention
