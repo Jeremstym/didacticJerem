@@ -4,4 +4,4 @@ ask:
   tabular_attrs: ${list.remove:${data.process_patient_kwargs.tabular_attrs},${list.concat:${exclude_tabular_attrs},${exclude_holter_attrs}}}
   time_series_attrs: []
 
-exclude_holter_attrs: [sbp_24, dbp_24, pp_24]
+exclude_holter_attrs: [sbp_24,dbp_24,pp_24]
