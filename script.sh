@@ -168,8 +168,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tabular task.model.encoder.n_cross_blocks=0 task.ordinal_mode=False
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-ordinal${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tabular task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-POSTNORM-noholter${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt task.model.encoder.prenormalization=False +state_dict=True
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-POSTNORM-noXtab-noholter${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=True task.model.encoder.prenormalization=False
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-POSTNORM-noholter${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt task.model.encoder.prenormalization=False +state_dict=True
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-POSTNORM-noXtab-noholter${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=True task.model.encoder.prenormalization=False
 
     # ONLY TESTING
 
@@ -178,6 +178,10 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-tab13${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tab-13 task.model.encoder.n_cross_blocks=0 task.ordinal_mode=False train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-tab13${seed}/cardinal_default.ckpt' +state_dict=True
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-concat-tab13+ts${seed}' +experiment=cardinal/xtab-finetune 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.cross_attention=False task/data=tab-13+time-series task.model.encoder.n_cross_blocks=0 task.ordinal_mode=False train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-NO24-concat-tab13+ts${seed}/cardinal_default.ckpt' +state_dict=True
+
+    # CODE CONSOLIDATION + REDUCE DATASET
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-NEW${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tabular task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
 
 
 done
