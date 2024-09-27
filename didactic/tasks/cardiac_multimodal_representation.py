@@ -232,7 +232,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = self.encoder.layers[0].self_attn.num_heads
         elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # vital submodule `Transformer`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.multimodal_encoder = bool(self.hparams.model.encoder.n_bidirectional_blocks)
+            self.multimodal_encoder = bool(self.hparams.model.encoder.n_cross_blocks)
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
@@ -483,7 +483,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             ts_tokens, tab_cls_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
 
             # Forward pass through the transformer encoder (starting with the cross-attention module)
-            out_tokens = self.encoder(ts_tokens, tab_cls_tokens)
+            out_tokens = self.encoder(tab_cls_tokens, ts_tokens) # Re-invert the order, as it is inverted in the Transformer forward pass
 
         else:
             # Forward pass through the transformer encoder
