@@ -21,6 +21,7 @@ from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from vital.tasks.generic import SharedStepsTask
 from vital.utils.decorators import auto_move_data
 
+import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
 
