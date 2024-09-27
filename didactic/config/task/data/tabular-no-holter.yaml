@@ -1,0 +1,7 @@
+# @package _global_
+
+ask:
+  tabular_attrs: ${list.remove:${data.process_patient_kwargs.tabular_attrs},${concat:${exclude_tabular_attrs},${exclude_holter_attrs}}}
+  time_series_attrs: []
+
+exclude_holter_attrs: [sbp_24, dbp_24, pp_24]
