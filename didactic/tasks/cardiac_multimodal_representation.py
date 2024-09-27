@@ -86,6 +86,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         views = tuple(ViewEnum[e] for e in views)
         time_series_attrs = tuple(TimeSeriesAttribute[e] for e in time_series_attrs)
 
+        print(f"number of tabular attributes: {len(tabular_attrs)}")
+        print(f"number of time series attributes: {len(time_series_attrs)}")
+        print(f"number of views: {len(views)}")
+        
         # If dropout/masking are not single numbers, make sure they are tuples (and not another container type)
         if not isinstance(mtr_p, (int, float)):
             mtr_p = tuple(mtr_p)
