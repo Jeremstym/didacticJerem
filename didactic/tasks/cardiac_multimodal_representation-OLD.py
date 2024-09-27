@@ -1,28 +1,35 @@
-
 import functools
 import itertools
 import logging
 import math
 from typing import Any, Callable, Dict, Literal, Optional, Sequence, Tuple
 
+import autogluon.multimodal.models.ft_transformer
+from autogluon.multimodal.models.explanation_generator import SelfAttentionGenerator
 import hydra
 import torch
-import vital
 from omegaconf import DictConfig
 from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
-from torchmetrics.functional import accuracy, auroc, mean_absolute_error
+from torch.nn import functional as F
+from torchmetrics.functional import accuracy, mean_absolute_error
 from vital.data.augmentation.base import mask_tokens, random_masking
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
 from vital.data.cardinal.config import View as ViewEnum
 from vital.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
 from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
-from vital.models.attention.layers import CLSToken, PositionalEncoding, SequencePooling
 from vital.tasks.generic import SharedStepsTask
 from vital.utils.decorators import auto_move_data
 
+from IRENE.models.encoder import Encoder as IRENEncoder
+from IRENE.models.configs import get_IRENE_config
+
+import didactic.models.transformer
+from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
+from didactic.models.tabular import TabularMLP
+from didactic.models.transformer import FT_Transformer
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -44,8 +51,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         tabular_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         time_series_tokenizer: Optional[TimeSeriesEmbedding | DictConfig] = None,
         cls_token: bool = True,
+        sequence_pooling: bool = False,
         mtr_p: float | Tuple[float, float] = 0,
         mt_by_attr: bool = False,
+        use_custom_attention: bool = True,
+        cross_attention: bool = False,
         *args,
         **kwargs,
     ):
@@ -60,16 +70,17 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 value.
             ordinal_mode: Whether to consider applicable targets as ordinal variables, which means:
                 - Applying a constraint to enforce an unimodal softmax output from the prediction heads;
-                - Predicting a new continuum value for each ordinal target, namely the param. of the unimodal softmax.
+                - Predicting a new output for each ordinal target, namely the parameter of the unimodal softmax.
             contrastive_loss: Self-supervised criterion to use as contrastive loss between pairs of (N, E) collections
                 of feature vectors, in a contrastive learning step that follows the SCARF pretraining.
                 (see ref: https://arxiv.org/abs/2106.15147)
             contrastive_loss_weight: Factor by which to weight the `contrastive_loss` in the overall loss.
             tabular_tokenizer: Tokenizer that can process tabular, i.e. patient records, data.
             time_series_tokenizer: Tokenizer that can process time-series data.
-            cross_attention_module: Module to use for cross-attention between the tabular and time-series tokens.
-            cls_token: If `True`, adds a CLS token to use as the encoder's output token.
-                If `False`, the output token is obtained by sequence pooling over the encoder's output tokens.
+            cls_token: Whether to add a CLS token to use as the encoder's output token. Mutually exclusive parameter
+                with `sequence_pooling`.
+            sequence_pooling: Whether to perform sequence pooling on the encoder's output tokens. Mutually exclusive
+                parameter with `cls_token`.
             mtr_p: Probability to replace tokens by the learned MASK token, following the Mask Token Replacement (MTR)
                 data augmentation method.
                 If a float, the value will be used as masking rate during training (disabled during inference).
@@ -80,10 +91,21 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             **kwargs: Keyword arguments to pass to the parent's constructor.
         """
         # Ensure string tags are converted to their appropriate enum types
-        # And do it before call to the parent's `init` so that the converted values are saved in `hparams`
-        tabular_attrs = tuple(TabularAttribute[e] for e in tabular_attrs)
-        views = tuple(ViewEnum[e] for e in views)
-        time_series_attrs = tuple(TimeSeriesAttribute[e] for e in time_series_attrs)
+        # And to it before call to the parent's `init` so that the converted values are saved in `hparams`
+        if tabular_attrs:
+            tabular_attrs = tuple(TabularAttribute[e] for e in tabular_attrs)
+        else:
+            tabular_attrs = tuple()
+        if time_series_attrs:
+            time_series_attrs = tuple(TimeSeriesAttribute[e] for e in time_series_attrs)
+            views = tuple(ViewEnum[e] for e in views)
+        else:
+            time_series_attrs = tuple()
+            views = tuple()
+
+        print(f"number of tabular attributes: {len(tabular_attrs)}")
+        print(f"number of time series attributes: {len(time_series_attrs)}")
+        print(f"number of views: {len(views)}")
 
         # If dropout/masking are not single numbers, make sure they are tuples (and not another container type)
         if not isinstance(mtr_p, (int, float)):
@@ -95,6 +117,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 "`contrastive_loss` will run a self-supervised (pre)training phase. Providing only `predict_losses` "
                 "will run a fully-supervised training phase. Finally, providing both at the same time will train the "
                 "model in fully-supervised mode, with the self-supervised loss as an auxiliary term."
+            )
+
+        if cls_token == sequence_pooling:
+            raise ValueError(
+                "You should specify either `cls_token` or `sequence_pooling` as the method to reduce the "
+                "dimensionality of the encoder's output from a sequence of tokens to only one token."
             )
 
         if not tabular_tokenizer and tabular_attrs:
@@ -112,7 +140,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     f"attributes. Either provide this tokenizer (through the `time_series_tokenizer` parameter) or "
                     f"remove any time-series attributes (by setting the `time_series_attrs` to be an empty list)."
                 )
-            if getattr(time_series_tokenizer, "model") is None:
+            if (
+                time_series_tokenizer.model
+                if isinstance(time_series_tokenizer, TimeSeriesEmbedding)
+                else time_series_tokenizer.get("model")
+            ) is None:
                 logger.warning(
                     f"You have requested the following time-series attributes: "
                     f"{[str(attr) for attr in time_series_attrs]}, but have not configured a model for the tokenizer "
@@ -129,13 +161,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         super().__init__(*args, **kwargs)
 
-        if self.hparams.model.encoder.get("n_bidirectional_blocks", None) and not (tabular_attrs and time_series_attrs):
-            raise ValueError(
-                "You have configured a multimodal cross-attention module, but either the tabular or the time-series "
-                "tabular or the time-series attributes are missing. Make sure to provide both tabular and time-series "
-                "attributes when configuring a cross-attention module."
-            )
-
         # TOFIX: Hack to log time-series tokenizer model's hparams when it's a config for a `torch.nn.Sequential` object
         # In that case, we have to use a `ListConfig` for the reserved `_args_` key. However, the automatic
         # serialization of `_args_` fails (w/ a '`DictConfig' not JSON serializable' error). Therefore, we fix it by
@@ -150,8 +175,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.hparams.lr = None
 
         # Add shortcut to token labels to avoid downstream applications having to determine them from hyperparameters
-        self.token_tags = (
-            tuple("/".join([view, attr]) for view, attr in itertools.product(views, time_series_attrs)) + tabular_attrs
+        self.tabular_tags = tabular_attrs
+        self.times_series_tags = tuple(
+            "/".join([view, attr]) for view, attr in itertools.product(views, time_series_attrs)
+        )
+        self.token_tags = tabular_attrs + tuple(
+            "/".join([view, attr]) for view, attr in itertools.product(views, time_series_attrs)
         )
         if cls_token:
             self.token_tags = self.token_tags + ("CLS",)
@@ -166,6 +195,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.tabular_cat_attrs_cardinalities = [
             len(TABULAR_CAT_ATTR_LABELS[cat_attr]) for cat_attr in self.tabular_cat_attrs
         ]
+
+        self.n_tabular_attrs = len(self.tabular_num_attrs) + len(self.tabular_cat_attrs)
+        if self.hparams.cls_token:
+            self.n_tabular_attrs += 1
 
         # Extract train/test masking probabilities from their configs
         if isinstance(self.hparams.mtr_p, tuple):
@@ -193,15 +226,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if attr in TabularAttribute.numerical_attrs():
                 self.metrics[attr] = {"mae": mean_absolute_error}
             elif attr in TabularAttribute.binary_attrs():
-                self.metrics[attr] = {
-                    "acc": functools.partial(accuracy, task="binary"),
-                    "auroc": functools.partial(auroc, task="binary"),
-                }
+                self.metrics[attr] = {"acc": functools.partial(accuracy, task="binary")}
             else:  # attr in TabularAttribute.categorical_attrs()
-                num_classes = len(TABULAR_CAT_ATTR_LABELS[attr])
                 self.metrics[attr] = {
-                    "acc": functools.partial(accuracy, task="multiclass", num_classes=num_classes),
-                    "auroc": functools.partial(auroc, task="multiclass", num_classes=num_classes),
+                    "acc": functools.partial(
+                        accuracy, task="multiclass", num_classes=len(TABULAR_CAT_ATTR_LABELS[attr])
+                    )
                 }
         # Switch on ordinal mode if i) it's enabled, and ii) there are ordinal targets to predict
         self.hparams.ordinal_mode = self.hparams.ordinal_mode and any(
@@ -218,20 +248,28 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             )
 
         # Compute shapes relevant for defining the models' architectures
-        self.n_tabular_attrs = len(self.hparams.tabular_attrs)
-        self.n_time_series_attrs = len(self.hparams.time_series_attrs) * len(self.hparams.views)
-        self.sequence_length = self.n_time_series_attrs + self.n_tabular_attrs + self.hparams.cls_token
+        self.sequence_length = (
+            len(self.hparams.tabular_attrs)
+            + (len(self.hparams.time_series_attrs) * len(self.hparams.views))
+            + self.hparams.cls_token
+        )
 
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
 
+        self.hparams.multimodal_encoder = bool(self.encoder.n_cross_blocks)
+        if self.hparams.irene_baseline:
+            self.irene_encoder = IRENEncoder(get_IRENE_config(), vis=False)
+            
         # Configure tokenizers and extract relevant info about the models' architectures
-        self.multimodal_encoder = False
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
-        elif isinstance(self.encoder, vital.models.attention.transformer.Transformer):  # vital submodule `Transformer`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.multimodal_encoder = bool(self.hparams.model.encoder.n_bidirectional_blocks)
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # XTab FT-Transformer
+            self.nhead = self.encoder.attention_n_heads
+        elif isinstance(self.encoder, autogluon.multimodal.models.ft_transformer.FT_Transformer):  # XTab FT-Transformer old
+            self.nhead = self.encoder.blocks[0].attention.n_heads
+        elif isinstance(self.encoder, TabularMLP):
+            self.nhead = 1
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
@@ -245,6 +283,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 tabular_tokenizer = hydra.utils.instantiate(
                     tabular_tokenizer,
                     n_num_features=len(self.tabular_num_attrs),
+                    n_cat_features=len(self.tabular_cat_attrs),
                     cat_cardinalities=self.tabular_cat_attrs_cardinalities,
                 )
         else:
@@ -254,7 +293,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if time_series_attrs:
             if isinstance(time_series_tokenizer, DictConfig):
-                time_series_tokenizer = hydra.utils.instantiate(time_series_tokenizer)
+                time_series_tokenizer = hydra.utils.instantiate(time_series_tokenizer, pooling=isinstance(self.encoder, TabularMLP))
         else:
             # Set tokenizer to `None` if it's not going to be used
             time_series_tokenizer = None
@@ -263,12 +302,21 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize modules/parameters dependent on the encoder's configuration
 
         # Initialize learnable positional embedding parameters
-        self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
+        if self.hparams.late_concat and self.hparams.use_positional_encoding:
+            tab_sequence_length = len(self.tabular_num_attrs) + len(self.tabular_cat_attrs) + 1
+            self.positional_encoding_tabular = PositionalEncoding(tab_sequence_length, self.hparams.embed_dim)
+            ts_sequence_length = len(self.hparams.views) * len(self.hparams.time_series_attrs)
+            if self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
+                ts_sequence_length += 1
+            self.positional_encoding_time_series = PositionalEncoding(ts_sequence_length, self.hparams.embed_dim) 
+        else:
+            if self.hparams.use_positional_encoding:
+                self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
 
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
             self.cls_token = CLSToken(self.hparams.embed_dim)
-        else:
+        if self.hparams.sequence_pooling:
             self.sequence_pooling = SequencePooling(self.hparams.embed_dim)
 
         if self.hparams.mtr_p:
@@ -291,6 +339,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             else:
                 # Init a single universal MASK token
                 self.mask_token = _init_mask_token()
+
+        # Indicate whether to use custom attention computation
+        self.hparams.use_custom_attention = use_custom_attention
 
     @property
     def example_input_array(
@@ -318,7 +369,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Build the projection head for contrastive learning, if contrastive learning is enabled
         contrastive_head = None
         if self.contrastive_loss:
-            contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
+            if self.hparams.late_concat:
+                contrastive_head = hydra.utils.instantiate(
+                    self.hparams.model.contrastive_head,
+                    input_shape=[ 2 * self.hparams.embed_dim ],
+                    output_shape=[ 2 * self.hparams.embed_dim ],
+                    hidden=[ 2 * self.hparams.embed_dim ])
+            else:
+                contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
 
         # Build the prediction heads (one by tabular attribute to predict) following the architecture proposed in
         # https://arxiv.org/pdf/2106.11959
@@ -341,6 +399,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     prediction_heads[target_tab_attr] = hydra.utils.instantiate(
                         self.hparams.model.ordinal_head, num_logits=output_size
                     )
+                elif self.hparams.late_concat:
+                    prediction_heads[target_tab_attr] = hydra.utils.instantiate(
+                        self.hparams.model.prediction_head, in_features=2 * self.hparams.embed_dim, out_features=output_size
+                    )
                 else:
                     prediction_heads[target_tab_attr] = hydra.utils.instantiate(
                         self.hparams.model.prediction_head, out_features=output_size
@@ -351,76 +413,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     def configure_optimizers(self) -> Dict[Literal["optimizer", "lr_scheduler"], Any]:
         """Configure optimizer to ignore parameters that should remain frozen (e.g. tokenizers)."""
         return super().configure_optimizers(params=filter(lambda p: p.requires_grad, self.parameters()))
-
-    @auto_move_data
-    def tokenize(
-        self,
-        tabular_attrs: Dict[TabularAttribute, Tensor],
-        time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
-    ) -> Tuple[Tensor, Tensor]:
-        """Tokenizes the input tabular and time-series attributes, providing a mask of non-missing attributes.
-
-        Args:
-            tabular_attrs: (K: S, V: N), Sequence of batches of tabular attributes. To indicate an item is missing an
-                attribute, the flags `MISSING_NUM_ATTR`/`MISSING_CAT_ATTR` can be used for numerical and categorical
-                attributes, respectively.
-            time_series_attrs: (K: S, V: (N, ?)), Sequence of batches of time-series attributes, where the
-                dimensionality of each attribute can vary.
-
-        Returns:
-            Batch of i) (N, S, E) tokens for each attribute, and ii) (N, S) mask of non-missing attributes.
-        """
-        # Initialize lists for cumulating (optional) tensors for each modality, that will be concatenated into tensors
-        tokens, notna_mask = [], []
-
-        # Tokenize the attributes
-        if time_series_attrs:
-            time_series_attrs_tokens = self.time_series_tokenizer(time_series_attrs)  # S * (N, ?) -> (N, S_ts, E)
-            tokens.append(time_series_attrs_tokens)
-
-            # Indicate that, when time-series tokens are requested, they are always available
-            time_series_notna_mask = torch.full(
-                time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
-            )
-            notna_mask.append(time_series_notna_mask)
-
-        if tabular_attrs:
-            num_attrs, cat_attrs = None, None
-            if self.tabular_num_attrs:
-                # Group the numerical attributes from the `tabular_attrs` input in a single tensor
-                num_attrs = torch.hstack(
-                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
-                )  # (N, S_num)
-            if self.tabular_cat_attrs:
-                # Group the categorical attributes from the `tabular_attrs` input in a single tensor
-                cat_attrs = torch.hstack(
-                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
-                )  # (N, S_cat)
-            # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
-            # tokenization process. This is done to avoid propagating NaNs to available/valid values.
-            # If the embeddings cannot be ignored later on (e.g. by using an attention mask during inference), they
-            # should be replaced w/ a more distinct value to indicate that they are missing (e.g. a specific token),
-            # instead of their current null/default values.
-            # 1) Convert missing numerical attributes (NaNs) to numbers to avoid propagating NaNs
-            # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
-            tab_attrs_tokens = self.tabular_tokenizer(
-                x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
-                x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
-            )  # (N, S_tab, E)
-            tokens.append(tab_attrs_tokens)
-
-            # Identify missing data in tabular attributes
-            if self.tabular_num_attrs:
-                notna_mask.append(~(num_attrs.isnan()))
-            if self.tabular_cat_attrs:
-                notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
-
-        # Cast to float to make sure tokens are not represented using double
-        tokens = torch.cat(tokens, dim=1).float()  # (N, S_ts + S_tab, E)
-        # Cast to bool to make sure attention mask is represented by bool
-        notna_mask = torch.cat(notna_mask, dim=1).bool()  # (N, S_ts + S_tab)
-
-        return tokens, notna_mask
 
     def preprocess_tokens(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False) -> Tensor:
         """Preprocesses the input tokens, optionally masking missing data and random tokens to cause perturbations.
@@ -454,6 +446,92 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
+    def tokenize(
+        self,
+        tabular_attrs: Dict[TabularAttribute, Tensor],
+        time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
+    ) -> Tuple[Tensor, Tensor]:
+        """Tokenizes the input tabular and time-series attributes, providing a mask of non-missing attributes.
+
+        Args:
+            tabular_attrs: (K: S, V: N), Sequence of batches of tabular attributes. To indicate an item is missing an
+                attribute, the flags `MISSING_NUM_ATTR`/`MISSING_CAT_ATTR` can be used for numerical and categorical
+                attributes, respectively.
+            time_series_attrs: (K: S, V: (N, ?)), Sequence of batches of time-series attributes, where the
+                dimensionality of each attribute can vary.
+
+        Returns:
+            Batch of i) (N, S, E) tokens for each attribute, and ii) (N, S) mask of non-missing attributes.
+        """
+        # Initialize lists for cumulating (optional) tensors for each modality, that will be concatenated into tensors
+        tokens, notna_mask = [], []
+
+        # Tokenize the attributes
+        if tabular_attrs:
+            num_attrs, cat_attrs = None, None
+            if self.tabular_num_attrs:
+                # Group the numerical attributes from the `tabular_attrs` input in a single tensor
+                num_attrs = torch.hstack(
+                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
+                )  # (N, S_num)
+            if self.tabular_cat_attrs:
+                # Group the categorical attributes from the `tabular_attrs` input in a single tensor
+                cat_attrs = torch.hstack(
+                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
+                )  # (N, S_cat)
+            # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
+            # tokenization process. This is done to avoid propagating NaNs to available/valid values.
+            # If the embeddings cannot be ignored later on (e.g. by using an attention mask during inference), they
+            # should be replaced w/ a more distinct value to indicate that they are missing (e.g. a specific token),
+            # instead of their current null/default values.
+            # 1) Convert missing numerical attributes (NaNs) to numbers to avoid propagating NaNs
+            # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
+            
+            # Do not tokenize tabular attributes if using TabularMLP
+            if isinstance(self.encoder, TabularMLP):
+                tab_attrs_tokens = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1) # (N, S_tab)
+            else:
+                tab_attrs_tokens = self.tabular_tokenizer(
+                    x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
+                    x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
+                )  # (N, S_tab, E)
+                tokens.append(tab_attrs_tokens)
+
+            # Identify missing data in tabular attributes
+            tab_notna_mask = []
+            if self.tabular_num_attrs:
+                tab_num_notna_mask = ~(num_attrs.isnan())
+                tab_notna_mask.append(tab_num_notna_mask)
+                notna_mask.append(tab_num_notna_mask)
+            if self.tabular_cat_attrs:
+                tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
+                tab_notna_mask.append(tab_cat_notna_mask)
+                notna_mask.append(tab_cat_notna_mask)
+
+        if time_series_attrs:
+            time_series_attrs_tokens = self.time_series_tokenizer(time_series_attrs)  # S * (N, ?) -> (N, S_ts, E)
+            tokens.append(time_series_attrs_tokens)
+
+            # Indicate that, when time-series tokens are requested, they are always available
+            time_series_notna_mask = torch.full(
+                time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
+            )
+            notna_mask.append(time_series_notna_mask)
+
+        # Cast to float to make sure tokens are not represented using double
+        tokens = torch.cat(tokens, dim=1).float()  # (N, S_tab + S_ts, E)
+        # Cast to bool to make sure attention mask is represented by bool
+        notna_mask = torch.cat(notna_mask, dim=1).bool()  # (N, S_tab + S_ts)
+        tab_notna_mask = torch.cat(tab_notna_mask, dim=1).bool() if tabular_attrs else None
+
+        # if self.cross_attention:
+        #     return tab_attrs_tokens, time_series_attrs_tokens, tab_notna_mask, time_series_notna_mask
+        # elif self.hparams.use_tabularMLP:
+        #     return tab_attrs_tokens, time_series_attrs_tokens, tab_notna_mask, time_series_notna_mask
+            
+        return tokens, notna_mask
+
+    @auto_move_data
     def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
@@ -468,33 +546,85 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         Returns: (N, E), Embeddings of the input sequences.
         """
-        tokens = self.preprocess_tokens(tokens, avail_mask, enable_augments=enable_augments)
+        tokens = self.preprocess_tokens(tokens, avail_mask, enable_augments)
 
         if self.hparams.cls_token:
             # Add the CLS token to the end of each item in the batch
             tokens = self.cls_token(tokens)
 
-        # Add positional encoding to the tokens
-        tokens = self.positional_encoding(tokens)
+        if self.hparams.use_positional_encoding:
+            # Add positional encoding to the tokens
+            out_tokens = self.positional_encoding(tokens)
 
-        if self.multimodal_encoder:
-            # Split the sequence of tokens into tabular and time-series tokens
-            ts_tokens, tab_cls_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
-
-            # Forward pass through the transformer encoder (starting with the cross-attention module)
-            out_tokens = self.encoder(ts_tokens, tab_cls_tokens)
-
-        else:
+        if self.hparams.multimodal_encoder:
+            # Split the tabular and time-series tokens
+            tab_tokens, ts_tokens = tokens[:, :self.n_tabular_attrs, :], tokens[:, self.n_tabular_attrs:, :]
             # Forward pass through the transformer encoder
-            out_tokens = self.encoder(tokens)
-
-        if self.hparams.cls_token:
-            # Only keep the CLS token (i.e. the last token) from the tokens outputted by the encoder
-            out_features = out_tokens[:, -1, :]  # (N, S, E) -> (N, E)
+            out_tokens, _ = self.encoder(tab_tokens, ts_tokens)
+        elif isinstance(self.encoder, TabularMLP):
+            # Split the tabular and time-series tokens
+            tab_tokens, ts_tokens = tokens[:, :self.n_tabular_attrs, :], tokens[:, self.n_tabular_attrs:, :]
+            # Forward pass through the MLP encoder
+            out_tokens = self.encoder(tab_tokens)
         else:
+        # Forward pass through the transformer encoder
+            out_tokens, _ = self.encoder(tokens)
+
+        if self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
             out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
+        elif self.hparams.cls_token:
+            # Only keep the CLS token (i.e. the last token) from the tokens outputted by the encoder
+            out_features = out_tokens[:, self.n_tabular_attrs - 1, :]  # (N, S, E) -> (N, E)
+        else:
+            raise AssertionError(
+                "Either `cls_token` or `sequence_pooling` should have been enabled as the method to reduce the "
+                "dimensionality of the encoder's output from a sequence of tokens to only one token."
+            )
 
+        return out_features        
+
+    @auto_move_data
+    def encodeIRENE(
+        self,
+        tab_tokens: Tensor,
+        tab_avail_mask: Tensor,
+        ts_tokens: Tensor,
+        ts_avail_mask: Tensor,
+    ):
+        # Tokenize the tabular and time-series attributes
+        tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
+        ts_tokens = self.preprocess_tokens(ts_tokens, ts_avail_mask)
+
+        # Add CLS token to the tabular tokens
+        if self.hparams.cls_token:
+            tab_tokens = self.cls_token(tab_tokens)
+
+        out_tokens, attention_weights = self.irene_encoder(tab_tokens, ts_tokens)
+
+        if self.hparams.sequence_pooling:
+            # Perform sequence pooling of the transformers' output tokens
+            out_features = self.sequence_pooling(out_tokens)
+        elif self.hparams.cls_token:
+            # Only keep the CLS token (i.e. the last tabular tokens) from the tokens outputted by the encoder
+            num_tab_tokens = tab_tokens.size(1)
+            out_features = out_tokens[:, num_tab_tokens - 1, :] # Notice that IRENE model originally mean pools the output
+
+        return out_features
+
+    @auto_move_data
+    def encodeMLP(
+        self,
+        tab_tokens,
+        tab_avail_mask,
+        ts_tokens,
+        ts_avail_mask,
+    ):
+        # tab_tokens = self.preprocess_tokens(tab_tokens, tab_avail_mask)
+        tab_features = self.encoder(tab_tokens)
+
+        out_features = torch.cat([tab_features, ts_tokens], dim=1) # (N, E_tab + E_ts)
+        out_features = F.linear(out_features, self.last_fc) # (N, E_tab + E_ts) -> (N, E)
         return out_features
 
     @auto_move_data
@@ -502,7 +632,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self,
         tabular_attrs: Dict[TabularAttribute, Tensor],
         time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
-        task: Literal["encode", "predict", "continuum_param", "continuum_tau"] = "encode",
+        task: Literal["encode", "predict", "unimodal_param", "unimodal_tau", "tokenize", "explain"] = "encode",
     ) -> Tensor | Dict[TabularAttribute, Tensor]:
         """Performs a forward pass through i) the tokenizer, ii) the transformer encoder and iii) the prediction head.
 
@@ -517,9 +647,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         Returns:
             if `task` == 'encode':
                 (N, E), Batch of features extracted by the encoder.
-            if `task` == 'continuum_param`:
+            if `task` == 'unimodal_param`:
                 ? * (M), Parameter of the unimodal logits distribution for ordinal targets.
-            if `task` == 'continuum_tau`:
+            if `task` == 'unimodal_tau`:
                 ? * (M), Temperature used to control the sharpness of the unimodal logits distribution for ordinal
                          targets.
             if `task` == 'predict' (and the model includes prediction heads):
@@ -529,18 +659,32 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             raise ValueError(
                 "You requested to perform a prediction task, but the model does not include any prediction heads."
             )
-        if task in ["continuum_param", "continuum_tau"] and not self.hparams.ordinal_mode:
+        if task in ["unimodal_param", "unimodal_tau"] and not self.hparams.ordinal_mode:
             raise ValueError(
-                "You requested to obtain some parameters for ordinal attributes, but the model is not configured to "
-                "predict ordinal targets. Either set `ordinal_mode` to `True` or change the requested inference task."
+                "You requested to obtain some parameters of the unimodal softmax for ordinal attributes, but the model "
+                "is not configured to predict unimodal ordinal targets. Either set `ordinal_mode` to `True` or change "
+                "the requested inference task."
             )
 
+        # if self.cross_attention:
+        #     return self._forward_cross_attention(tabular_attrs, time_series_attrs, task)
+        #FIXME: integrate tabular MLP in new code
+        # if self.hparams.use_tabularMLP:
+        #     tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
+        #     out_features = self.encodeMLP(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
+        # else:
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
             return out_features
+
+        if task == "explain":
+            assert len(self.prediction_heads) == 1, "Only one prediction head is supported for explanation generation."
+            for _attr, prediction_head in self.prediction_heads.items():
+                output = prediction_head(out_features)
+            return output
 
         # Forward pass through each target's prediction head
         predictions = {attr: prediction_head(out_features) for attr, prediction_head in self.prediction_heads.items()}
@@ -553,10 +697,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                         attr: pred[0] if attr in TabularAttribute.ordinal_attrs() else pred
                         for attr, pred in predictions.items()
                     }
-            case "continuum_param":
+            case "unimodal_param":
                 predictions = {attr: pred[1] for attr, pred in predictions.items()}
-            case "continuum_tau":
+            case "unimodal_tau":
                 predictions = {attr: pred[2] for attr, pred in predictions.items()}
+            case "tokenize":
+                return in_tokens, avail_mask
             case _:
                 raise ValueError(f"Unknown task '{task}'.")
 
@@ -570,7 +716,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         time_series_attrs = filter_time_series_attributes(
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
-
+        #FIXME: integrate irene baseline into new code
+        # if self.hparams.irene_baseline:
+        #     tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
+        #     out_features = self.encodeIRENE(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
+        #FIXME: integrate mlp into new code
+        # elif self.cross_attention:
+        #     tab_tokens, ts_tokens, tab_avail_mask, ts_avail_mask = self.tokenize(tabular_attrs, time_series_attrs)
+        #     out_features = self.encode_cross_attention(tab_tokens, tab_avail_mask, ts_tokens, ts_avail_mask)
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
 
@@ -586,7 +739,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Compute the sum of the (weighted) losses
         metrics["loss"] = sum(losses)
         return metrics
-
+    
     def _prediction_shared_step(
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, out_features: Tensor
     ) -> Dict[str, Tensor]:
@@ -595,8 +748,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(out_features)
             if self.hparams.ordinal_mode and attr in TabularAttribute.ordinal_attrs():
-                # For ordinal targets, extract the logits from the multiple outputs of classification head
+                # For ordinal targets, extract the logits from the multiple outputs of unimodal logits head
                 pred = pred[0]
+            # Squeeze out the singleton dimension from the predictions' features (only relevant for scalar predictions)
             predictions[attr] = pred.squeeze(dim=1)
 
         # Compute the loss/metrics for each target attribute, ignoring items for which targets are missing
@@ -624,7 +778,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         metrics.update(losses)
 
         return metrics
-
+    
     def _contrastive_shared_step(
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, out_features: Tensor
     ) -> Dict[str, Tensor]:
@@ -641,7 +795,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         return metrics
 
-    @torch.inference_mode()
+    # @torch.inference_mode()
     def predict_step(  # noqa: D102
         self, batch: PatientData, batch_idx: int, dataloader_idx: int = 0
     ) -> Tuple[
@@ -669,21 +823,62 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.prediction_heads:
             predictions = self(tabular_attrs, time_series_attrs, task="predict")
 
-        # If the model enforces constraint on ordinal targets, output the continuum parametrization
-        continuum_params, continuum_taus = None, None
+        # Retrieve custom attention with Attention generator
+        #FIXME: built attention explainability for TabularMLP and IRENE? 
+        # if self.hparams.use_tabularMLP or self.hparams.irene_baseline:
+        #     out_features = out_features.squeeze(dim=0)
+        #     if predictions is not None:
+        #         predictions = {attr: prediction.squeeze(dim=0) for attr, prediction in predictions.items()}
+        #     return out_features, predictions, None, None, None, None
+        with torch.enable_grad():
+            targets = {attr: batch[attr] for attr in self.prediction_heads}
+            attention_generator = SelfAttentionGenerator(self)
+            if self.hparams.use_custom_attention:
+                if self.hparams.multimodal_encoder:
+                    raw_attention = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets, cross_modal=True)
+                    attention_tab, attention_tabimg, attention_self = attention_generator.generate_cross_attention_score2(tabular_attrs, time_series_attrs, targets)
+                    attention_dict = {
+                    "attention_raw": raw_attention,
+                    "attention_tab": attention_tab,
+                    "attention_tabimg": attention_tabimg,
+                    "attention_self": attention_self
+                    }
+                else:
+                    attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
+                    custom_attention = attention_generator.generate_attention_score(tabular_attrs, time_series_attrs, targets)
+        # If use custom attention is not enabled, return the raw attention map
+        if not self.hparams.use_custom_attention:
+            with torch.enable_grad():
+                if True:
+                    attention_map = None #FIXME: temporary fix for now
+                elif self.hparams.ordinal_mode:
+                    attention_map = None
+                elif self.hparams.late_concat or self.hparams.sum_fusion or self.hparams.product_fusion:
+                    attention_map = None
+                elif self.hparams.multimodal_encoder:
+                    attention_map = attention_generator.generate_raw_attention_score2(tabular_attrs, time_series_attrs, targets)
+                else:
+                    attention_map = attention_generator.generate_raw_attention_score(tabular_attrs, time_series_attrs, targets)
+            custom_attention = None
+
+        # If the model enforces unimodal constraint on ordinal targets, output the unimodal parametrization
+        unimodal_params, unimodal_taus = None, None
         if self.hparams.ordinal_mode:
-            continuum_params = self(tabular_attrs, time_series_attrs, task="continuum_param")
-            continuum_taus = self(tabular_attrs, time_series_attrs, task="continuum_tau")
+            unimodal_params = self(tabular_attrs, time_series_attrs, task="unimodal_param")
+            unimodal_taus = self(tabular_attrs, time_series_attrs, task="unimodal_tau")
 
         # Remove unnecessary batch dimension from the different outputs
         # (only do this once all downstream inferences have been performed)
         out_features = out_features.squeeze(dim=0)
         if predictions is not None:
-            predictions = {attr: prediction.squeeze(dim=0) for attr, prediction in predictions.items()}
+            if self.hparams.ordinal_mode:
+                predictions = {attr: pred[0].squeeze(dim=0) for attr, pred in predictions.items()}
+            else:
+                predictions = {attr: prediction.squeeze(dim=0) for attr, prediction in predictions.items()}
         if self.hparams.ordinal_mode:
-            continuum_params = {
-                attr: continuum_param.squeeze(dim=0) for attr, continuum_param in continuum_params.items()
-            }
-            continuum_taus = {attr: continuum_tau.squeeze(dim=0) for attr, continuum_tau in continuum_taus.items()}
+            unimodal_params = {attr: unimodal_param.squeeze(dim=0) for attr, unimodal_param in unimodal_params.items()}
+            unimodal_taus = {attr: unimodal_tau.squeeze(dim=0) for attr, unimodal_tau in unimodal_taus.items()}
 
-        return out_features, predictions, continuum_params, continuum_taus
+        if self.hparams.multimodal_encoder and self.hparams.use_custom_attention:
+            return out_features, predictions, unimodal_params, unimodal_taus, attention_dict
+        return out_features, predictions, unimodal_params, unimodal_taus, attention_map, custom_attention
