@@ -229,7 +229,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.multimodal_encoder = False
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
-        elif isinstance(self.encoder, vital.models.attention.transformer.Transformer):  # vital submodule `Transformer`
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # vital submodule `Transformer`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.multimodal_encoder = bool(self.hparams.model.encoder.n_bidirectional_blocks)
         else:
