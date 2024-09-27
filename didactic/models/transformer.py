@@ -537,4 +537,6 @@ class FT_Transformer(nn.Module):
             x_context_residual = block["r_ffn_bidirectional"](x_context_residual)
             x_context = self._end_residual(block, "r_ffn_bidirectional", x_context, x_context_residual, stage="bidirectional_attention") 
 
-        return x, x_context
+            output_tensor = torch.cat([x_context, x], dim=1) if x_context is not None else x
+
+        return output_tensor
