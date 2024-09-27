@@ -181,7 +181,7 @@ for seed in {42..51}; do
 
     # CODE CONSOLIDATION + REDUCE DATASET
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-NEW${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tabular task.model.encoder.n_cross_blocks=0 task.ordinal_mode=True
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-NEW${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.ordinal_mode=True task/data=tabular-no-holter
 
 
 done
