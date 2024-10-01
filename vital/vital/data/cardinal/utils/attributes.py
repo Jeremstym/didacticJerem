@@ -43,7 +43,6 @@ TABULAR_CAT_ATTR_LABELS = {
     TabularAttribute.alpha_blocker: [False, True],
     TabularAttribute.ccb: [False, True],
     TabularAttribute.ht_severity: ["wht", "controlled", "uncontrolled"],
-    TabularAttribute.sanity: ["healthy", "sick"],
     TabularAttribute.ht_grade: ["0", "1", "2", "3"],
     TabularAttribute.nt_probnp_group: ["neutral", "end_organ_damage", "mortality_rate"],
     TabularAttribute.reduced_e_prime: [False, True],
@@ -155,7 +154,6 @@ TABULAR_ATTR_GROUPS = {
         TabularAttribute.diastolic_dysfunction_param_sum,
         TabularAttribute.diastolic_dysfunction,
         TabularAttribute.ht_cm,
-        TabularAttribute.sanity
     ],
     "treatment": [
         TabularAttribute.ddd,
