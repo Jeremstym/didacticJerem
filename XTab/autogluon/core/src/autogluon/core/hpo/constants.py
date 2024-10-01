@@ -1,6 +1,0 @@
-MIN = "min"
-MAX = "max"
-
-RAY_BACKEND = "ray"
-CUSTOM_BACKEND = "custom"
-VALID_BACKEND = [RAY_BACKEND, CUSTOM_BACKEND]
