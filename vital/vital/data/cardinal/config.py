@@ -139,8 +139,6 @@ class TabularAttribute(SnakeCaseStrEnum):
     """How noticeable the hypertension was in 24h measurements, e.g. White coat HyperTension (WHT), controlled, etc."""
     ht_grade = auto()
     """Grade of HyperTension (HT) based on the 24h measurements of blood pressure."""
-    sanity = auto()
-    """Binary value to indicate whether the patient is ill or not."""
     sbp_tte = auto()
     """Systolic Blood Pressure (SBP) at the time of the TransThoracic Echocardiogram (TTE)."""
     dbp_tte = auto()

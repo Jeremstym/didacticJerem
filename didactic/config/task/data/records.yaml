@@ -28,7 +28,6 @@ records_attrs:
       - pp_24
       - ht_severity
       - ht_grade
-      - sanity
       - creat
       - gfr
       - nt_probnp
