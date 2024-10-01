@@ -67,7 +67,6 @@ data:
       - pp_tte
       - ht_severity
       - ht_grade
-      - sanity
       - hr_tte
       - creat
       - gfr
