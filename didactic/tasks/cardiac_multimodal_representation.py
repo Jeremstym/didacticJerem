@@ -215,7 +215,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Self-supervised losses and metrics
         self.contrastive_loss = None
-        if contrastive_loss:
+        if contrastive_loss and self.hparams.contrastive_loss_weight:
             self.contrastive_loss = (
                 hydra.utils.instantiate(contrastive_loss)
                 if isinstance(contrastive_loss, DictConfig)
