@@ -200,6 +200,6 @@ for seed in {42..46}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-tab13+ts${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt task.model.encoder.prenormalization=False +state_dict=True task/data=tab-13+time-series
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-noXTab-tab13+ts${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task.model.encoder.prenormalization=False task/data=tab-13+time-series
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MYMODEL${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task.first_prenormalization=True task/data=tab-13+time-series
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MYMODEL-withcontrastive${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task.first_prenormalization=True task/data=tab-13+time-series
 
 done
