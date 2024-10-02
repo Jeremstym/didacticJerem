@@ -532,7 +532,7 @@ class FT_Transformer(nn.Module):
 
         for block in cross_attention_blocks:
             block = cast(nn.ModuleDict, block)
-            x_copy = copy.deepcopy(x)
+            x_copy = torch.clone(x)
             
             x_residual = self._start_residual(block, "l_cross_attention", x, stage="cross_attention")
             x_residual, _ = block["l_cross_attention"](x_residual, x_context_residual)
