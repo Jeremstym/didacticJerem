@@ -268,8 +268,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize modules/parameters dependent on the encoder's configuration
 
         # Initialize learnable positional embedding parameters
-        # self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
-        self.positional_encoding = nn.Identity()
+        self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
 
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
