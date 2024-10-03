@@ -14,7 +14,7 @@ task:
   ordinal_mode: True
   contrastive_loss:
     _target_: didactic.models.contrastive_loss.CLIPLoss #vital.metrics.train.metric.NTXent
-    temperature: 1.0
+    temperature: 1.5
   contrastive_loss_weight: 0
 
   # Architecture parameters to define the same architecture as XTab
