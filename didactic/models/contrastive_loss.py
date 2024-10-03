@@ -37,4 +37,4 @@ class CLIPLoss(torch.nn.Module):
     loss_1 = self.lambda_1 * self.cross_entropy(logits.T, labels)
     loss = loss_0 + loss_1
   
-    return loss, logits, labels
+    return loss #, logits, labels
