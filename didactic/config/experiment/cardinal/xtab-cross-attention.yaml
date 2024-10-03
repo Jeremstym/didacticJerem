@@ -13,8 +13,8 @@ task:
       _target_: torch.nn.CrossEntropyLoss
   ordinal_mode: True
   contrastive_loss:
-    _target_: didactic.models.contrastive_loss.CLIPLoss #vital.metrics.train.metric.NTXent
-    temperature: 0.1
+    _target_: vital.metrics.train.metric.NTXent #didactic.models.contrastive_loss.CLIPLoss 
+    # temperature: 0.1
   contrastive_loss_weight: 0
 
   # Architecture parameters to define the same architecture as XTab

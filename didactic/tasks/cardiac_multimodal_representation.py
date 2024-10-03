@@ -273,7 +273,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
             self.cls_token = CLSToken(self.hparams.embed_dim)
-            self.cls_ts_token = CLSToken(self.hparams.embed_dim)
+            # self.cls_ts_token = CLSToken(self.hparams.embed_dim)
         else:
             self.sequence_pooling = SequencePooling(self.hparams.embed_dim)
 
@@ -642,13 +642,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, out_features: Tensor
     ) -> Dict[str, Tensor]:
         # Extract features from the original view + from a view corrupted by augmentations
-        # anchor_out_features = out_features
-        out_features, out_ts_features = self.encode(in_tokens, avail_mask, enable_augments=False, ts_token=True)
+        anchor_out_features = out_features
+        # out_features, out_ts_features = 
+        corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
 
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(out_features), self.contrastive_head(out_ts_features)
+                self.contrastive_head(anchor_out_features), self.contrastive_head(corrupted_out_features)
             )
         }
 
