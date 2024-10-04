@@ -215,7 +215,9 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-fullyprenorm-noPE${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.using_PE=False
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-CLIP${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.contrastive_loss_weight=1.0
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-CLIP-xtab${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.contrastive_loss_weight=1.0 ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt +state_dict=True
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-CLIP-xtab${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.contrastive_loss_weight=1.0 ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt +state_dict=True
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-CLIP-temp0.75-${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.contrastive_loss_weight=1.0 task.contrastive_loss.temperature=0.75
 
 
 done
