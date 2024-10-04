@@ -8,7 +8,7 @@ import click
 @click.command()
 @click.option("--model_name", help="Name of the model to load results from")
 def load_results(model_name: str) -> pd.DataFrame:
-    path = '/data/stympopper/didacticWORKSHOP/' + model_name + '[0-9][0-9]/predictions/test_categorical_scores.csv'
+    path = '/home/stympopper/didacticWORKSHOP/' + model_name + '[0-9][0-9]/predictions/test_categorical_scores.csv'
     files = glob(path)
     if not files:
         raise ValueError("No files found")
