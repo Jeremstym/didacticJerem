@@ -646,6 +646,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     ) -> Dict[str, Tensor]:
         # Extract features from the original view + from a view corrupted by augmentations
         # anchor_out_features = out_features
+        # pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
         out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, ts_token=True)
         # corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
 
