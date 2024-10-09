@@ -2,7 +2,7 @@
 
 defaults:
   - /task/data: tabular
-  - /data: cardinal
+  - override /data: cardinal
 
 data:
   patients_kwargs:
