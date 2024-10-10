@@ -234,9 +234,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.multimodal_encoder = False
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # vital submodule `Transformer`
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # didactic submodule `Transformer`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.multimodal_encoder = bool(self.hparams.model.encoder.n_cross_blocks)
+            self.multimodal_encoder = bool(self.hparams.model.encoder.n_cross_blocks or self.hparams.model.encoder.n_bidirectional_blocks)
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
