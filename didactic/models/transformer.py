@@ -167,7 +167,7 @@ class FT_Transformer(nn.Module):
         self.blocks = nn.ModuleList(layers)
 
     def _init_attention_block(self, layer_idx: int) -> nn.ModuleDict:
-        if self.n_cross_blocks:
+        if self.n_cross_blocks or self.n_bidirectional_blocks:
             layer = nn.ModuleDict()
             for modality_side in ["l", "r"]:
                 layer.update(
