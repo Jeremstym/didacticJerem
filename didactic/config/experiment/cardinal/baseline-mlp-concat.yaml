@@ -1,7 +1,5 @@
 defaults:
   - cardinal/cardiac-multimodal-representation
-  # - /callbacks: 
-  #   - transformer_encoder_freeze
   - override /task/model/encoder: baseline-mlp-concat
 
 trainer:
