@@ -11,6 +11,7 @@ from torch.nn import init
 from didactic.models.layers import _QKVLinearProjection, _QKVMatrixMultiplication
 
 import hydra
+from omegaconf import DictConfig
 
 ModuleType = Union[str, Callable[..., nn.Module]]
 
@@ -114,7 +115,7 @@ class ConcatMLP(nn.Module):
 
     def __init__(
         self,
-        tabular_encoder,
+        tabular_encoder: DictConfig,
         n_mlp_layers: int = 2,
         d_token = 192,
         dropout = 0.1
@@ -127,7 +128,7 @@ class ConcatMLP(nn.Module):
         """
         super().__init__()
 
-        self.tabular_encoder = hydra.utils.instantiate(tabular_encoder)
+        self.tabular_encoder = hydra.utils.instantiate(self.hparams.tabular_encoder)
         self.mlp = MLP(2*d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_feature: Tensor) -> Tensor:
