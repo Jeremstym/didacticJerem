@@ -133,7 +133,7 @@ class ConcatMLP(nn.Module):
         self.tabular_encoder = get_nn_module(tabular_encoder)
         self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
-    def forward(self, tab_tokens: Tensor, ts_feature: Tensor) -> Tensor:
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
         """Performs the forward pass.
 
         Args:
@@ -145,6 +145,6 @@ class ConcatMLP(nn.Module):
         """
         tabular_output = self.tabular_encoder(tab_tokens)
         tabular_output = tabular_output[:, -1, :] # Get the CLS token
-        x = torch.cat((tabular_output, ts_feature), dim=1) # (N, 2*E)
+        x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.mlp(x) # (N, E)
         return output
