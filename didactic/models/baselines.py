@@ -13,6 +13,8 @@ from didactic.models.layers import _QKVLinearProjection, _QKVMatrixMultiplicatio
 import hydra
 from omegaconf import DictConfig
 
+from .layers import get_nn_module
+
 ModuleType = Union[str, Callable[..., nn.Module]]
 
 class BidirectionalMultimodalAttention(nn.Module):
@@ -115,7 +117,7 @@ class ConcatMLP(nn.Module):
 
     def __init__(
         self,
-        tabular_encoder: DictConfig,
+        tabular_encoder: str,
         n_mlp_layers: int = 2,
         d_token = 192,
         dropout = 0.1
@@ -128,7 +130,7 @@ class ConcatMLP(nn.Module):
         """
         super().__init__()
 
-        self.tabular_encoder = hydra.utils.instantiate(tabular_encoder)
+        self.tabular_encoder = get_nn_module(tabular_encoder)
         self.mlp = MLP(2*d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_feature: Tensor) -> Tensor:
