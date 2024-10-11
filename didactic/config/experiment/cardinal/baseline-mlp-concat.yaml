@@ -1,3 +1,5 @@
+# @package _global_
+
 defaults:
   - cardinal/cardiac-multimodal-representation
   - override /task/model/encoder: baseline-mlp-concat
