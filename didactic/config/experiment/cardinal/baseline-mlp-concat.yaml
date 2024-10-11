@@ -9,7 +9,7 @@ exclude_tabular_attrs: ${oc.dict.keys:task.predict_losses}
 
 task:
   predict_losses: ???
-  ordinal_mode: True
+  ordinal_mode: False
   contrastive_loss:
     _target_: vital.metrics.train.metric.NTXent
   contrastive_loss_weight: 0
