@@ -131,7 +131,7 @@ class ConcatMLP(nn.Module):
         super().__init__()
 
         self.tabular_encoder = get_nn_module(tabular_encoder)
-        self.mlp = MLP(2*d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_feature: Tensor) -> Tensor:
         """Performs the forward pass.
