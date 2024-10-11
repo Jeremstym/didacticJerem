@@ -2,7 +2,7 @@ _target_: didactic.models.baselines.ConcatMLP
 
 
 tabular_encoder:
-  _target_: didactic.models.tabular.TabularMLP
+  _target_: didactic.models.transformer.FT_Transformer
   d_token: 192
 # _target_: didactic.models.transformer.FT_Transformer
 #     d_token: 192
