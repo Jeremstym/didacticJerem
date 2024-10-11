@@ -10,6 +10,8 @@ from torch.nn import init
 
 from didactic.models.layers import _QKVLinearProjection, _QKVMatrixMultiplication
 
+import hydra
+
 ModuleType = Union[str, Callable[..., nn.Module]]
 
 class BidirectionalMultimodalAttention(nn.Module):
@@ -64,3 +66,82 @@ class BidirectionalMultimodalAttention(nn.Module):
         x1 = self_1 + cross_1
 
         return x0, x1
+
+class MLP(nn.Module):
+    """A simple MLP for tabular data."""
+
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        n_layers: int = 2,
+        d_token: int = 192,
+        dropout: float = 0.1,
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            in_features: the number of input features.
+            n_layers: the number of hidden layers.
+            d_token: the number of hidden units in each layer.
+            dropout: the dropout rate.
+        """
+        super().__init__()
+        self.layers = nn.ModuleList(
+            [
+                nn.Linear(in_features if i == 0 else d_token, d_token) for i in range(n_layers)
+            ]
+        )
+        self.head = nn.Linear(d_token, out_features)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Performs the forward pass.
+
+        Args:
+            x: the input tensor.
+
+        Returns:
+            the output tensor.
+        """
+        for layer in self.layers:
+            x = F.relu(layer(x))
+            x = self.dropout(x)
+        return self.head(x)
+
+class ConcatMLP(nn.Module):
+    """A MPL to encode the concatenated input after the tabular Transformer."""
+
+    def __init__(
+        self,
+        tabular_encoder,
+        n_mlp_layers: int = 2,
+        d_token = 192,
+        dropout = 0.1
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            tab_tokens: the number of tokens from the tabular Transformer.
+            ts_feature: the number of features from the time series Transformer.
+        """
+        super().__init__()
+
+        self.tabular_encoder = hydra.utils.instantiate(tabular_encoder)
+        self.mlp = MLP(2*d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+
+    def forward(self, tab_tokens: Tensor, ts_feature: Tensor) -> Tensor:
+        """Performs the forward pass.
+
+        Args:
+            tab_tokens: the tabular tokens.
+            ts_feature: the time series feature.
+
+        Returns:
+            the output tensor.
+        """
+        tabular_output = self.tabular_encoder(tab_tokens)
+        tabular_output = tabular_output[:, -1, :] # Get the CLS token
+        x = torch.cat((tabular_output, ts_feature), dim=1) # (N, 2*E)
+        output = self.mlp(x) # (N, E)
+        return output

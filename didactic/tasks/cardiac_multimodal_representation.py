@@ -231,12 +231,15 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
 
         # Configure tokenizers and extract relevant info about the models' architectures
-        self.multimodal_encoder = False
+        self.separate_modality = False
         if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
             self.nhead = self.encoder.layers[0].self_attn.num_heads
         elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # didactic submodule `Transformer`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.multimodal_encoder = bool(self.hparams.model.encoder.n_cross_blocks or self.hparams.model.encoder.n_bidirectional_blocks)
+            self.separate_modality = bool(self.hparams.model.encoder.n_cross_blocks or self.hparams.model.encoder.n_bidirectional_blocks)
+        elif isinstance(self.encoder, didactic.models.baselines.MLP):  # didactic submodule `MLP`
+            self.nhead = 1
+            self.separate_modality = True
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
@@ -486,7 +489,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Add positional encoding to the tokens
         tokens = self.positional_encoding(tokens)
 
-        if self.multimodal_encoder:
+        if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
             ts_tokens, tab_cls_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
 
