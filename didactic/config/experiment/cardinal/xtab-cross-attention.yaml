@@ -11,7 +11,7 @@ task:
   predict_losses:
     ht_severity:
       _target_: torch.nn.CrossEntropyLoss
-  ordinal_mode: True
+  ordinal_mode: False
   contrastive_loss:
     _target_: didactic.models.contrastive_loss.CLIPLoss #vital.metrics.train.metric.NTXent
     temperature: 1.0
