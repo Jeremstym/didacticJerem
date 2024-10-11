@@ -147,4 +147,4 @@ class ConcatMLP(nn.Module):
         tabular_output = tabular_output[:, -1, :] # Get the CLS token
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.mlp(x) # (N, E)
-        return output
+        return output.unsqueeze(1) # (N, 1, E)
