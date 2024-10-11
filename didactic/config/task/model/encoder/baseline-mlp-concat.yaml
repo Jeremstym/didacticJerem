@@ -26,4 +26,5 @@ tabular_encoder:
   residual_dropout: 0.1
   prenormalization: True
   first_prenormalization: ${task.first_prenormalization}
+  _partial_: True
 n_mlp_layers: 2
