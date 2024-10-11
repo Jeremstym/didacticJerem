@@ -237,7 +237,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # didactic submodule `Transformer`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = bool(self.hparams.model.encoder.n_cross_blocks or self.hparams.model.encoder.n_bidirectional_blocks)
-        elif isinstance(self.encoder, didactic.models.baselines.MLP):  # didactic submodule `MLP`
+        elif isinstance(self.encoder, didactic.models.baselines.ConcatMLP):  # didactic submodule `MLP`
             self.nhead = 1
             self.separate_modality = True
         else:
