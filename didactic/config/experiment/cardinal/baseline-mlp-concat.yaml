@@ -2,6 +2,8 @@
 
 defaults:
   - cardinal/cardiac-multimodal-representation
+  - /task/model/encoder/tabular_encoder: ft-transformer
+
   - override /task/model/encoder: baseline-mlp-concat
 
 trainer:
