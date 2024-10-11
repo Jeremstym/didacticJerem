@@ -92,7 +92,7 @@ class _QKVLinearProjection(nn.Module):
 
         if initialization not in ["kaiming", "xavier"]:
             raise ValueError("`initialization` must be one of ['kaiming', 'xavier']")
-
+        self.d_token = d_token
         self.W_q = nn.Linear(d_token, d_token, bias)
         self.W_k = nn.Linear(d_token, d_token, bias)
         self.W_v = nn.Linear(d_token, d_token, bias)
