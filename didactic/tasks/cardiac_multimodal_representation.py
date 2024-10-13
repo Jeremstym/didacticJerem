@@ -140,6 +140,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 "tabular or the time-series attributes are missing. Make sure to provide both tabular and time-series "
                 "attributes when configuring a cross-attention module."
             )
+        if self.hparams.model.encoder.get("n_cross_blocks", None) and not (tabular_attrs and time_series_attrs):
+            raise ValueError(
+                "You have configured a multimodal cross-attention module, but either the tabular or the time-series "
+                "tabular or the time-series attributes are missing. Make sure to provide both tabular and time-series "
+                "attributes when configuring a cross-attention module."
+            )
 
         # TOFIX: Hack to log time-series tokenizer model's hparams when it's a config for a `torch.nn.Sequential` object
         # In that case, we have to use a `ListConfig` for the reserved `_args_` key. However, the automatic
