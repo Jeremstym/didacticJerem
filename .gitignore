@@ -130,3 +130,6 @@ venv.bak/
 .hydra
 outputs/
 multirun/
+
+# Notebook
+data_exploring.ipynb
