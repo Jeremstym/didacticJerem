@@ -145,7 +145,6 @@ class ConcatMLP(nn.Module):
         Returns:
             the output tensor.
         """
-        print(f"tabular encoder: {self.tabular_encoder}")
         tabular_output = self.tabular_encoder(tab_tokens)
         if isinstance(tabular_output, didactic.models.transformer.FT_Transformer):
             tabular_output = tabular_output[:, -1, :] # Get the CLS token
