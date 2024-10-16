@@ -11,7 +11,7 @@ from pytorch_lightning.callbacks import BasePredictionWriter
 from pytorch_lightning.callbacks.prediction_writer import WriteInterval
 from scipy import stats
 from scipy.special import softmax
-from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score
+from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, f1_score
 from torch import Tensor
 from vital.data.cardinal.config import TabularAttribute, TimeSeriesAttribute
 from vital.data.cardinal.config import View as ViewEnum
@@ -357,6 +357,9 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     subset_categorical_stats.loc["acc", f"{attr}_prediction"] = accuracy_score(target, pred_labels)
                     subset_categorical_stats.loc["auroc", f"{attr}_prediction"] = roc_auc_score(
                         target_num_labels, pred_probas, multi_class="ovr"
+                    )
+                    subset_categorical_stats.loc["pr_auc", f"{attr}_prediction"] = f1_score(
+                        target, pred_labels, average="micro" # maybe try with average="weighted" later
                     )
 
                 # Concatenate the element-wise results + statistics in one dataframe
