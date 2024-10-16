@@ -424,8 +424,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # 1) Convert missing numerical attributes (NaNs) to numbers to avoid propagating NaNs
             # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
             if isinstance(self.tabular_tokenizer, nn.Identity):
-                tab_attrs_tokens = torch.hstack(num_attrs, cat_attrs) # (N, S_tab)
-                print(f"tab_attrs_tokens: {tab_attrs_tokens.shape}")
+                tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
             else:
                 tab_attrs_tokens = self.tabular_tokenizer(
                     x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
