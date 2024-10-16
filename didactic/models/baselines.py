@@ -183,8 +183,6 @@ class TabularMLP(nn.Module):
             dropout: the dropout rate.
         """
         super().__init__()
-        print(f"in_features: {in_features}")
-        raise ValueError("stop here")
         self.layers = nn.ModuleList(
             [
                 nn.Sequential(
