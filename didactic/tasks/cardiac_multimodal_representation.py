@@ -288,7 +288,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.cls_token:
             self.cls_token = CLSToken(self.hparams.embed_dim)
             self.cls_ts_token = CLSToken(self.hparams.embed_dim)
-        else:
+        elif self.hparams.sequence_pooling:
             self.sequence_pooling = SequencePooling(self.hparams.embed_dim)
 
         if self.hparams.mtr_p:
@@ -499,14 +499,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
-            ts_tokens, tab_cls_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+            ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
 
             if self.hparams.cls_token and ts_token:
                 # Add the CLS token to the end of each item in the batch
                 ts_tokens = self.cls_ts_token(ts_tokens)
 
             # Forward pass through the transformer encoder (starting with the cross-attention module)
-            out_tokens = self.encoder(tab_cls_tokens, ts_tokens) # Re-invert the order, as it is inverted in the Transformer forward pass
+            out_tokens = self.encoder(tab_tokens, ts_tokens) # Re-invert the order, as it is inverted in the Transformer forward pass
 
         else:
             # Forward pass through the transformer encoder
@@ -518,7 +518,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if ts_token:
                 len_ts = self.n_time_series_attrs + 1
                 out_ts_features = out_tokens[:, len_ts-1, :]  # (N, S, E) -> (N, E)
-        else:
+        elif self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
             out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
 
