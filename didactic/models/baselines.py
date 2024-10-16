@@ -8,6 +8,7 @@ from torch.nn import Parameter
 from torch.nn import functional as F
 from torch.nn import init
 
+import didactic.models.transformer
 from didactic.models.layers import _QKVLinearProjection, _QKVMatrixMultiplication
 
 import hydra
@@ -130,7 +131,8 @@ class ConcatMLP(nn.Module):
         """
         super().__init__()
 
-        self.tabular_encoder = get_nn_module(tabular_encoder)
+        # self.tabular_encoder = get_nn_module(tabular_encoder)
+        self.tabular_encoder = hydra.utils.instantiate(tabular_encoder)
         self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
@@ -144,7 +146,64 @@ class ConcatMLP(nn.Module):
             the output tensor.
         """
         tabular_output = self.tabular_encoder(tab_tokens)
-        tabular_output = tabular_output[:, -1, :] # Get the CLS token
+        if isinstance(tabular_output, didactic.models.transformer.FT_Transformer):
+            tabular_output = tabular_output[:, -1, :] # Get the CLS token
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
+
+class TabularMLP(nn.Module):
+    """A simple MLP for tabular data.
+
+    The "MLP" module from "Revisiting Deep Learning Models for Tabular Data" by Gorishniy et al. (2021).
+    The module is a simple MLP that can be used for tabular data.
+
+    Notes:
+        - This is a port of the `MLP` class from v0.0.13 of the `rtdl` package using the updated underlying `MLP`
+          from v0.0.2 of the `rtdl_revisiting_models` package.
+
+    References:
+        - Original implementation is here:
+    """ 
+    
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        n_layers: int = 2,
+        d_token: int = 192,
+        dropout: float = 0.1,
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            in_features: the number of input features.
+            n_layers: the number of hidden layers.
+            d_token: the number of hidden units in each layer.
+            dropout: the dropout rate.
+        """
+        super().__init__()
+        self.layers = nn.ModuleList(
+            [
+                nn.Sequential(
+                    nn.Linear(in_features if i == 0 else d_token, d_token),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                )
+                for i in range(n_layers)
+            ]
+        )
+        self.head = nn.Linear(d_token, out_features)
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Perform the forward pass.
+
+        Args:
+            x: the tabular input tensor.
+
+        Returns:
+            the embedded output tensor.
+        """
+        for layer in self.layers:
+            x = layer(x)
+        return self.head(x)
