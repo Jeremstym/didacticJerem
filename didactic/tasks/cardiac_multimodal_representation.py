@@ -501,6 +501,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Split the sequence of tokens into tabular and time-series tokens
             ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
 
+            print(f"ts_tokens shape: {ts_tokens.shape}")
+            print(f"tab_tokens shape: {tab_tokens.shape}")
+            raise ValueError("stop here")
+
             if self.hparams.cls_token and ts_token:
                 # Add the CLS token to the end of each item in the batch
                 ts_tokens = self.cls_ts_token(ts_tokens)
