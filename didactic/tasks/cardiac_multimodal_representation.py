@@ -521,6 +521,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
             out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
+        else:
+            # Return the output tokens as-is
+            out_features = out_tokens
 
         return (out_features, out_ts_features) if ts_token else out_features # (N, E)
 
