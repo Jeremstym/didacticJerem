@@ -20,7 +20,7 @@ task:
   tabular_encoder:
     _target_: didactic.models.baselines.TabularMLP
     in_features: ${n_tabular_attrs}
-    our_features: ${task.embed_dim}
+    out_features: ${task.embed_dim}
     n_layers: 2
     d_token: 192
     dropout: 0.1
