@@ -19,7 +19,7 @@ task:
 
   tabular_encoder:
     _target_: didactic.models.baselines.TabularMLP
-    in_features: ${n_tabular_attrs}
+    in_features: ${eval:${n_tabular_attrs}+1} # Add 1 for the CLS token
     out_features: ${task.embed_dim}
     n_layers: 2
     d_token: 192
