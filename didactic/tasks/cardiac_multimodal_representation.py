@@ -11,7 +11,7 @@ import vital
 from omegaconf import DictConfig
 from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
-from torchmetrics.functional import accuracy, auroc, mean_absolute_error
+from torchmetrics.functional import accuracy, auroc, mean_absolute_error, f1_score
 from vital.data.augmentation.base import mask_tokens, random_masking
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
 from vital.data.cardinal.config import View as ViewEnum
@@ -214,6 +214,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     "acc": functools.partial(accuracy, task="multiclass", num_classes=num_classes),
                     "auroc": functools.partial(auroc, task="multiclass", num_classes=num_classes),
                 }
+            self.metrics[attr]["f1"] = f1_score
         # Switch on ordinal mode if i) it's enabled, and ii) there are ordinal targets to predict
         self.hparams.ordinal_mode = self.hparams.ordinal_mode and any(
             attr in TabularAttribute.ordinal_attrs() for attr in self.predict_losses
@@ -655,14 +656,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     ) -> Dict[str, Tensor]:
         # Extract features from the original view + from a view corrupted by augmentations
         # anchor_out_features = out_features
-        pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
-        # out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, ts_token=True)
+        # pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
+        out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, ts_token=True)
         # corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
 
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(pre_ts_features), self.contrastive_head(pre_features)
+                self.contrastive_head(out_ts_features), self.contrastive_head(out_features)
             )
         }
 
