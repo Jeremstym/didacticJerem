@@ -26,6 +26,9 @@ task:
     dropout: 0.1
     _partial_: True
 
+  tabular_tokenizer:
+    _target_: torch.nn.Identity
+    
   cls_token: False
   # Architecture parameters to define the same architecture as XTab
   embed_dim: 192
