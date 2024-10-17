@@ -523,42 +523,6 @@ class FT_Transformer(nn.Module):
             x_context_residual = self._start_residual(block, "r_ffn_1", x_context, stage="cross_attention")
             x_context_residual = block["r_ffn_1"](x_context_residual)
             x_context = self._end_residual(block, "r_ffn_1", x_context, x_context_residual, stage="cross_attention")
-
-        # for block in cross_attention_blocks:
-        #     block = cast(nn.ModuleDict, block)
-        #     x_copy = torch.clone(x)
-            
-        #     x_residual = self._start_residual(block, "l_cross_attention", x, stage="cross_attention")
-        #     x_residual, _ = block["l_cross_attention"](x_residual, x_context_residual)
-        #     x = self._end_residual(block, "l_cross_attention", x, x_residual, stage="cross_attention")
-            
-        #     x_residual = self._start_residual(block, "l_ffn_0", x, stage="cross_attention")
-        #     x_residual = block["l_ffn_0"](x_residual)
-        #     x = self._end_residual(block, "l_ffn_0", x, x_residual, stage="cross_attention")
-
-        #     x_residual = self._start_residual(block, "l_self_attention", x, stage="cross_attention")
-        #     x_residual, _ = block["l_self_attention"](x_residual, x_residual)
-        #     x = self._end_residual(block, "l_self_attention", x, x_residual, stage="cross_attention")
-
-        #     x_residual = self._start_residual(block, "l_ffn_1", x, stage="cross_attention")
-        #     x_residual = block["l_ffn_1"](x_residual)
-        #     x = self._end_residual(block, "l_ffn_1", x, x_residual, stage="cross_attention")
-
-        #     x_context_residual = self._start_residual(block, "r_cross_attention", x_context, stage="cross_attention")
-        #     x_context_residual, _ = block["r_cross_attention"](x_context_residual, x_copy)
-        #     x_context = self._end_residual(block, "r_cross_attention", x_context, x_context_residual, stage="cross_attention")
-
-        #     x_context_residual = self._start_residual(block, "r_ffn_0", x_context, stage="cross_attention")
-        #     x_context_residual = block["r_ffn_0"](x_context_residual)
-        #     x_context = self._end_residual(block, "r_ffn_0", x_context, x_context_residual, stage="cross_attention")
-
-        #     x_context_residual = self._start_residual(block, "r_self_attention", x_context, stage="cross_attention")
-        #     x_context_residual, _ = block["r_self_attention"](x_context_residual, x_context_residual)
-        #     x_context = self._end_residual(block, "r_self_attention", x_context, x_context_residual, stage="cross_attention")
-
-        #     x_context_residual = self._start_residual(block, "r_ffn_1", x_context, stage="cross_attention")
-        #     x_context_residual = block["r_ffn_1"](x_context_residual)
-        #     x_context = self._end_residual(block, "r_ffn_1", x_context, x_context_residual, stage="cross_attention")
         
         for block in bidirectional_attention_blocks:
             block = cast(nn.ModuleDict, block)
