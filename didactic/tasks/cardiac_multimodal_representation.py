@@ -633,6 +633,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 pred = pred[0]
             predictions[attr] = pred.squeeze(dim=1)
 
+            print(f"prediction for {attr}: {predictions[attr]}")
+
         # Compute the loss/metrics for each target attribute, ignoring items for which targets are missing
         losses, metrics = {}, {}
         for attr, loss in self.predict_losses.items():
