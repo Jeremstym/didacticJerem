@@ -428,7 +428,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 if tab_attrs_tokens.isnan().any():
                     print(tab_attrs_tokens)
                     raise ValueError("NaNs found in tabular attributes")
-
+                tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
                 tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
             else:
                 tab_attrs_tokens = self.tabular_tokenizer(
