@@ -358,7 +358,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     subset_categorical_stats.loc["auroc", f"{attr}_prediction"] = roc_auc_score(
                         target_num_labels, pred_probas, multi_class="ovr"
                     )
-                    subset_categorical_stats.loc["pr_auc", f"{attr}_prediction"] = f1_score(
+                    subset_categorical_stats.loc["f1", f"{attr}_prediction"] = f1_score(
                         target, pred_labels, average="micro" # maybe try with average="weighted" later
                     )
 
