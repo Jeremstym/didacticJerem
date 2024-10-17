@@ -287,7 +287,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
             self.cls_token = CLSToken(self.hparams.embed_dim)
-            self.cls_ts_token = CLSToken(self.hparams.embed_dim)
+            if self.hparams.ts_cls_token:
+                self.cls_ts_token = CLSToken(self.hparams.embed_dim)
         elif self.hparams.sequence_pooling:
             self.sequence_pooling = SequencePooling(self.hparams.embed_dim)
 
@@ -481,7 +482,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
-    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, ts_token: bool = False) -> Tensor:
+    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, alignment: bool = False) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
         Args:
@@ -508,12 +509,16 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Split the sequence of tokens into tabular and time-series tokens
             ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
 
-            if self.hparams.cls_token and ts_token:
+            if self.hparams.cls_token and self.hparams.ts_cls_token:
                 # Add the CLS token to the end of each item in the batch
                 ts_tokens = self.cls_ts_token(ts_tokens)
 
-            # Forward pass through the transformer encoder (starting with the cross-attention module)
-            out_tokens = self.encoder(tab_tokens, ts_tokens) # Re-invert the order, as it is inverted in the Transformer forward pass
+                # Forward pass through the transformer encoder (starting with the cross-attention module)
+                out_tokens, tab_cls_token, ts_cls_token = self.encoder(tab_tokens, ts_tokens) # Re-invert the order, as it is inverted in the Transformer forward pass
+
+            else:
+                # Forward pass through the transformer encoder (starting with the cross-attention module)
+                out_tokens = self.encoder(tab_tokens, ts_tokens)
 
         else:
             # Forward pass through the transformer encoder
@@ -522,9 +527,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.hparams.cls_token:
             # Only keep the CLS token (i.e. the last token) from the tokens outputted by the encoder
             out_features = out_tokens[:, -1, :]  # (N, S, E) -> (N, E)
-            if ts_token:
-                len_ts = self.n_time_series_attrs + 1
-                out_ts_features = out_tokens[:, len_ts-1, :]  # (N, S, E) -> (N, E)
+            # if self.hparams.ts_cls_token:
+            #     len_ts = self.n_time_series_attrs + 1
+            #     out_ts_features = out_tokens[:, len_ts-1, :]  # (N, S, E) -> (N, E)
         elif self.hparams.sequence_pooling:
             # Perform sequence pooling of the transformers' output tokens
             out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
@@ -532,7 +537,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Return the output tokens as-is
             out_features = out_tokens.squeeze(1) # (N, 1, E) -> (N, E)
 
-        return (out_features, out_ts_features) if ts_token else out_features # (N, E)
+        return (tab_cls_token, ts_cls_token) if alignment else out_features # (N, E)
 
     @auto_move_data
     def forward(
@@ -668,13 +673,13 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Extract features from the original view + from a view corrupted by augmentations
         # anchor_out_features = out_features
         # pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
-        out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, ts_token=True)
+        out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, alignment=True)
         # corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
 
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(out_ts_features), self.contrastive_head(out_features)
+                self.contrastive_head(out_features), self.contrastive_head(out_ts_features)
             )
         }
 
