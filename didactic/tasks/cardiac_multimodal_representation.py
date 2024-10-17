@@ -436,10 +436,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Identify missing data in tabular attributes
             if self.tabular_num_attrs:
                 notna_mask.append(~(num_attrs.isnan()))
-                print(f"num_attrs: {~(num_attrs.isnan())}")
             if self.tabular_cat_attrs:
                 notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
-                print(f"cat_attrs: {cat_attrs != MISSING_CAT_ATTR}")
 
         # Cast to float to make sure tokens are not represented using double
         tokens = torch.cat(tokens, dim=1).float()  # (N, S_ts + S_tab, E)
@@ -470,6 +468,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # If a mask token is configured, substitute the missing tokens with the mask token to distinguish them from
             # the other tokens
             tokens = mask_tokens(tokens, mask_token, ~avail_mask)
+            print(f"tokens shape: {tokens.shape}")
+            if tokens.isnan().any():
+                raise ValueError("NaNs were found in the tokens after masking missing data.")
 
         mtr_p = self.train_mtr_p if self.training else self.test_mtr_p
         if mtr_p and enable_augments:
