@@ -148,6 +148,7 @@ class ConcatMLP(nn.Module):
         tabular_output = self.tabular_encoder(tab_tokens)
         if isinstance(tabular_output, didactic.models.transformer.FT_Transformer):
             tabular_output = tabular_output[:, -1, :] # Get the CLS token
+        print(f"tabular_output is {tabular_output}")
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
