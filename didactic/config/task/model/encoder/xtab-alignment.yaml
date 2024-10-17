@@ -1,4 +1,4 @@
-_target_: didactic.models.transformer.FT_Transformer
+_target_: didactic.models.transformer.FT_Transformer_Alignment
 
 d_token: 192
 n_self_blocks: 1
