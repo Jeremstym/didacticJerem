@@ -26,7 +26,8 @@ task:
     _partial_: True
 
   tabular_tokenizer:
-    _target_: torch.nn.Identity
+    _target_: didactic.models.tabular.TabularLinearEmbedding
+    d_token: ${task.embed_dim}
 
   cls_token: False
   # Architecture parameters to define the same architecture as XTab

@@ -468,9 +468,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # If a mask token is configured, substitute the missing tokens with the mask token to distinguish them from
             # the other tokens
             tokens = mask_tokens(tokens, mask_token, ~avail_mask)
-            print(f"tokens shape: {tokens.shape}")
-            if tokens.isnan().any():
-                raise ValueError("NaNs were found in the tokens after masking missing data.")
 
         mtr_p = self.train_mtr_p if self.training else self.test_mtr_p
         if mtr_p and enable_augments:
