@@ -204,8 +204,9 @@ class TabularMLP(nn.Module):
         Returns:
             the embedded output tensor.
         """
+        print(f"x shape is {x.shape}")
         x = x.mean(dim=2) # (N, S_tab), the tensors are the same on the last dimension
+        print(f"x shape after mean is {x.shape}")
         for layer in self.layers:
             x = layer(x)
-            print(f"layer x is {x}")
         return self.head(x)
