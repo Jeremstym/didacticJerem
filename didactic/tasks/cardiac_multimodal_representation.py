@@ -426,7 +426,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if isinstance(self.tabular_tokenizer, nn.Identity):
                 tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
                 print(tab_attrs_tokens.isnan().nonzero())
-                raise ValueError("tab_attrs_tokens")
+                if tab_attrs_tokens.isnan().any():
+                    raise ValueError("tab_attrs_tokens contains NaNs")
                 tab_attrs_tokens = tab_attrs_tokens[...,None].repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E), to match the time series tokens
             else:
                 tab_attrs_tokens = self.tabular_tokenizer(
