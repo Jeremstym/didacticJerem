@@ -255,11 +255,11 @@ class MultiheadCrossAttention(nn.Module):
         super().__init__()
         # We follow LXMERT https://github.com/airsplay/lxmert/blob/master/src/lxrt/modeling.py by implementing only one cross-attention
         # module for both tabular and time-series data, to use two times, interverting the inputs in the forward pass
-        # self.attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
+        self.attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
 
         # Or we can do as follows: building two different attention modules
-        self.tabular_attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
-        self.ts_attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
+        # self.tabular_attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
+        # self.ts_attention_module = MultiheadAttention(d_token, n_heads, dropout, bias, initialization)
 
     def forward(self, x_q: Tensor, x_kv: Tensor) -> Tuple[Tensor, Dict[str, Tensor]]:
         """Performs a forward pass through the attention operations.
@@ -271,12 +271,12 @@ class MultiheadCrossAttention(nn.Module):
         Returns:
             (N, S_q, E), attention output tokens, and attention statistics.
         """
-        tabular_tensor, _ = self.tabular_attention_module(x_q, x_kv)
-        ts_tensor, _ = self.ts_attention_module(x_kv, x_q)
+        # tabular_tensor, _ = self.tabular_attention_module(x_q, x_kv)
+        # ts_tensor, _ = self.ts_attention_module(x_kv, x_q)
 
         # If we follow LXMERT
-        # tabular_tensor, _ = self.attention_module(x_q, x_kv)
-        # ts_tensor, _ = self.attention_module(x_kv, x_q)
+        tabular_tensor, _ = self.attention_module(x_q, x_kv)
+        ts_tensor, _ = self.attention_module(x_kv, x_q)
 
         return tabular_tensor, ts_tensor
 
