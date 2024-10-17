@@ -527,7 +527,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
         else:
             # Return the output tokens as-is
-            out_features = out_tokens
+            out_features = out_tokens.squeeze(1) # (N, 1, E) -> (N, E)
 
         return (out_features, out_ts_features) if ts_token else out_features # (N, E)
 
