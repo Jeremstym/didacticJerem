@@ -425,9 +425,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
             if isinstance(self.tabular_tokenizer, nn.Identity):
                 tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
-                print(tab_attrs_tokens.isnan().nonzero())
-                if tab_attrs_tokens.isnan().any():
-                    raise ValueError("tab_attrs_tokens contains NaNs")
                 tab_attrs_tokens = tab_attrs_tokens[...,None].repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E), to match the time series tokens
             else:
                 tab_attrs_tokens = self.tabular_tokenizer(
@@ -439,8 +436,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Identify missing data in tabular attributes
             if self.tabular_num_attrs:
                 notna_mask.append(~(num_attrs.isnan()))
+                print(f"num_attrs: {~(num_attrs.isnan())}")
             if self.tabular_cat_attrs:
                 notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
+                print(f"cat_attrs: {cat_attrs != MISSING_CAT_ATTR}")
 
         # Cast to float to make sure tokens are not represented using double
         tokens = torch.cat(tokens, dim=1).float()  # (N, S_ts + S_tab, E)
