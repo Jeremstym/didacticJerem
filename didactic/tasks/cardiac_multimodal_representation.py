@@ -425,7 +425,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
             if isinstance(self.tabular_tokenizer, nn.Identity):
                 tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
-                assert not tab_attrs_tokens.isnan().any(), "Cardinalities of categorical attributes must be provided when using an Identity tokenizer."
+                print(tab_attrs_tokens.isnan().nonzero())
+                raise ValueError("tab_attrs_tokens")
                 tab_attrs_tokens = tab_attrs_tokens[...,None].repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E), to match the time series tokens
             else:
                 tab_attrs_tokens = self.tabular_tokenizer(
