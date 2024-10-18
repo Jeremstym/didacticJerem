@@ -246,6 +246,8 @@ for seed in {42..46}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/5-seed-TEST-mlpmlp/seed${seed}' +experiment=cardinal/baseline-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/5-seed-TEST-LXMERT-CLIP-preencoder-postnorm/seed${seed}' +experiment=cardinal/xtab-alignment 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.model.encoder.prenormalization=False
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/5-seed-TEST-LXMERT-CLIP-preencoder-postnorm/seed${seed}' +experiment=cardinal/xtab-alignment 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.model.encoder.prenormalization=False
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/5-seed-TEST-flat-mlp-concat/seed${seed}' +experiment=cardinal/baseline-flat-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
 
 done
