@@ -234,7 +234,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.n_tabular_attrs = len(self.hparams.tabular_attrs)
         self.n_time_series_attrs = len(self.hparams.time_series_attrs) * len(self.hparams.views)
         if self.hparams.no_ts_pooling:
-            self.n_time_series_attrs *= 4
+            self.n_time_series_attrs *= 8
         self.sequence_length = self.n_time_series_attrs + self.n_tabular_attrs + self.hparams.cls_token
 
         # Initialize transformer encoder and self-supervised + prediction heads
