@@ -89,4 +89,10 @@ class TimeSeriesEmbedding(nn.Module):
         if self.pooling:
             x = self.sequence_pooling_ts(x) # (N, S, E) -> (N, E)
 
+        if x.ndim == 4:
+            print(x.shape)
+            raise ValueError("The output tensor has 4 dimensions, but it should have 3 dimensions.")
+            n, s, s_ts, e = x.shape
+            x = x.view(n, s * s_ts, e)
+
         return x
