@@ -39,4 +39,4 @@ _args_:
 
     downsampling:
       _target_: didactic.models.layers.DownSampling
-      downsample_factor: 8
+      downsample_factor: 16
