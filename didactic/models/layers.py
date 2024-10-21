@@ -398,6 +398,36 @@ class SequencePooling(nn.Module):
         pooled_x = (broadcast_attn_vector @ x).squeeze(1)  # (N, 1, S) @ (N, S, E) -> (N, E)
         return pooled_x
 
+class DownSampling(nn.Module):
+    """Downsampling layer for time series data in the sequence dimension."""
+
+    def __init__(self, downsample_factor: int):
+        """Initializes class instance.
+
+        Args:
+            downsample_factor: Factor by which to downsample the input sequence.
+            pooling: Pooling operation to apply. Can be one of ["mean", "max"].
+        """
+        super().__init__()
+        self.downsample_factor = downsample_factor
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Downsamples the input tensor along the sequence dimension.
+
+        Args:
+            x: (N, S, E), Input tensor to downsample.
+
+        Returns:
+            (N, S // `downsample_factor`, E), Downsampled input tensor.
+        """
+        assert x.ndim == 3, f"Input tensor must have 3 dimensions, but got {x.ndim}."
+        assert x.shape[1] % self.downsample_factor == 0, (
+            f"Input tensor sequence length must be divisible by the downsample factor, "
+            f"but got {x.shape[1]} % {self.downsample_factor} != 0."
+        )
+        return x[:, :: self.downsample_factor, :]
+
+
 
 class FTPredictionHead(nn.Module):
     """Prediction head architecture described in the Feature Tokenizer transformer (FT-Transformer) paper."""
