@@ -41,5 +41,5 @@ _args_:
       _target_: didactic.models.layers.TS_Patching
       in_features: ${task.embed_dim}
       out_features: ${task.embed_dim}
-      kernel_size: 8
-      stride: 8
+      kernel_size: 16
+      stride: 16
