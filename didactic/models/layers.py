@@ -429,6 +429,32 @@ class DownSampling(nn.Module):
 
 
 
+class TS_Patching(nn.Module):
+    """Downsampling layer for time series data."""
+
+    def __init__(self, in_features: int, out_features: int, kernel_size: int, stride: int):
+        """Initializes class instance.
+
+        Args:
+            in_features: Number of features in the input tensor.
+            out_features: Number of features in the output tensor.
+            kernel_size: Size of the sliding window.
+            stride: Stride of the sliding window.
+        """
+        super().__init__()
+        self.conv = nn.Conv1d(in_features, out_features, kernel_size=kernel_size, stride=stride)
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Performs a forward pass through the downsampling layer.
+
+        Args:
+            x: (N, S_ts_raw, E), Input tensor.
+
+        Returns:
+            (N, S_ts, E), Output tensor.
+        """
+        return self.conv(x.transpose(1,2)).transpose(1,2)
+
 class FTPredictionHead(nn.Module):
     """Prediction head architecture described in the Feature Tokenizer transformer (FT-Transformer) paper."""
 

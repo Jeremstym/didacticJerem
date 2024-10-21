@@ -38,5 +38,8 @@ _args_:
         norm_first: True
 
     downsampling:
-      _target_: didactic.models.layers.DownSampling
-      downsample_factor: 16
+      _target_: didactic.models.layers.TS_Patching
+      in_features: ${task.embed_dim}
+      out_features: ${task.embed_dim}
+      kernel_size: 16
+      stride: 16
