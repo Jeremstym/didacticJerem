@@ -125,6 +125,7 @@ task:
   use_positional_encoding: True
   first_prenormalization: False
   using_PE: True
+  no_ts_pooling: False
 
   tabular_tokenizer:
     _target_: didactic.models.tabular.TabularEmbedding
