@@ -37,7 +37,7 @@ _args_:
       encoder_layer:
         _target_: torch.nn.TransformerEncoderLayer
         d_model: ${task.embed_dim}
-        nhead: 2
+        nhead: 4
         dim_feedforward: ${task.embed_dim}
         dropout: 0.3
         activation: relu
