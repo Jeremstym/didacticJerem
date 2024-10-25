@@ -11,8 +11,8 @@ _args_:
 
     downsampling:
       _target_: didactic.models.layers.TS_Patching
-      in_features: ${task.embed_dim}
-      out_features: ${task.embed_dim}
+      in_features: 1
+      out_features: 1
       kernel_size: 16
       stride: 16
 
