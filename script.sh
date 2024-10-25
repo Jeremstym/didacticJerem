@@ -252,6 +252,9 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-noTSpooling/seed${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/time_series_tokenizer/model=transformer-no-pooling task.no_ts_pooling=True task.contrastive_loss=null
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching/seed${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching/seed${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-unimodal-TS/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer task.contrastive_loss=null
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null
 
 done
