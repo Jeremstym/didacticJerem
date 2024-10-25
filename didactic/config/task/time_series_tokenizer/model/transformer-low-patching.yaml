@@ -23,7 +23,7 @@ _args_:
 
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: 16
+      sequence_len: 4
       d_model: ${task.embed_dim}
 
     transformer_encoder:
