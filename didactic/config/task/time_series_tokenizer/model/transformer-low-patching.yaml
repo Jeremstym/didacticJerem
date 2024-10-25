@@ -23,7 +23,7 @@ _args_:
 
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: ${op.div:${task.time_series_tokenizer.resample_dim},${task.time_series_tokenizer.model.downsampling.stride}}
+      sequence_len: 16
       d_model: ${task.embed_dim}
 
     transformer_encoder:
