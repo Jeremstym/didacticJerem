@@ -11,6 +11,7 @@ from pytorch_lightning.callbacks import BasePredictionWriter
 from pytorch_lightning.callbacks.prediction_writer import WriteInterval
 from scipy import stats
 from scipy.special import softmax
+from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, f1_score
 from torch import Tensor
 from vital.data.cardinal.config import TabularAttribute, TimeSeriesAttribute
@@ -359,8 +360,16 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                         target_num_labels, pred_probas, multi_class="ovr"
                     )
                     subset_categorical_stats.loc["f1", f"{attr}_prediction"] = f1_score(
-                        target, pred_labels, average="micro" # maybe try with average="weighted" later
+                        target, pred_labels, average="weighted" # maybe try with average="weighted" later
                     )
+
+                    y_bins = label_binarize(target, classes=np.arange(len(labels_arr[0])))
+                    auroc_scores = {}
+                    for i, label in enumerate(labels_arr[0]):
+                        auroc_scores[label] = roc_auc_score(y_bins[:, i], pred_probas[:, i])
+                    subset_categorical_stats.loc["auroc_wht", f"{attr}_prediction"] = auroc_scores["wht"]
+                    subset_categorical_stats.loc["auroc_controlled", f"{attr}_prediction"] = auroc_scores["controlled"]
+                    subset_categorical_stats.loc["auroc_uncontrolled", f"{attr}_prediction"] = auroc_scores["uncontrolled"]
 
                 # Concatenate the element-wise results + statistics in one dataframe
                 subset_categorical_scores = pd.concat([subset_categorical_stats, subset_categorical_df])
