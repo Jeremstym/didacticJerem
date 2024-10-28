@@ -363,7 +363,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                         target, pred_labels, average="weighted" # maybe try with average="weighted" later
                     )
 
-                    y_bins = label_binarize(target, classes=np.arange(len(labels_arr[0])))
+                    y_bins = label_binarize(target_num_labels, classes=np.arange(len(labels_arr[0])))
                     auroc_scores = {}
                     for i, label in enumerate(labels_arr[0]):
                         auroc_scores[label] = roc_auc_score(y_bins[:, i], pred_probas[:, i])
