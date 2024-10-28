@@ -13,8 +13,8 @@ _args_:
       _target_: didactic.models.layers.TS_Patching
       in_features: 1
       out_features: 1
-      kernel_size: 8
-      stride: 8
+      kernel_size: 16
+      stride: 16
 
     upsampling:
       _target_: torch.nn.Linear
@@ -23,7 +23,7 @@ _args_:
 
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: 8
+      sequence_len: 4
       d_model: ${task.embed_dim}
 
     transformer_encoder:
@@ -37,7 +37,7 @@ _args_:
       encoder_layer:
         _target_: torch.nn.TransformerEncoderLayer
         d_model: ${task.embed_dim}
-        nhead: 8
+        nhead: 4
         dim_feedforward: ${task.embed_dim}
         dropout: 0.3
         activation: relu
