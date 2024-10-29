@@ -28,7 +28,7 @@ class TimeSeriesPositionalEncoding(nn.Module):
     @staticmethod
     def positional_encoding(position, d_model, dtype = torch.float32):
         # create the sinusoidal pattern for the positional encoding
-        angle_rads = angle_defn(
+        angle_rads = self.angle_defn(
             torch.arange(position, dtype=torch.int64).to(dtype).unsqueeze(1),
             torch.arange(d_model, dtype=torch.int64).to(dtype).unsqueeze(0),
             d_model,
