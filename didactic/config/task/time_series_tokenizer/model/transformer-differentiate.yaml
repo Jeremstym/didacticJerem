@@ -22,7 +22,7 @@ _args_:
       in_features: 1
       out_features: 1
       kernel_size: 8
-      stride: 8
+      stride: 4
       padding: 1
 
     upsampling:
@@ -36,7 +36,7 @@ _args_:
     #   d_model: ${task.embed_dim}
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: 8 #${task.time_series_tokenizer.resample_dim}
+      sequence_len: 7 #${task.time_series_tokenizer.resample_dim}
       d_model: ${task.embed_dim}
 
 
