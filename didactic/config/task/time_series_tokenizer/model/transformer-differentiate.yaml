@@ -30,14 +30,14 @@ _args_:
       in_features: 1
       out_features: ${task.embed_dim}
 
-    # positional_encoding:
-    #   _target_: didactic.models.time_series.TimeSeriesPositionalEncoding
-    #   n_positions: 8 # the last position is discarded because of the convolution
-    #   d_model: ${task.embed_dim}
     positional_encoding:
-      _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: 7 #${task.time_series_tokenizer.resample_dim}
+      _target_: didactic.models.time_series.TimeSeriesPositionalEncoding
+      n_positions: 7 # the last position is discarded because of the convolution
       d_model: ${task.embed_dim}
+    # positional_encoding:
+    #   _target_: didactic.models.layers.PositionalEncoding
+    #   sequence_len: 7 #${task.time_series_tokenizer.resample_dim}
+    #   d_model: ${task.embed_dim}
 
 
     transformer_encoder:
