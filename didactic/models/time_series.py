@@ -5,6 +5,18 @@ from torch import Tensor, nn
 from torch.nn import functional as F
 
 
+def differentiate_ts(x: Tensor, order: int = 1) -> Tensor:
+    """Differentiates the input time series tensor.
+
+    Args:
+        x: (N, resample_dim), Input time series tensor.
+        order: Order of the differentiation.
+
+    Returns:
+        (N, resample_dim - 1), Differentiated time series tensor.
+    """
+    return x.diff(dim=-1, n=order)
+
 class TimeSeriesPositionalEncoding(nn.Module):
 
     def __init__(self, n_positions: int, d_model: int) -> None:
