@@ -25,8 +25,7 @@ class TimeSeriesPositionalEncoding(nn.Module):
         angle_rates = 1 / torch.pow(10000, (2 * (i // 2)) / d_model)
         return pos * angle_rates
 
-    @staticmethod
-    def positional_encoding(position, d_model, dtype = torch.float32):
+    def positional_encoding(self, position, d_model, dtype = torch.float32):
         # create the sinusoidal pattern for the positional encoding
         angle_rads = self.angle_defn(
             torch.arange(position, dtype=torch.int64).to(dtype).unsqueeze(1),
