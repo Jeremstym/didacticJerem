@@ -432,7 +432,7 @@ class DownSampling(nn.Module):
 class TS_Patching(nn.Module):
     """Downsampling layer for time series data."""
 
-    def __init__(self, in_features: int, out_features: int, kernel_size: int, stride: int):
+    def __init__(self, in_features: int, out_features: int, kernel_size: int, stride: int, padding=0):
         """Initializes class instance.
 
         Args:
@@ -442,7 +442,7 @@ class TS_Patching(nn.Module):
             stride: Stride of the sliding window.
         """
         super().__init__()
-        self.conv = nn.Conv1d(in_features, out_features, kernel_size=kernel_size, stride=stride)
+        self.conv = nn.Conv1d(in_features, out_features, kernel_size=kernel_size, stride=stride, padding=padding)
 
     def forward(self, x: Tensor) -> Tensor:
         """Performs a forward pass through the downsampling layer.
