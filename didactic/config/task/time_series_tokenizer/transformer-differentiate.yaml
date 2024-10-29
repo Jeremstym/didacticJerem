@@ -16,12 +16,13 @@ _args_:
         _partial_: True
       dim: -1
 
+    # it is important to not downsample too much because the convolution will discard the last position
     downsampling:
       _target_: didactic.models.layers.TS_Patching
       in_features: 1
       out_features: 1
-      kernel_size: 16
-      stride: 16
+      kernel_size: 8
+      stride: 8
 
     upsampling:
       _target_: torch.nn.Linear
@@ -30,7 +31,7 @@ _args_:
 
     positional_encoding:
       _target_: didactic.models.time_series.TimeSeriesPositionalEncoding
-      n_positions: 4 #${task.time_series_tokenizer.resample_dim}
+      n_positions: 7 # the last position is discarded because of the convolution
       d_model: ${task.embed_dim}
 
     transformer_encoder:
