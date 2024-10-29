@@ -23,6 +23,7 @@ _args_:
       out_features: 1
       kernel_size: 8
       stride: 8
+      padding: 1
 
     upsampling:
       _target_: torch.nn.Linear
@@ -31,7 +32,7 @@ _args_:
 
     positional_encoding:
       _target_: didactic.models.time_series.TimeSeriesPositionalEncoding
-      n_positions: 7 # the last position is discarded because of the convolution
+      n_positions: 8 # the last position is discarded because of the convolution
       d_model: ${task.embed_dim}
 
     transformer_encoder:
