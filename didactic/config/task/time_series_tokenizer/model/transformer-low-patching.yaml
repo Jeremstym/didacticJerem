@@ -23,7 +23,7 @@ _args_:
 
     positional_encoding:
       _target_: didactic.models.time_series.TimeSeriesPositionalEncoding
-      n_positions: ${task.time_series_tokenizer.resample_dim}
+      n_positions: 4 #${task.time_series_tokenizer.resample_dim}
       d_model: ${task.embed_dim}
 
     transformer_encoder:
