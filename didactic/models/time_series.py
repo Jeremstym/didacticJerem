@@ -37,8 +37,6 @@ class TimeSeriesPositionalEncoding(nn.Module):
         cosines = torch.cos(angle_rads[:, 1::2])
 
         pos_encoding = torch.cat([sines, cosines], dim=-1)
-        print(f"Positional encoding shape: {pos_encoding.shape}")
-        print(f"Positional encoding: {pos_encoding}")
         return pos_encoding
 
     def forward(self, x: Tensor) -> Tensor:
@@ -56,6 +54,8 @@ class TimeSeriesPositionalEncoding(nn.Module):
 
         # Add the positional encoding to the input tensor
         x = x + pos_enc
+        
+        return x
 
 class TimeSeriesEmbedding(nn.Module):
     """Embedding for time series which resamples the time dim and/or passes through an arbitrary learnable model."""
