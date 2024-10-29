@@ -5,6 +5,57 @@ from torch import Tensor, nn
 from torch.nn import functional as F
 
 
+class TimeSeriesPositionalEncoding(nn.Module):
+
+    def __init__(self, n_positions: int, d_model: int) -> None:
+        """Initializes class instance.
+
+        Args:
+            d_model: Token dimensionality.
+        """
+        super().__init__()
+        self.n_positions = n_positions
+        self.d_model = d_model
+    
+    # Define specific positional encoding functions for time series
+    # From HuggingFace's implementation of the Transformer model
+
+    @staticmethod
+    def angle_defn(pos, i, d_model):
+        angle_rates = 1 / torch.pow(10000, (2 * (i // 2)) / d_model)
+        return pos * angle_rates
+
+    @staticmethod
+    def positional_encoding(position, d_model, dtype = torch.float32):
+        # create the sinusoidal pattern for the positional encoding
+        angle_rads = angle_defn(
+            torch.arange(position, dtype=torch.int64).to(dtype).unsqueeze(1),
+            torch.arange(d_model, dtype=torch.int64).to(dtype).unsqueeze(0),
+            d_model,
+        )
+
+        sines = torch.sin(angle_rads[:, 0::2])
+        cosines = torch.cos(angle_rads[:, 1::2])
+
+        pos_encoding = torch.cat([sines, cosines], dim=-1)
+        return pos_encoding
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Adds positional encoding to the input tensor.
+
+        Args:
+            x: (N, S, E), Input tensor to add positional encoding to.
+
+        Returns:
+            (N, S, E), Input tensor with positional encoding added.
+        """
+        # Create the positional encoding
+        pos_enc = positional_encoding(self.n_positions, self.d_model, dtype=x.dtype)
+        pos_enc = pos_enc.unsqueeze(0) # (1, S, E)
+
+        # Add the positional encoding to the input tensor
+        x = x + pos_enc
+
 class TimeSeriesEmbedding(nn.Module):
     """Embedding for time series which resamples the time dim and/or passes through an arbitrary learnable model."""
 
