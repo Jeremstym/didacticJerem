@@ -50,7 +50,7 @@ class TimeSeriesPositionalEncoding(nn.Module):
             (N, S, E), Input tensor with positional encoding added.
         """
         # Create the positional encoding
-        pos_enc = positional_encoding(self.n_positions, self.d_model, dtype=x.dtype)
+        pos_enc = self.positional_encoding(self.n_positions, self.d_model, dtype=x.dtype)
         pos_enc = pos_enc.unsqueeze(0) # (1, S, E)
 
         # Add the positional encoding to the input tensor
