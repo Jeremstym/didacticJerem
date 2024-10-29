@@ -7,7 +7,7 @@ _args_:
       fn:
         _target_: didactic.models.time_series.differentiate_ts
         _partial_: True
-      dim: -1
+      order: 1
       
     expand_feat_dim:
       _target_: vital.models.layers.Lambda
