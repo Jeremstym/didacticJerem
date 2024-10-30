@@ -37,9 +37,9 @@ _args_:
         batch_first: True
         norm_first: True
 
-    downsampling:
-      _target_: didactic.models.layers.TS_Patching
-      in_features: ${task.embed_dim}
-      out_features: ${task.embed_dim}
-      kernel_size: 16
-      stride: 16
+    # downsampling:
+    #   _target_: didactic.models.layers.TS_Patching
+    #   in_features: ${task.embed_dim}
+    #   out_features: ${task.embed_dim}
+    #   kernel_size: 16
+    #   stride: 16
