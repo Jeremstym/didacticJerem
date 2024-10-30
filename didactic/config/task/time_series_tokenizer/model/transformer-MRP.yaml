@@ -21,8 +21,8 @@ _args_:
       _target_: didactic.models.layers.MultiResolutionPatching
       in_features: 1
       out_features: 1
-      kernel_size: [ 16, 8 ]
-      stride: [ 8, 4 ]
+      kernel_sizes: [ 16, 8 ]
+      strides: [ 8, 4 ]
       padding: [ 1, 1 ]
 
     upsampling:
