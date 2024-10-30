@@ -496,7 +496,7 @@ class MultiResolutionPatching(nn.Module):
         out_features: int,
         kernel_sizes: List[int, int],
         strides: List[int, int],
-        padding=List[int, int],
+        padding: List[int, int],
     ):
         """Initializes class instance.
 
