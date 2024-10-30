@@ -39,7 +39,7 @@ _args_:
         dropout: 0.3
         activation: relu
         batch_first: True
-        norm_first: True
+        norm_first: False
 
     sequence_pooling:
       _target_: didactic.models.layers.SequencePooling
