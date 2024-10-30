@@ -523,7 +523,7 @@ class MultiResolutionPatching(nn.Module):
             (N, S_ts, E), Output tensor.
         """
         return torch.cat(
-            [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=2
+            [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=1
         )
 
 
