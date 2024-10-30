@@ -270,9 +270,6 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-unimodal-TS-differentiate-overlapping-postnorm-minmax/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-differentiate task.contrastive_loss=null task.using_PE=True task.ts_pooling_factor=7
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-keepall/seed${seed}' +experiment=cardinal/xtab-cross-attention 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/time_series_tokenizer/model=transformer-no-pooling task.no_ts_pooling=True task.contrastive_loss=null task.using_PE=True task.ts_pooling_factor=64
-
-
     # TEST WITHOUT TRAINING
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}/cardinal_default.ckpt' +state_dict=True
