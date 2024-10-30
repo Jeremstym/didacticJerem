@@ -19,7 +19,7 @@ def differentiate_ts(x: Tensor, order: int = 1) -> Tensor:
     # tensor = torch.exp(-torch.abs(tensor))
     tmax = tensor.max(dim=-1)
     tmin = tensor.min(dim=-1)
-    tensor = (tensor - tmin) / (tmax - tmin)
+    tensor = (tensor - tmin.values) / (tmax.values - tmin.values)
     return tensor
 
 class TimeSeriesPositionalEncoding(nn.Module):
