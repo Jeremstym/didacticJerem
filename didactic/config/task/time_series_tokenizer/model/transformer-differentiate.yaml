@@ -42,7 +42,7 @@ _args_:
 
     transformer_encoder:
       _target_: torch.nn.TransformerEncoder
-      num_layers: 2
+      num_layers: 3
 
       norm:
         _target_: torch.nn.LayerNorm
