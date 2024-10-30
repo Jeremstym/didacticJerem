@@ -1,5 +1,5 @@
 import math
-from typing import Literal, Tuple, Union, Dict, Callable
+from typing import Literal, Tuple, Union, Dict, Callable, List
 
 import torch
 from scipy.special import binom, factorial
@@ -27,6 +27,7 @@ def get_nn_module(module: ModuleType, *module_args, **module_kwargs) -> nn.Modul
     else:
         return getattr(nn, module)(*module_args, **module_kwargs)
 
+
 def reglu(x: Tensor) -> Tensor:
     """The ReGLU activation function from [1].
 
@@ -37,6 +38,7 @@ def reglu(x: Tensor) -> Tensor:
     assert x.shape[-1] % 2 == 0
     a, b = x.chunk(2, dim=-1)
     return a * F.relu(b)
+
 
 def geglu(x: Tensor) -> Tensor:
     """The GEGLU activation function from [1].
@@ -74,6 +76,7 @@ class GEGLU(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         return geglu(x)
+
 
 class _QKVLinearProjection(nn.Module):
     def __init__(
@@ -230,6 +233,7 @@ class MultiheadAttention(nn.Module):
         q, k, v = self.linear_proj(x_q, x_kv)
         return self.mat_mul(q, k, v)
 
+
 class MultiheadCrossAttention(nn.Module):
     """Multihead Cross-Attention."""
 
@@ -279,6 +283,7 @@ class MultiheadCrossAttention(nn.Module):
         ts_tensor, _ = self.attention_module(x_kv, x_q)
 
         return tabular_tensor, ts_tensor
+
 
 class PositionalEncoding(nn.Module):
     """Positional encoding layer."""
@@ -398,6 +403,7 @@ class SequencePooling(nn.Module):
         pooled_x = (broadcast_attn_vector @ x).squeeze(1)  # (N, 1, S) @ (N, S, E) -> (N, E)
         return pooled_x
 
+
 class DownSampling(nn.Module):
     """Downsampling layer for time series data in the sequence dimension."""
 
@@ -451,7 +457,8 @@ class LinearPooling(nn.Module):
         Returns:
             (N, E), Pooled input tensor.
         """
-        return self.linear_pool(x.transpose(1, 2)).squeeze(2) # (N, S, E) -> (N, E, S) -> (N, E)
+        return self.linear_pool(x.transpose(1, 2)).squeeze(2)  # (N, S, E) -> (N, E, S) -> (N, E)
+
 
 class TS_Patching(nn.Module):
     """Downsampling layer for time series data."""
@@ -477,7 +484,49 @@ class TS_Patching(nn.Module):
         Returns:
             (N, S_ts, E), Output tensor.
         """
-        return self.conv(x.transpose(1,2)).transpose(1,2)
+        return self.conv(x.transpose(1, 2)).transpose(1, 2)
+
+
+class MultiResolutionPatching(nn.Module):
+    """Multi-resolution patching layer for time series data."""
+
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        kernel_sizes: List[int, int],
+        strides: List[int, int],
+        padding=List[int, int],
+    ):
+        """Initializes class instance.
+
+        Args:
+            in_features: Number of features in the input tensor.
+            out_features: Number of features in the output tensor.
+            kernel_sizes: Sizes of the sliding windows.
+            strides: Strides of the sliding windows.
+        """
+        super().__init__()
+        self.conv1 = nn.Conv1d(
+            in_features, out_features, kernel_size=kernel_sizes[0], stride=strides[0], padding=padding[0]
+        )
+        self.conv2 = nn.Conv1d(
+            in_features, out_features, kernel_size=kernel_sizes[1], stride=strides[1], padding=padding[1]
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Performs a forward pass through the multi-resolution patching layer.
+
+        Args:
+            x: (N, S_ts_raw, E), Input tensor.
+
+        Returns:
+            (N, S_ts, E), Output tensor.
+        """
+        return torch.cat(
+            [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=2
+        )
+
 
 class FTPredictionHead(nn.Module):
     """Prediction head architecture described in the Feature Tokenizer transformer (FT-Transformer) paper."""
