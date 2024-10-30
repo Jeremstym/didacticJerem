@@ -435,7 +435,7 @@ class LinearPooling(nn.Module):
         """Initializes class instance.
 
         Args:
-            pooling: Pooling operation to apply. Can be one of ["mean", "max"].
+            n_tokens: Number of tokens in the input tensor
         """
         super().__init__()
         self.n_tokens = n_tokens
