@@ -42,11 +42,11 @@ _args_:
 
     transformer_encoder:
       _target_: torch.nn.TransformerEncoder
-      num_layers: 1
+      num_layers: 2
 
       norm:
         _target_: torch.nn.LayerNorm
-        normalized_shape: [ 7, '${task.embed_dim}' ]
+        normalized_shape: ${task.embed_dim}
 
       encoder_layer:
         _target_: torch.nn.TransformerEncoderLayer
