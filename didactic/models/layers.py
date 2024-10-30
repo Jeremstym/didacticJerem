@@ -428,6 +428,30 @@ class DownSampling(nn.Module):
         return x[:, :: self.downsample_factor, :]
 
 
+class LinearPooling(nn.Module):
+    """Pooling layer for time series data in the sequence dimension."""
+
+    def __init__(self, n_tokens: int):
+        """Initializes class instance.
+
+        Args:
+            pooling: Pooling operation to apply. Can be one of ["mean", "max"].
+        """
+        super().__init__()
+        self.n_tokens = n_tokens
+
+        self.linear_pool = nn.Linear(n_tokens, 1)
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Applies a pooling operation along the sequence dimension of the input tensor.
+
+        Args:
+            x: (N, S, E), Input tensor to pool.
+
+        Returns:
+            (N, E), Pooled input tensor.
+        """
+        return self.linear_pool(x.transpose(1, 2)).squeeze(2) # (N, S, E) -> (N, E, S) -> (N, E)
 
 class TS_Patching(nn.Module):
     """Downsampling layer for time series data."""
