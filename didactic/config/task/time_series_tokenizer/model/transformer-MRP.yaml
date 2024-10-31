@@ -1,4 +1,4 @@
-linear_projection_out_features: 8
+linear_projection_out_features: 4
 
 _target_: torch.nn.Sequential
 _args_:
