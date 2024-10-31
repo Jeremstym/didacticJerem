@@ -41,7 +41,7 @@ _args_:
     #   d_model: ${task.embed_dim}
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: ${_args_[0].linear_projection.out_features} #22 #${task.time_series_tokenizer.resample_dim}
+      sequence_len: 8 #22 #${task.time_series_tokenizer.resample_dim}
       d_model: ${task.embed_dim}
 
 
