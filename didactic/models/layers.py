@@ -517,13 +517,17 @@ class MultiResolutionPatching(nn.Module):
         """Performs a forward pass through the multi-resolution patching layer.
 
         Args:
-            x: (N, S_ts_raw, E), Input tensor.
+            x: (N, S_ts_raw, 1), Input tensor.
 
         Returns:
-            (N, S_ts, E), Output tensor.
+            (N, S_ts, 1, Output tensor.
         """
+        x_repeated = x.repeat(1, 1, 2)
+        # return torch.cat(
+        #     [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=1
+        # )
         return torch.cat(
-            [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=1
+            [self.conv1(x_repeated[:,:,0,None].transpose(1, 2)).transpose(1, 2), self.conv2(x_repeated[:,:,1,None].transpose(1, 2)).transpose(1, 2)], dim=1
         )
 
 
