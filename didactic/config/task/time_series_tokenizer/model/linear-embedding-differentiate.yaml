@@ -33,5 +33,5 @@ _args_:
     
     linear_embedding:
       _target_: torch.nn.Linear
-      in_features: ${task.time_series_tokenizer.resample_dim}
+      in_features: ${op.sub:${task.time_series_tokenizer.resample_dim},1}
       out_features: ${task.embed_dim}
