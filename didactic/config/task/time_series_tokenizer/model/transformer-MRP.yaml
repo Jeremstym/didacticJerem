@@ -16,7 +16,6 @@ _args_:
         _partial_: True
       dim: -1
 
-    # it is important to not downsample too much because the convolution will discard the last position
     downsampling:
       _target_: didactic.models.layers.MultiResolutionPatching
       in_features: 1
