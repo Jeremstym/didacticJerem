@@ -69,10 +69,9 @@ class MultiLinearEmbedding(nn.Module):
         for i in range(self.n_sub_ts):
             x_list[i] = getattr(self, f"linear_{i}")(x_list[i])
 
-            x = torch.tensor(x_list)
-            print(f"X_list shape: {x.shape}")
+            x_stacked = torch.stack(x_list, dim=1)
 
-        return torch.mean(x_list, dim=1)
+        return torch.mean(x_stacked, dim=1)
 
 class TimeSeriesPositionalEncoding(nn.Module):
 
