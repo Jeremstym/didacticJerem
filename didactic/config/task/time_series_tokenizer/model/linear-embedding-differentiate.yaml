@@ -38,7 +38,12 @@ _args_:
     #     _partial_: True
     #   dim: -1
     
-    linear_embedding:
-      _target_: torch.nn.Linear
-      in_features: ${op.sub:${task.time_series_tokenizer.resample_dim},1}
-      out_features: ${task.embed_dim}
+    # linear_embedding:
+    #   _target_: torch.nn.Linear
+    #   in_features: ${op.sub:${task.time_series_tokenizer.resample_dim},1}
+    #   out_features: ${task.embed_dim}
+
+    multi_linear_embedding:
+      _target_: didactic.models.time_series.MultiLinearEmbedding
+      n_ts: 3
+      d_model: ${task.embed_dim}
