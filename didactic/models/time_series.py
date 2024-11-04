@@ -69,7 +69,7 @@ class MultiLinearEmbedding(nn.Module):
         for i in range(self.n_sub_ts):
             x_list[i] = getattr(self, f"linear_{i}")(x_list[i])
 
-        return torch.mean(x_list, dim=1)
+        return torch.mean(torch.tensor(x_list), dim=1)
 
 class TimeSeriesPositionalEncoding(nn.Module):
 
