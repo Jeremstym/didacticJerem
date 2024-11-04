@@ -34,7 +34,7 @@ _args_:
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
       n_tokens: 21 #${_args_[0].positional_encoding.sequence_len}
-      out_features: 8
+      out_features: 4
 
     upsampling:
       _target_: torch.nn.Linear
@@ -47,7 +47,7 @@ _args_:
     #   d_model: ${task.embed_dim}
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: 8 #22 #${task.time_series_tokenizer.resample_dim}
+      sequence_len: 4 #22 #${task.time_series_tokenizer.resample_dim}
       d_model: ${task.embed_dim}
 
 
