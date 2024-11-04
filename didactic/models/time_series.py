@@ -71,7 +71,7 @@ class MultiLinearEmbedding(nn.Module):
 
         x_stacked = torch.stack(x_list, dim=1)
 
-        return x_tacked #torch.mean(x_stacked, dim=1)
+        return x_stacked #torch.mean(x_stacked, dim=1)
 
 class TimeSeriesPositionalEncoding(nn.Module):
 
