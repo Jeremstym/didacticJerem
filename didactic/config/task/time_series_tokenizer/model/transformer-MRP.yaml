@@ -10,11 +10,11 @@ _args_:
     #   order: 1
 
     multi_differentiate_TS:
-    _target_: vital.models.layers.Lambda
-    fn:
-      _target_: didactic.models.time_series.multi_differentiate_ts
-      _partial_: True
-    orders: [ 0, 1, 2 ]
+      _target_: vital.models.layers.Lambda
+      fn:
+        _target_: didactic.models.time_series.multi_differentiate_ts
+        _partial_: True
+      orders: [ 0, 1, 2 ]
 
     # expand_feat_dim:
     #   _target_: vital.models.layers.Lambda
