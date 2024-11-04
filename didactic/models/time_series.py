@@ -29,8 +29,11 @@ def multi_differentiate_ts(x: Tensor, orders: Sequence[int]) -> Tensor:
         (N, resample_dim - len(orders)), Differentiated time series tensor.
     """
     tensor = x.unsqueeze(1).repeat(1, len(orders), 1)
+    tensor_list = []
     for i, order in enumerate(orders):
-        tensor[:, i] = differentiate_ts(tensor[:, i], order)
+        sub_tensor = differentiate_ts(tensor[:, i], order)
+        tensor_list.append(sub_tensor)
+    tensor = torch.stack(tensor_list, dim=1)
     return tensor
 
 class MultiLinearEmbedding(nn.Module):
