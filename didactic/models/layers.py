@@ -513,22 +513,29 @@ class MultiResolutionPatching(nn.Module):
             in_features, out_features, kernel_size=kernel_sizes[1], stride=strides[1], padding=padding[1]
         )
 
-    def forward(self, x: Tensor) -> Tensor:
+        self.conv3 = nn.Conv1d(
+            in_features, out_features, kernel_size=kernel_sizes[2], stride=strides[2], padding=padding[2]
+        )
+
+    def forward(self, x: List[Tensor]) -> Tensor:
         """Performs a forward pass through the multi-resolution patching layer.
 
         Args:
-            x: (N, S_ts_raw, 1), Input tensor.
+            x: (N, num_ts, S_ts_raw, 1), Input tensor.
 
         Returns:
             (N, S_ts, 1, Output tensor.
         """
-        x_repeated = x.repeat(1, 1, 2)
         # return torch.cat(
         #     [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=1
         # )
         return torch.cat(
-            [self.conv1(x_repeated[:,:,0,None].transpose(1, 2)).transpose(1, 2), self.conv2(x_repeated[:,:,1,None].transpose(1, 2)).transpose(1, 2)], dim=1
-        )
+                [
+                self.conv1(x[0].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
+                self.conv2(x[1].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
+                self.conv3(x[2].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
+            ], dim=1
+        ) # (N, S_ts, 1)
 
 
 class FTPredictionHead(nn.Module):

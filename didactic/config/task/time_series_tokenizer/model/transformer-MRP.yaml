@@ -2,31 +2,38 @@ _target_: torch.nn.Sequential
 _args_:
   - _target_: collections.OrderedDict
 
-    differentiate_TS:
-      _target_: vital.models.layers.Lambda
-      fn:
-        _target_: didactic.models.time_series.differentiate_ts
-        _partial_: True
-      order: 1
-      
-    expand_feat_dim:
-      _target_: vital.models.layers.Lambda
-      fn:
-        _target_: torch.unsqueeze
-        _partial_: True
-      dim: -1
+    # differentiate_TS:
+    #   _target_: vital.models.layers.Lambda
+    #   fn:
+    #     _target_: didactic.models.time_series.differentiate_ts
+    #     _partial_: True
+    #   order: 1
+
+    multi_differentiate_TS:
+    _target_: vital.models.layers.Lambda
+    fn:
+      _target_: didactic.models.time_series.multi_differentiate_ts
+      _partial_: True
+    orders: [ 0, 1, 2 ]
+
+    # expand_feat_dim:
+    #   _target_: vital.models.layers.Lambda
+    #   fn:
+    #     _target_: torch.unsqueeze
+    #     _partial_: True
+    #   dim: -1
 
     downsampling:
       _target_: didactic.models.layers.MultiResolutionPatching
       in_features: 1
       out_features: 1
-      kernel_sizes: [ 16, 8 ]
-      strides: [ 8, 4 ]
-      padding: [ 1, 1 ]
+      kernel_sizes: [ 8, 8, 16 ]
+      strides: [ 4, 4, 8 ]
+      padding: [ 1, 1, 1 ]
 
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
-      n_tokens: 22 #${_args_[0].positional_encoding.sequence_len}
+      n_tokens: 37 #${_args_[0].positional_encoding.sequence_len}
       out_features: 8
 
     upsampling:
