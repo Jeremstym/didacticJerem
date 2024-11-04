@@ -45,5 +45,6 @@ _args_:
 
     multi_linear_embedding:
       _target_: didactic.models.time_series.MultiLinearEmbedding
+      in_features: ${task.time_series_tokenizer.resample_dim}
       n_sub_ts: 3
       d_model: ${task.embed_dim}

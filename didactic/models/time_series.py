@@ -1,4 +1,4 @@
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Sequence, List
 
 import torch
 from torch import Tensor, nn
@@ -33,12 +33,11 @@ def multi_differentiate_ts(x: Tensor, orders: Sequence[int]) -> Tensor:
     for i, order in enumerate(orders):
         sub_tensor = differentiate_ts(tensor[:, i], order)
         tensor_list.append(sub_tensor)
-    tensor = torch.stack(tensor_list, dim=1)
-    return tensor
+    return tensor_list
 
 class MultiLinearEmbedding(nn.Module):
     """Multi-linear embedding for time series."""
-    def __init__(self, n_sub_ts: int, d_model: int) -> None:
+    def __init__(self, in_features: int, n_sub_ts: int, d_model: int) -> None:
         """Initializes class instance.
 
         Args:
@@ -46,13 +45,14 @@ class MultiLinearEmbedding(nn.Module):
             d_model: Token dimensionality.
         """
         super().__init__()
+        self.in_features = in_features
         self.n_sub_ts = n_sub_ts
         self.d_model = d_model
 
         for i in range(n_sub_ts):
-            setattr(self, f"linear_{i}", nn.Linear(d_model, d_model))
+            setattr(self, f"linear_{i}", nn.Linear(self.in_features - i, d_model))
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x_list: List[Tensor]) -> Tensor:
         """Embeds the input time series tensor.
 
         Args:
@@ -61,10 +61,13 @@ class MultiLinearEmbedding(nn.Module):
         Returns:
             (N, S, E), Embedded time series tensor.
         """
-        x = x.permute(1, 0, 2)
-        x = torch.stack([getattr(self, f"linear_{i}")(x[i]) for i in range(self.n_sub_ts)], dim=0)
-        x = x.permute(1, 0, 2)
-        return x.mean(dim=1)
+        # x = x.permute(1, 0, 2)
+        # x = torch.stack([getattr(self, f"linear_{i}")(x[i]) for i in range(self.n_sub_ts)], dim=0)
+        # x = x.permute(1, 0, 2)
+        # return x.mean(dim=1)
+
+        for i in range(self.n_sub_ts):
+            x_list[i] = getattr(self, f"linear_{i}")(x_list[i])
 
 class TimeSeriesPositionalEncoding(nn.Module):
 
