@@ -16,10 +16,21 @@ def differentiate_ts(x: Tensor, order: int = 1) -> Tensor:
         (N, resample_dim - 1), Differentiated time series tensor.
     """
     tensor = x.diff(dim=-1, n=order)
-    # tensor = torch.exp(-torch.abs(tensor))
-    # tmax = tensor.max(dim=-1, keepdim=True).values
-    # tmin = tensor.min(dim=-1, keepdim=True).values
-    # tensor = (tensor - tmin) / (tmax - tmin)
+    return tensor
+
+def multi_differentiate_ts(x: Tensor, orders: Sequence[int]) -> Tensor:
+    """Differentiates the input time series tensor multiple times.
+
+    Args:
+        x: (N, resample_dim), Input time series tensor.
+        orders: Orders of the differentiations.
+
+    Returns:
+        (N, resample_dim - len(orders)), Differentiated time series tensor.
+    """
+    tensor = x[None,...].repeat(1, len(orders), 1)
+    for i, order in enumerate(orders):
+        tensor[:, i] = differentiate_ts(x, order)
     return tensor
 
 class TimeSeriesPositionalEncoding(nn.Module):
