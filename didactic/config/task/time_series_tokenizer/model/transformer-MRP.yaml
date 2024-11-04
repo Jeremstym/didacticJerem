@@ -33,7 +33,7 @@ _args_:
 
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
-      n_tokens: 37 #${_args_[0].positional_encoding.sequence_len}
+      n_tokens: 21 #${_args_[0].positional_encoding.sequence_len}
       out_features: 8
 
     upsampling:
