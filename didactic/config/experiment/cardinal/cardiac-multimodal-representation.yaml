@@ -4,7 +4,7 @@ defaults:
   - /task/data: tabular+time-series
   - /task/time_series_tokenizer/model: transformer
   - /task/model/encoder: ???
-  - /task/model/contrastive_head: simclr
+  - /task/model/contrastive_head: null
   - /task/model/prediction_head: ft-prediction
   - /task/model/prediction_head@task.model.ordinal_head: unimodal-logits
   - override /task/model: null  # Set this to null because we specify multiple submodels instead of a singleton model
@@ -122,7 +122,6 @@ task:
   mtr_p: [ 0.6, 0 ]
   mt_by_attr: False
   use_custom_attention: False
-  use_positional_encoding: True
   first_prenormalization: False
   using_PE: True
   ts_pooling_factor: 0
