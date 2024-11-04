@@ -33,6 +33,36 @@ def multi_differentiate_ts(x: Tensor, orders: Sequence[int]) -> Tensor:
         tensor[:, i] = differentiate_ts(x, order)
     return tensor
 
+class MultiLinearEmbedding(nn.Module):
+    """Multi-linear embedding for time series."""
+    def __init__(self, n_sub_ts: int, d_model: int) -> None:
+        """Initializes class instance.
+
+        Args:
+            n_sub_ts: Number of sub-time series.
+            d_model: Token dimensionality.
+        """
+        super().__init__()
+        self.n_sub_ts = n_sub_ts
+        self.d_model = d_model
+
+        for i in range(n_sub_ts):
+            setattr(self, f"linear_{i}", nn.Linear(d_model, d_model))
+
+    def forward(self, x: Tensor) -> Tensor:
+        """Embeds the input time series tensor.
+
+        Args:
+            x: (N, S, E), Input time series tensor.
+
+        Returns:
+            (N, S, E), Embedded time series tensor.
+        """
+        x = x.permute(1, 0, 2)
+        x = torch.stack([getattr(self, f"linear_{i}")(x[i]) for i in range(self.n_sub_ts)], dim=0)
+        x = x.permute(1, 0, 2)
+        return x.mean(dim=1)
+
 class TimeSeriesPositionalEncoding(nn.Module):
 
     def __init__(self, n_positions: int, d_model: int) -> None:
