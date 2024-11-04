@@ -45,5 +45,5 @@ _args_:
 
     multi_linear_embedding:
       _target_: didactic.models.time_series.MultiLinearEmbedding
-      n_ts: 3
+      n_sub_ts: 3
       d_model: ${task.embed_dim}
