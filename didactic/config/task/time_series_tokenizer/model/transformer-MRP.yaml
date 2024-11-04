@@ -28,7 +28,7 @@ _args_:
       in_features: 1
       out_features: 1
       kernel_sizes: [ 16, 16, 16 ]
-      strides: [ 4, 4, 4 ]
+      strides: [ 8, 8, 8 ]
       padding: [ 1, 1, 1 ]
 
     linear_projection:
