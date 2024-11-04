@@ -13,7 +13,7 @@ def differentiate_ts(x: Tensor, order: int = 1) -> Tensor:
         order: Order of the differentiation.
 
     Returns:
-        (N, resample_dim - 1), Differentiated time series tensor.
+        (N, resample_dim - order), Differentiated time series tensor.
     """
     tensor = x.diff(dim=-1, n=order)
     return tensor
