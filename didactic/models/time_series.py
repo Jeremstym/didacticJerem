@@ -30,7 +30,7 @@ def multi_differentiate_ts(x: Tensor, orders: Sequence[int]) -> Tensor:
     """
     tensor = x.unsqueeze(1).repeat(1, len(orders), 1)
     for i, order in enumerate(orders):
-        tensor[:, i] = differentiate_ts(x, order)
+        tensor[:, i] = differentiate_ts(tensor[:, i], order)
     return tensor
 
 class MultiLinearEmbedding(nn.Module):
