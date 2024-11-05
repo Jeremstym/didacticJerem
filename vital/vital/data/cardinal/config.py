@@ -270,6 +270,22 @@ class TabularAttribute(SnakeCaseStrEnum):
 
         return [attr for attr in cls if attr not in TABULAR_CAT_ATTR_LABELS]
 
+    @classmethod
+    def tabular_attrs_shared(cls) -> List["TabularAttribute"]:
+        """Lists the tabular attributes that are shared between the different views."""
+        return [
+            TabularAttribute.diastolic_dysfunction_param_sum,
+            TabularAttribute.lvm_ind,
+            TabularAttribute.ivs_d,
+            TabularAttribute.lvid_d,
+            TabularAttribute.pw_d,
+        ]
+
+    @classmethod
+    def tabular_attrs_unique(cls) -> List["TabularAttribute"]:
+        """Lists the tabular attributes that are unique to each view."""
+        return [attr for attr in cls if attr not in cls.tabular_attrs_shared()]
+
 
 class CardinalTag(SnakeCaseStrEnum):
     """Tags referring to the different type of data stored."""
