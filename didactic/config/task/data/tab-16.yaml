@@ -18,6 +18,5 @@ task:
     - la_volume
     - ivs_d
     - lvid_d
-    - pw_d
-
+    - bmi
   time_series_attrs: []
