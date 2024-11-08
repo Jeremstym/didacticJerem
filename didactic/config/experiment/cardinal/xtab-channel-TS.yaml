@@ -14,8 +14,8 @@ task:
     ht_severity:
       _target_: torch.nn.CrossEntropyLoss
   ordinal_mode: False
-  contrastive_loss:
-    _target_: vital.metrics.train.metric.NTXent
+  contrastive_loss: null
+    # _target_: vital.metrics.train.metric.NTXent
   contrastive_loss_weight: 0
 
   # Architecture parameters to define the same architecture as XTab
