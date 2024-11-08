@@ -32,4 +32,4 @@ _args_:
     linear_pooling:
       _target_: didactic.models.layers.LinearPooling
       n_tokens: ${task.time_series_tokenizer.resample_dim}
-      d_model: ${task.embed_dim}
+      d_token: ${task.embed_dim}
