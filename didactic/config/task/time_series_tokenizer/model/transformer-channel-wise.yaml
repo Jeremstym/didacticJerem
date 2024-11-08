@@ -18,7 +18,7 @@ _args_:
       encoder_layer:
         _target_: torch.nn.TransformerEncoderLayer
         d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-        nhead: 4
+        nhead: 2
         dim_feedforward: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
         dropout: 0.3
         activation: relu
