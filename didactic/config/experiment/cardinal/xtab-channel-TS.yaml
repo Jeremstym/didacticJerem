@@ -3,7 +3,7 @@
 defaults:
   - cardinal/cardiac-multimodal-representation
   - override /task/model/encoder: xtab
-  - override /task/time_series_tokenizer/model: tranformer-channel-wise
+  - override /task/time_series_tokenizer/model: transformer-channel-wise
 
 
 trainer:
