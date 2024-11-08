@@ -13,10 +13,6 @@ defaults:
 
 test: True
 
-# pretrain: False
-
-# state_dict: True
-
 trainer:
   devices: 1
   precision: 16-mixed #32
