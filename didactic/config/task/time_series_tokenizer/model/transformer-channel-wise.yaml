@@ -1,0 +1,35 @@
+_target_: torch.nn.Sequential
+_args_:
+  - _target_: collections.OrderedDict
+
+    positional_encoding:
+      _target_: didactic.models.layers.PositionalEncoding
+      sequence_len: ${task.time_series_tokenizer.resample_dim}
+      d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+
+    transformer_encoder:
+      _target_: torch.nn.TransformerEncoder
+      num_layers: 1
+
+      norm:
+        _target_: torch.nn.LayerNorm
+        normalized_shape: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+
+      encoder_layer:
+        _target_: torch.nn.TransformerEncoderLayer
+        d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+        nhead: 4
+        dim_feedforward: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+        dropout: 0.3
+        activation: relu
+        batch_first: True
+        norm_first: False
+
+    # sequence_pooling:
+    #   _target_: didactic.models.layers.SequencePooling
+    #   d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+    
+    linear_pooling:
+      _target_: didactic.models.layers.LinearPooling
+      n_tokens: ${task.time_series_tokenizer.resample_dim}
+      d_model: ${task.embed_dim}
