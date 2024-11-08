@@ -24,7 +24,7 @@ task:
   # Define positional embedding
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
-    sequence_len: ${op.add:${task.time_series_tokenizer.resample_dim},${task.cls_token}}
+    sequence_len: 58 #${op.add:${task.time_series_tokenizer.resample_dim},${task.cls_token}}
     d_model: ${task.embed_dim}
 
   # Default to the light finetuning describe in XTab's paper
