@@ -129,7 +129,7 @@ class TimeSeriesPositionalEncoding(nn.Module):
 class TimeSeriesEmbedding(nn.Module):
     """Embedding for time series which resamples the time dim and/or passes through an arbitrary learnable model."""
 
-    def __init__(self, resample_dim: int, model: nn.Module = None, corruption_rate: float = 0.0, pooling: bool = False) -> None:
+    def __init__(self, resample_dim: int, model: nn.Module = None, corruption_rate: float = 0.0, pooling: bool = False, channel_first: bool = False) -> None:
         """Initializes class instance.
 
         Args:
@@ -143,6 +143,7 @@ class TimeSeriesEmbedding(nn.Module):
         self.resample_dim = resample_dim
         self.corruption_rate = corruption_rate
         self.pooling = pooling
+        self.channel_first = channel_first
 
     def corrupt(self, x: Tensor, corruption_rate: float = 0.1) -> Tensor:
         """Corrupts the input tensor by setting a fraction of its values to zero.
@@ -196,13 +197,15 @@ class TimeSeriesEmbedding(nn.Module):
 
         # Extract the time series from the dictionary and stack them along the batch dimension
         x = list(time_series.values())  # (S, N, `resample_dim`)
-
-        if self.model:
+        if self.channel_first:
+             x = torch.stack(x, dim=2) # (S, N, `resample_dim`) -> (N, `resample_dim`, S)
+             if self.model:
+                x = self.model(x)
+        elif self.model:
             # If provided with a learnable model, use it to predict the embedding of each time series separately
             x = [self.model(attr) for attr in x]  # (S, N, `resample_dim`) -> (S, N, E)
-
-        # Stack the embeddings of all the time series (along the batch dimension) to make only one tensor
-        x = torch.stack(x, dim=1)  # (S, N, E) -> (N, S, E)
+            # Stack the embeddings of all the time series (along the batch dimension) to make only one tensor
+            x = torch.stack(x, dim=1)  # (S, N, E) -> (N, S, E)
 
         if self.corruption_rate:
             x = self.corrupt(x, self.corruption_rate)
