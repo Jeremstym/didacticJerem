@@ -287,10 +287,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Initialize modules/parameters dependent on the encoder's configuration
 
         # Initialize learnable positional embedding parameters
-        if self.hparams.using_PE:
-            self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
-        else:
-            self.positional_encoding = nn.Identity()
+        # if self.hparams.using_PE:
+        #     self.positional_encoding = PositionalEncoding(self.sequence_length, self.hparams.embed_dim)
+        # else:
+        #     self.positional_encoding = nn.Identity()
+        if self.hparams.positional_encoding:
+            self.positional_encoding = hydras.utils.instantiate(self.hparams.positional_encoding)
 
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
