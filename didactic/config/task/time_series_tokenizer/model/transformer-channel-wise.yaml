@@ -4,8 +4,8 @@ _args_:
 
     downsampling_convolution:
       _target_: didactic.models.layers.TS_Patching
-      in_channels: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-      out_channels: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      in_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      out_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
       kernel_size: 16
       stride: 8
       padding: 0
