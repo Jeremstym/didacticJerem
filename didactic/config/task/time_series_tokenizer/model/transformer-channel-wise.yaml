@@ -31,5 +31,5 @@ _args_:
     
     linear_pooling:
       _target_: didactic.models.layers.LinearPooling
-      n_tokens: ${task.time_series_tokenizer.resample_dim}
+      n_tokens: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
       d_token: ${task.embed_dim}
