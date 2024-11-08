@@ -2,17 +2,17 @@ _target_: torch.nn.Sequential
 _args_:
   - _target_: collections.OrderedDict
 
-    downsampling_convolution:
+    convolution:
       _target_: didactic.models.layers.TS_Patching
       in_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
       out_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-      kernel_size: 16
-      stride: 8
+      kernel_size: 8
+      stride: 1
       padding: 0
 
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: 7 #${task.time_series_tokenizer.resample_dim}
+      sequence_len: ${task.time_series_tokenizer.resample_dim}
       d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
 
     transformer_encoder:
