@@ -24,6 +24,7 @@ from vital.utils.decorators import auto_move_data
 import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
+from didactic.models.losses import ReconstructionLoss, CLSAlignment, OrthogonalLoss
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -178,6 +179,27 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             len(TABULAR_CAT_ATTR_LABELS[cat_attr]) for cat_attr in self.tabular_cat_attrs
         ]
 
+        # Categorise the tabular attributes in terms of their type (shared vs unique)
+        self.tabular_num_attrs_shared = [
+            attr for attr in self.tabular_num_attrs if attr in TabularAttribute.tabular_attrs_shared()
+        ]
+        self.tabular_cat_attrs_shared = [
+            attr for attr in self.tabular_cat_attrs if attr in TabularAttribute.tabular_attrs_shared()
+        ]
+        self.tabular_cat_attrs_shared_cardinalities = [
+            len(TABULAR_CAT_ATTR_LABELS[cat_attr]) for cat_attr in self.tabular_cat_attrs_shared
+        ]
+        self.tabular_num_unique_attrs = [
+            attr for attr in self.tabular_num_attrs if attr in TabularAttribute.tabular_attrs_unique()
+        ]
+        self.tabular_cat_unique_attrs = [
+            attr for attr in self.tabular_cat_attrs if attr in TabularAttribute.tabular_attrs_unique()
+        ]
+        self.tabular_cat_unique_attrs_cardinalities = [
+            len(TABULAR_CAT_ATTR_LABELS[cat_attr]) for cat_attr in self.tabular_cat_unique_attrs
+        ]
+
+
         # Extract train/test masking probabilities from their configs
         if isinstance(self.hparams.mtr_p, tuple):
             self.train_mtr_p, self.test_mtr_p = self.hparams.mtr_p
@@ -264,25 +286,40 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 f"of the number of attention heads for your configuration above this warning."
             )
 
-        if tabular_attrs:
-            if isinstance(tabular_tokenizer, DictConfig):
-                tabular_tokenizer = hydra.utils.instantiate(
-                    tabular_tokenizer,
-                    n_num_features=len(self.tabular_num_attrs),
-                    cat_cardinalities=self.tabular_cat_attrs_cardinalities,
-                )
-        else:
-            # Set tokenizer to `None` if it's not going to be used
-            tabular_tokenizer = None
-        self.tabular_tokenizer = tabular_tokenizer
+        assert tabular_attrs
+        if isinstance(tabular_tokenizer_shared, DictConfig):
+            tabular_tokenizer_shared = hydra.utils.instantiate(
+                tabular_tokenizer_shared,
+                n_num_features=len(self.tabular_num_attrs_shared),
+                cat_cardinalities=self.tabular_cat_attrs_shared_cardinalities,
+            )
+        if isinstance(tabular_tokenizer_unique, DictConfig):
+            tabular_tokenizer_unique = hydra.utils.instantiate(
+                tabular_tokenizer_unique,
+                n_num_features=len(self.tabular_num_unique_attrs),
+                cat_cardinalities=self.tabular_cat_unique_attrs_cardinalities,
+            )
+        self.tabular_tokenizer_shared = tabular_tokenizer_shared
+        self.tabular_tokenizer_unique = tabular_tokenizer_unique
 
-        if time_series_attrs:
-            if isinstance(time_series_tokenizer, DictConfig):
-                time_series_tokenizer = hydra.utils.instantiate(time_series_tokenizer)
-        else:
-            # Set tokenizer to `None` if it's not going to be used
-            time_series_tokenizer = None
+        assert time_series_attrs
+        if isinstance(time_series_tokenizer, DictConfig):
+            time_series_tokenizer = hydra.utils.instantiate(time_series_tokenizer)
         self.time_series_tokenizer = time_series_tokenizer
+
+        # Initialize penalization losses
+        self.orthogonal_loss = OrthogonalLoss()
+        self.cls_align_loss = CLSAlignment()
+        self.reconstruction_loss_shared = ReconstructionLoss(
+            num_con=len(self.tabular_num_attrs_shared),
+            num_cat=len(self.tabular_cat_attrs_shared),
+            cat_lengths_tabular=self.tabular_cat_attrs_shared_cardinalities,
+        )
+        self.reconstruction_loss_unique = ReconstructionLoss(
+            num_con=len(self.tabular_num_unique_attrs),
+            num_cat=len(self.tabular_cat_unique_attrs),
+            cat_lengths_tabular=self.tabular_cat_unique_attrs_cardinalities,
+        )
 
         # Initialize modules/parameters dependent on the encoder's configuration
 
@@ -294,9 +331,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
-            self.cls_token = CLSToken(self.hparams.embed_dim)
-            if self.hparams.ts_cls_token:
-                self.cls_ts_token = CLSToken(self.hparams.embed_dim)
+            self.cls_token_shared = CLSToken(self.hparams.embed_dim)
+            self.cls_token_unique = CLSToken(self.hparams.embed_dim)
         elif self.hparams.sequence_pooling:
             self.sequence_pooling = SequencePooling(self.hparams.embed_dim)
 
@@ -343,6 +379,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         """Build the model, which must return a transformer encoder, and self-supervised or prediction heads."""
         # Build the transformer encoder
         encoder = hydra.utils.instantiate(self.hparams.model.encoder)
+        self.encoder_shared = hydra.utils.instantiate(self.hparams.model.encoder_shared)
+        self.tabular_encoder_unique = hydra.utils.instantiate(self.hparams.model.tabular_encoder_unique)
 
         # Build the projection head for contrastive learning, if contrastive learning is enabled
         contrastive_head = None
@@ -400,31 +438,37 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             Batch of i) (N, S, E) tokens for each attribute, and ii) (N, S) mask of non-missing attributes.
         """
         # Initialize lists for cumulating (optional) tensors for each modality, that will be concatenated into tensors
-        tokens, notna_mask = [], []
+        tokens_shared, tokens_unique, notna_mask_shared, notna_mask_unique = [], [], [], []
 
         # Tokenize the attributes
         if time_series_attrs:
             time_series_attrs_tokens = self.time_series_tokenizer(time_series_attrs)  # S * (N, ?) -> (N, S_ts, E)
-            tokens.append(time_series_attrs_tokens)
+            tokens_shared.append(time_series_attrs_tokens)
 
             # Indicate that, when time-series tokens are requested, they are always available
             time_series_notna_mask = torch.full(
                 time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
             )
-            notna_mask.append(time_series_notna_mask)
+            notna_mask_shared.append(time_series_notna_mask)
 
         if tabular_attrs:
             num_attrs, cat_attrs = None, None
             if self.tabular_num_attrs:
                 # Group the numerical attributes from the `tabular_attrs` input in a single tensor
-                num_attrs = torch.hstack(
-                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
-                )  # (N, S_num)
-            if self.tabular_cat_attrs:
+                num_attrs_shared = torch.hstack(
+                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs_shared]
+                )  # (N, S_num_shared)
+                num_attrs_unique = torch.hstack(
+                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_unique_attrs]
+                ) # (N, S_num_unique)
+            if self.tabular_cat_attrs_shared:
                 # Group the categorical attributes from the `tabular_attrs` input in a single tensor
-                cat_attrs = torch.hstack(
-                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
-                )  # (N, S_cat)
+                cat_attrs_shared = torch.hstack(
+                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs_shared]
+                )  # (N, S_cat_shared)
+                cat_attrs_unique = torch.hstack(
+                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_unique_attrs]
+                ) # (N, S_cat_unique)
             # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
             # tokenization process. This is done to avoid propagating NaNs to available/valid values.
             # If the embeddings cannot be ignored later on (e.g. by using an attention mask during inference), they
@@ -432,31 +476,40 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # instead of their current null/default values.
             # 1) Convert missing numerical attributes (NaNs) to numbers to avoid propagating NaNs
             # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
-            if isinstance(self.tabular_tokenizer, nn.Identity):
-                num_attrs = torch.nan_to_num(num_attrs) if num_attrs is not None else None
-                cat_attrs = cat_attrs.clip(0) if cat_attrs is not None else None
-                tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
-                tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
-                tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
-            else:
-                tab_attrs_tokens = self.tabular_tokenizer(
-                    x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
-                    x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
-                )  # (N, S_tab, E)
-            tokens.append(tab_attrs_tokens)
+            
+            # if isinstance(self.tabular_tokenizer, nn.Identity):
+            #     num_attrs = torch.nan_to_num(num_attrs) if num_attrs is not None else None
+            #     cat_attrs = cat_attrs.clip(0) if cat_attrs is not None else None
+            #     tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
+            #     tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
+            #     tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
+            tab_attrs_tokens_shared = self.tabular_tokenizer_shared(
+                x_num=torch.nan_to_num(num_attrs_shared) if num_attrs is not None else None,
+                x_cat=cat_attrs_shared.clip(0) if cat_attrs is not None else None,
+            )   # (N, S_tab, E)
+            tokens_shared.append(tab_attrs_tokens_shared)
+            tab_attrs_tokens_unique = self.tabular_tokenizer_unique(
+                x_num=torch.nan_to_num(num_attrs_unique) if num_attrs is not None else None,
+                x_cat=cat_attrs_unique.clip(0) if cat_attrs is not None else None,
+            )   # (N, S_tab, E)       
+            tokens_unique.append(tab_attrs_tokens_unique)   
 
             # Identify missing data in tabular attributes
             if self.tabular_num_attrs:
-                notna_mask.append(~(num_attrs.isnan()))
+                notna_mask_shared.append(~(num_attrs_shared.isnan()))
+                notna_mask_unique.append(~(num_attrs_unique.isnan()))
             if self.tabular_cat_attrs:
-                notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
+                notna_mask_shared.append(cat_attrs_shared != MISSING_CAT_ATTR)
+                notna_mask_unique.append(cat_attrs_unique != MISSING_CAT_ATTR)
 
         # Cast to float to make sure tokens are not represented using double
-        tokens = torch.cat(tokens, dim=1).float()  # (N, S_ts + S_tab, E)
+        tokens_shared = torch.cat(tokens_shared, dim=1).float()  # (N, S_ts + S_tab_shared, E)
+        tokens_unique = torch.cat(tokens_unique, dim=1).float()  # (N, S_tab_unique, E)
         # Cast to bool to make sure attention mask is represented by bool
-        notna_mask = torch.cat(notna_mask, dim=1).bool()  # (N, S_ts + S_tab)
+        notna_mask_shared = torch.cat(notna_mask_shared, dim=1).bool()  # (N, S_ts + S_tab_shared)
+        notna_mask_unique = torch.cat(notna_mask_unique, dim=1).bool()  # (N, S_tab_unique)
 
-        return tokens, notna_mask
+        return tokens_shared, tokens_unique, notna_mask_shared, notna_mask_unique
 
     def preprocess_tokens(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False) -> Tensor:
         """Preprocesses the input tokens, optionally masking missing data and random tokens to cause perturbations.
@@ -490,7 +543,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
-    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, alignment: bool = False) -> Tensor:
+    def encode_modalities(
+        self,
+        tokens_shared: Tensor,
+        tokens_unique: Tensor,
+        avail_mask_shared: Tensor,
+        avail_mask_unique: Tensor,
+        enable_augments: bool = False,
+    ) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
         Args:
@@ -504,48 +564,59 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         Returns: (N, E), Embeddings of the input sequences.
         """
-        tokens = self.preprocess_tokens(tokens, avail_mask, enable_augments=enable_augments)
+        tokens_shared = self.preprocess_tokens(tokens_shared, avail_mask_shared, enable_augments=enable_augments)
+        tokens_unique = self.preprocess_tokens(tokens_unique, avail_mask_unique, enable_augments=enable_augments)
 
         if self.hparams.cls_token:
             # Add the CLS token to the end of each item in the batch
-            tokens = self.cls_token(tokens)
+            tokens_shared = self.cls_token_shared(tokens_shared)
+            tokens_unique = self.cls_token_unique(tokens_unique)
 
         # Add positional encoding to the tokens
-        tokens = self.positional_encoding(tokens)
+        tokens_shared = self.positional_encoding(tokens_shared)
+        tokens_unique = self.positional_encoding(tokens_unique)
+
+        out_tokens_unique = self.tabular_encoder_unique(tokens_unique)
 
         if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
-            ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+            ts_tokens_shared, tab_tokens_shared = tokens_shared[:, : self.n_time_series_attrs], tokens_shared[:, self.n_time_series_attrs :]
 
-            if self.hparams.cls_token and self.hparams.ts_cls_token:
-                # Add the CLS token to the end of each item in the batch
-                ts_tokens = self.cls_ts_token(ts_tokens)
-
-                # Forward pass through the transformer encoder (starting with the cross-attention module)
-                out_tokens, tab_cls_token, ts_cls_token = self.encoder(tab_tokens, ts_tokens) # Re-invert the order, as it is inverted in the Transformer forward pass
-
-            else:
-                # Forward pass through the transformer encoder (starting with the cross-attention module)
-                out_tokens = self.encoder(tab_tokens, ts_tokens)
+            # Forward pass through the transformer encoder (starting with the cross-attention module)
+            out_tokens_shared = self.encoder_shared(tab_tokens, ts_tokens)
 
         else:
             # Forward pass through the transformer encoder
-            out_tokens = self.encoder(tokens)
+            out_tokens_shared = self.encoder_shared(tokens_shared)
 
+        return out_tokens_shared, out_tokens_unique # (N, S_ts + S_tab_shared, E), (N, S_tab_unique, E)
+
+    @auto_move_data
+    def encode(
+        self,
+        out_tokens_shared: Tensor,
+    ) -> Tensor:
+        """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
+
+        Args:
+            tokens: (N, S, E), Tokens to feed to the encoder.
+            avail_mask: (N, S), Boolean mask indicating available (i.e. non-missing) tokens. Missing tokens can thus be
+                treated distinctly from others (e.g. replaced w/ a specific mask).
+            enable_augments: Whether to perform augments on the tokens (e.g. masking) to obtain a "corrupted" view for
+                contrastive learning. Augments are already configured differently for training/testing (to avoid
+                stochastic test-time predictions), so this parameter is simply useful to easily toggle augments on/off
+                to obtain contrasting views.
+
+        Returns: (N, E), Embeddings of the input sequences.
+        """
+        out_tokens_shared = self.encoder(out_tokens_shared)
+        
         if self.hparams.cls_token:
-            # Only keep the CLS token (i.e. the last token) from the tokens outputted by the encoder
-            out_features = out_tokens[:, -1, :]  # (N, S, E) -> (N, E)
-            # if self.hparams.ts_cls_token:
-            #     len_ts = self.n_time_series_attrs + 1
-            #     out_ts_features = out_tokens[:, len_ts-1, :]  # (N, S, E) -> (N, E)
-        elif self.hparams.sequence_pooling:
-            # Perform sequence pooling of the transformers' output tokens
-            out_features = self.sequence_pooling(out_tokens)  # (N, S, E) -> (N, E)
+            out_features = out_tokens_shared[:,-1,:] # (N, E)
         else:
-            # Return the output tokens as-is
-            out_features = out_tokens.squeeze(1) # (N, 1, E) -> (N, E)
+            raise NotImplementedError("Sequence pooling is not implemented yet.")
 
-        return (tab_cls_token, ts_cls_token) if alignment else out_features # (N, E)
+        return out_features
 
     @auto_move_data
     def forward(
@@ -621,8 +692,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
 
-        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
-        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
+        in_tokens_shared, in_tokens_unique, avail_mask_shared, avail_mask_unique = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
+        out_features_shared, out_features_unique = self.encode_modalities(in_tokens_shared, in_tokens_unique, avail_mask_shared, avail_mask_unique) # (N, S_ts + S_tab_shared, E), (N, S_tab_unique, E)
+        out_features = self.encoder(out_features_shared) # (N, E)
 
         metrics = {}
         losses = []
@@ -632,6 +704,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.contrastive_loss:  # run self-supervised contrastive step
             metrics.update(self._contrastive_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
             losses.append(self.hparams.contrastive_loss_weight * metrics["cont_loss"])
+        if self.orthogonal_loss:  # run self-supervised orthogonal step
+            metrics.update(self._orthogonal_shared_step(batch, batch_idx, in_tokens_shared, in_tokens_unique, avail_mask_shared, avail_mask_unique, out_features))
+            losses.append(metrics["orth_loss"])
 
         # Compute the sum of the (weighted) losses
         metrics["loss"] = sum(losses)
@@ -689,6 +764,80 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             "cont_loss": self.contrastive_loss(
                 self.contrastive_head(out_features), self.contrastive_head(out_ts_features)
             )
+        }
+
+        return metrics
+
+    def _orthogonal_shared_step(
+        self,
+        batch: PatientData,
+        batch_idx: int,
+        in_tokens_shared: Tensor,
+        in_tokens_unique: Tensor,
+        avail_mask_shared: Tensor,
+        avail_mask_unique: Tensor,
+        out_features: Tensor
+    ) -> Dict[str, Tensor]:
+        # Compute the orthogonal loss/metrics
+        shared_tokens, unique_tokens = self.encode_modalities(in_tokens_shared, in_tokens_unique, avail_mask_shared, avail_mask_unique)
+        metrics = {
+            "orth_loss": self.orthogonal_loss(shared_tokens, unique_tokens)
+        }
+
+        return metrics  
+
+    def _cls_align_shared_step(
+        self,
+        batch: PatientData,
+        batch_idx: int,
+        in_tokens_shared: Tensor,
+        in_tokens_unique: Tensor,
+        avail_mask_shared: Tensor,
+        avail_mask_unique: Tensor,
+        out_features: Tensor
+    ) -> Dict[str, Tensor]:
+        # Compute the orthogonal loss/metrics
+        shared_tokens, unique_tokens = self.encode_modalities(in_tokens_shared, in_tokens_unique, avail_mask_shared, avail_mask_unique)
+        shared_cls_token = shared_tokens[:,-1,:]
+        unique_cls_token = unique_tokens[:,-1,:]
+        metrics = {
+            "cls_align_loss": self.cls_align_loss(shared_cls_token, unique_cls_token)
+        }
+
+        return metrics
+
+    def _reconstruction_shared_step(
+        self,
+        batch: PatientData,
+        batch_idx: int,
+        in_tokens_shared: Tensor,
+        in_tokens_unique: Tensor,
+        avail_mask_shared: Tensor,
+        avail_mask_unique: Tensor,
+        out_features: Tensor
+    ) -> Dict[str, Tensor]:
+        # Compute the orthogonal loss/metrics
+        tabular_attrs = {attr: attr_data for attr, attr_data in batch.items() if attr in self.hparams.tabular_attrs}
+        num_attrs_shared = torch.hstack(
+            [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs_shared]
+        )  # (N, S_num_shared)
+        num_attrs_unique = torch.hstack(
+            [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_unique_attrs]
+        ) # (N, S_num_unique)
+        # Group the categorical attributes from the `tabular_attrs` input in a single tensor
+        cat_attrs_shared = torch.hstack(
+            [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs_shared]
+        )  # (N, S_cat_shared)
+        cat_attrs_unique = torch.hstack(
+            [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_unique_attrs]
+        ) # (N, S_cat_unique)
+
+        shared_tokens, unique_tokens = self.encode_modalities(in_tokens_shared, in_tokens_unique, avail_mask_shared, avail_mask_unique)
+        labels_shared = torch.cat([num_attrs_shared, cat_attrs_shared], dim=1)
+        labels_unique = torch.cat([num_attrs_unique, cat_attrs_unique], dim=1)
+        metrics = {
+            "reconstruction_loss_shared": self.reconstruction_loss_shared(shared_tokens, labels_shared),
+            "reconstruction_loss_unique": self.reconstruction_loss_unique(unique_tokens, labels_unique)
         }
 
         return metrics
