@@ -111,7 +111,7 @@ task:
   _target_: didactic.tasks.cardiac_multimodal_representation.CardiacMultimodalRepresentationTask
   embed_dim: 8
   views: ${data.patients_kwargs.views}
-  cls_token: True
+  cls_token: 1
   ts_cls_token: False
   ordinal_mode: False
   sequence_pooling: False
@@ -124,7 +124,7 @@ task:
 
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
-    sequence_len: ${op.add:${n_tabular_attrs},${n_time_series_attrs},1}
+    sequence_len: ${op.add:${n_tabular_attrs},${n_time_series_attrs},${task.cls_token}}
     d_model: ${task.embed_dim}
 
   tabular_tokenizer:
