@@ -292,7 +292,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # else:
         #     self.positional_encoding = nn.Identity()
         if self.hparams.positional_encoding:
-            self.positional_encoding = hydras.utils.instantiate(self.hparams.positional_encoding)
+            self.positional_encoding = hydra.utils.instantiate(self.hparams.positional_encoding)
 
         # Initialize parameters of method for reducing the dimensionality of the encoder's output to only one token
         if self.hparams.cls_token:
