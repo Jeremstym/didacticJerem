@@ -32,7 +32,7 @@ _args_:
       fn:
         _target_: torch.reshape
         _partial_: True
-      shape: [ -1, ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}, ${task.embed_dim} ]
+      shape: [ -1, 14, ${task.embed_dim} ]
 
     transformer_encoder_channel_wise:
       _target_: torch.nn.TransformerEncoder
