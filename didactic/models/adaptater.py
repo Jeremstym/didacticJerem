@@ -211,7 +211,7 @@ class AdapterWrapperFT_Transformer(nn.Module):
         if freeze: # 只更新lora, 非fc中的bias, 以及bn
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
-                if 'linear_' not in n:
+                if 'linear_first' not in n and 'linear_second' not in n:
                     p.requires_grad = False
                 else:
                     p.requires_grad = True
