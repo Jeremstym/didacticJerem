@@ -3,7 +3,7 @@
 defaults:
   - cardinal/cardiac-multimodal-representation
   - override /task/model/encoder: xtab
-  - override /task/time_series_tokenizer/model: transformer-channel-wise
+  - override /task/time_series_tokenizer/model: transformer-hierarchical-attention
 
 
 trainer:
@@ -24,7 +24,7 @@ task:
   # Define positional embedding
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
-    sequence_len: 16 #${op.add:${task.time_series_tokenizer.resample_dim},${task.cls_token}}
+    sequence_len: 8 #${op.add:${task.time_series_tokenizer.resample_dim},${task.cls_token}}
     d_model: ${task.embed_dim}
 
   # Default to the light finetuning describe in XTab's paper
