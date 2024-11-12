@@ -54,7 +54,7 @@ _args_:
     
     sequence_pooling:
       _target_: didactic.models.layers.SequencePooling
-      d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      d_model: ${task.embed_dim}
 
     reshape_tensor_back:
       _target_: vital.models.layers.Lambda
