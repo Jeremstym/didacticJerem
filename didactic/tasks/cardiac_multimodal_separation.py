@@ -25,6 +25,7 @@ import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
 from didactic.models.losses import ReconstructionLoss, CLSAlignment, OrthogonalLoss
+from didactic.models.adaptater import AdapterWrapperFT_Transformer, LoRALinear
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -48,6 +49,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         cls_token: bool = True,
         mtr_p: float | Tuple[float, float] = 0,
         mt_by_attr: bool = False,
+        perform_lora: bool = False,
         *args,
         **kwargs,
     ):
@@ -356,6 +358,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             else:
                 # Init a single universal MASK token
                 self.mask_token = _init_mask_token()
+
+
+        if perform_lora:
+            lora_linar = LoRALinear
+            self.encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=8, lora_alpha=8)
 
     @property
     def example_input_array(

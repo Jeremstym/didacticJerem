@@ -47,6 +47,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         cls_token: bool = True,
         mtr_p: float | Tuple[float, float] = 0,
         mt_by_attr: bool = False,
+        perform_lora: bool = False,
         *args,
         **kwargs,
     ):
@@ -322,6 +323,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             else:
                 # Init a single universal MASK token
                 self.mask_token = _init_mask_token()
+
+        if perform_lora:
+            lora_linar = LoRALinear
+            self.encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=8, lora_alpha=8)
 
     @property
     def example_input_array(
