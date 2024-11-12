@@ -49,6 +49,11 @@ def register_omegaconf_resolvers() -> None:
         ),
     )
     OmegaConf.register_new_resolver("list.at", lambda cfg, idx: cfg[idx])
+    
+    def resolve_tuple(*args):
+        return tuple(args)
+
+    OmegaConf.register_new_resolver("tuple", resolve_tuple)
 
 
 def read_ini_config(ini_config: Path) -> ConfigParser:
