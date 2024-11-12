@@ -121,6 +121,7 @@ task:
   first_prenormalization: False
   using_PE: True
   ts_pooling_factor: 0
+  perform_lora: False
 
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
