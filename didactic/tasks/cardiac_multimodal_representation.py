@@ -24,6 +24,7 @@ from vital.utils.decorators import auto_move_data
 import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
+from didactic.models.adaptater import AdapterWrapperFT_Transformer, LoRALinear
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
