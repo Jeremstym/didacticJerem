@@ -164,7 +164,7 @@ class MultiLoRAMultiheadSelfAttenion(LoRALayer):
 class AdapterWrapperFT_Transformer(nn.Module):
     def __init__(self, encoder, adapter_class, gamma, lora_alpha):
         super().__init__()
-        self.encoder = encoder
+        self.lora = encoder
         self.add_multi_adapter(adapter_class, gamma, lora_alpha)
         # self.model_frozen = False
         self.freeze_model(True)
@@ -186,7 +186,7 @@ class AdapterWrapperFT_Transformer(nn.Module):
         
         # setattr(self.resnet, "conv1", adapter)
 
-        for layer in self.encoder.blocks:
+        for layer in self.lora.blocks:
             target_layer = layer["ffn"].linear_first
             adapter = adapter_class(
                 r=gamma,
@@ -203,7 +203,7 @@ class AdapterWrapperFT_Transformer(nn.Module):
             setattr(layer["ffn"], "linear_second", adapter)
 
     def forward(self, x):
-        return self.encoder(x)
+        return self.lora(x)
 
 
     def freeze_model(self, freeze=True): # 
