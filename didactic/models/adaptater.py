@@ -289,8 +289,8 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
                 )
                 setattr(layer["l_ffn"], "linear_second", adapter)
 
-    def forward(self, x):
-        return self.lora(x)
+    def forward(self, x_tab, x_ts):
+        return self.lora(x_tab, x_ts)
 
     def freeze_model(self, freeze=True): # 
         """Freezes all weights of the encoder."""
