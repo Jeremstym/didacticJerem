@@ -301,6 +301,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LORA/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series task.contrastive_loss=False task.perform_lora=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab_selfatt.ckpt
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LORA/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series task.contrastive_loss=False task.perform_lora=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab_lora.ckpt
 
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LORA-corrected/seed${seed}' +experiment=cardinal/xtab-lora exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series ckpt=/home/stympopper/didacticJerem/ckpts/xtab_lora.ckpt
+
     # TEST WITHOUT TRAINING
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}/cardinal_default.ckpt' +state_dict=True
