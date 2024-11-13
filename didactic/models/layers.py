@@ -437,7 +437,7 @@ class DownSampling(nn.Module):
 class LinearPooling(nn.Module):
     """Pooling layer for time series data in the sequence dimension."""
 
-    def __init__(self, n_tokens: int, d_token: int, transpose: bool = False):
+    def __init__(self, n_tokens: int, d_token: int):
         """Initializes class instance.
 
         Args:
