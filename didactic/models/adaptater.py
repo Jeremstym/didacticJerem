@@ -297,6 +297,8 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
         if freeze: # 只更新lora, 非fc中的bias, 以及bn
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
+                print(self.named_parameters())
+                raise ValueError()
                 if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
                     if 'linear_first' not in n and 'linear_second' not in n:
                         p.requires_grad = False
@@ -310,8 +312,8 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
                     elif "bn" in n:
                         p.requires_grad = True
 
-                    else:
-                        p.requires_grad = True
+                else:
+                    p.requires_grad = True
         else:
             # Unfreeze
             for n, p in self.named_parameters():
