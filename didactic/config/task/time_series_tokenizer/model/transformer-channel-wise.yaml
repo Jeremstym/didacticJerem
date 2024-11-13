@@ -5,6 +5,7 @@ _args_:
     linear_pooling:
       _target_: didactic.models.layers.LinearPooling
       n_tokens: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      hidden_dim: ${op.mul{${task.embed_dim},2}}
       d_token: ${task.embed_dim}
 
     # convolution:
