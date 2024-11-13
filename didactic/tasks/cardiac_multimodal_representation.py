@@ -327,7 +327,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if perform_lora:
             lora_linar = LoRALinear
-            adapter_encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=2, lora_alpha=8)
+            adapter_encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=12, lora_alpha=8)
             setattr(self, "encoder", adapter_encoder)
 
     @property
