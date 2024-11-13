@@ -130,6 +130,7 @@ class VitalRunner(ABC):
         )
 
         if cfg.ckpt:  # Load pretrained model if checkpoint is provided
+            print(list(model.state_dict().keys()))
             if cfg.weights_only:
                 logger.info(f"Loading weights from {ckpt_path}")
                 # if not cfg.state_dict:
