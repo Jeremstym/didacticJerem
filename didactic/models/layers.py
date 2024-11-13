@@ -1,5 +1,5 @@
 import math
-from typing import Literal, Tuple, Union, Dict, Callable, List
+from typing import Literal, Tuple, Union, Dict, Callable, List, Optional
 
 import torch
 from scipy.special import binom, factorial
