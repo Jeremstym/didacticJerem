@@ -164,13 +164,19 @@ class MultiLoRAMultiheadSelfAttenion(LoRALayer):
 class AdapterWrapperFT_Transformer(nn.Module):
     def __init__(self, encoder, adapter_class, gamma, lora_alpha):
         super().__init__()
-        self.encoder = encoder
-        self.add_multi_adapter(adapter_class, gamma, lora_alpha)
+        self.add_multi_adapter(encoder, adapter_class, gamma, lora_alpha)
         # self.model_frozen = False
         self.freeze_model(True)
+        self.create_forward(encoder)
+
+    # Create forward method for the model without setting encoder as an attribute
+    def create_forward(self, encoder):
+        def forward(self, x):
+            return encoder(x)
+        return forward
 
 
-    def add_multi_adapter(self, adapter_class, gamma, lora_alpha):
+    def add_multi_adapter(self, encoder, adapter_class, gamma, lora_alpha):
         """
         Add adapter to resnets
         :param adapter_class: class for adapter
@@ -186,7 +192,7 @@ class AdapterWrapperFT_Transformer(nn.Module):
         
         # setattr(self.resnet, "conv1", adapter)
 
-        for layer in self.encoder.blocks:
+        for layer in encoder.blocks:
             target_layer = layer["ffn"].linear_first
             adapter = adapter_class(
                 r=gamma,
@@ -202,9 +208,8 @@ class AdapterWrapperFT_Transformer(nn.Module):
             )
             setattr(layer["ffn"], "linear_second", adapter)
 
-    def forward(self, x):
-        return self.encoder(x)
-
+    # def forward(self, x):
+    #     return self.encoder(x)
 
     def freeze_model(self, freeze=True): # 
         """Freezes all weights of the encoder."""
