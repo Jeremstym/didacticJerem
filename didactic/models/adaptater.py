@@ -247,6 +247,72 @@ class AdapterWrapperFT_Transformer(nn.Module):
 
 
 
+class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
+    def __init__(self, encoder, adapter_class, gamma, lora_alpha):
+        super().__init__()
+        self.lora = encoder
+        self.add_multi_adapter(adapter_class, gamma, lora_alpha)
+        # self.model_frozen = False
+        self.freeze_model(True)
+
+
+    def add_multi_adapter(self, adapter_class, gamma, lora_alpha):
+        """
+        Add adapter to resnets
+        :param adapter_class: class for adapter
+        """
+        # Add adapter input convolution.
+        # target_conv = self.resnet.conv1
+        # adapter = adapter_class(
+        #     r=gamma,
+        #     lora_alpha=lora_alpha,
+        #     conv_layer=target_conv
+        # )
+        # adapter = adapter_class(r=gamma, lora_alpha=lora_alpha, conv_layer=target_conv,)
+        
+        # setattr(self.resnet, "conv1", adapter)
+
+        for layer in self.lora.blocks:
+            target_layer = layer["l_ffn"].linear_first
+            adapter = adapter_class(
+                r=gamma,
+                lora_alpha=lora_alpha,
+                linear_layer=target_layer
+            )
+            setattr(layer["l_ffn"], "linear_first", adapter)
+            target_layer = layer["l_ffn"].linear_second
+            adapter = adapter_class(
+                r=gamma,
+                lora_alpha=lora_alpha,
+                linear_layer=target_layer
+            )
+            setattr(layer["l_ffn"], "linear_second", adapter)
+
+    def forward(self, x):
+        return self.lora(x)
+
+    def freeze_model(self, freeze=True): # 
+        """Freezes all weights of the encoder."""
+        if freeze: # 只更新lora, 非fc中的bias, 以及bn
+            # First freeze/ unfreeze all encoder weights
+            for n, p in self.named_parameters():
+                if 'linear_first' not in n and 'linear_second' not in n:
+                    p.requires_grad = False
+                else:
+                    p.requires_grad = True
+            for n, p in self.named_parameters():
+                if 'bias' in n:
+                    if "fc" not in n:
+                        p.requires_grad = True
+                elif "bn" in n:
+                    p.requires_grad = True
+        else:
+            # Unfreeze
+            for n, p in self.named_parameters():
+                p.requires_grad = True
+        self.model_frozen = freeze
+
+
 class AdapterWrapperShuffleNet(nn.Module):
     def __init__(self, transformer_model, adapter_class, num_task, gamma, lora_alpha):
         super().__init__()
