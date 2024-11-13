@@ -216,11 +216,10 @@ class AdapterWrapperFT_Transformer(nn.Module):
                 else:
                     p.requires_grad = True
             for n, p in self.named_parameters():
-                if 'bias' in n:
-                    if "fc" not in n:
-                        p.requires_grad = True
-                elif "bn" in n:
+                if 'linear_first.bias' in n or "linear_second.bias" in n:
                     p.requires_grad = True
+                # elif "bn" in n:
+                #     p.requires_grad = True
         else:
             # Unfreeze
             for n, p in self.named_parameters():
