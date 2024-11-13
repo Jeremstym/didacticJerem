@@ -211,13 +211,13 @@ class AdapterWrapperFT_Transformer(nn.Module):
         if freeze: # 只更新lora, 非fc中的bias, 以及bn
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
-                if 'linear_first' not in n and 'linear_second' not in n:
+                if 'lora_' not in n:
                     p.requires_grad = False
                 else:
                     p.requires_grad = True
-            for n, p in self.named_parameters():
-                if 'linear_first.bias' in n or "linear_second.bias" in n:
-                    p.requires_grad = True
+            # for n, p in self.named_parameters():
+            #     if 'linear_first.bias' in n or "linear_second.bias" in n:
+            #         p.requires_grad = True
                 # elif "bn" in n:
                 #     p.requires_grad = True
         else:
@@ -297,15 +297,15 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
                 if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
-                    if 'linear_first' not in n and 'linear_second' not in n:
+                    if 'lora_' not in n:
                         p.requires_grad = False
                     else:
                         p.requires_grad = True
             # for n, p in self.named_parameters():
             #     if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
-                    if 'linear_first.bias' in n or "linear_second.bias" in n:
-                        # if "fc" not in n:
-                        p.requires_grad = True
+                    # if 'linear_first.bias' in n or "linear_second.bias" in n:
+                    #     if "fc" not in n:
+                    #     p.requires_grad = True
                     # elif "bn" in n:
                     #     p.requires_grad = True
 
