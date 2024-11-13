@@ -330,7 +330,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if self.separate_modality:
                 adapter_encoder = AdapterWrapperFT_Transformer_CrossAtt(self.encoder, lora_linar, gamma=8, lora_alpha=8)
             else:
-                adapter_encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=8, lora_alpha=8)
+                adapter_encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=12, lora_alpha=8)
             setattr(self, "encoder", adapter_encoder)
 
     @property
