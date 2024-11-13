@@ -287,6 +287,21 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
                     linear_layer=target_layer
                 )
                 setattr(layer["l_ffn"], "linear_second", adapter)
+            if "r_ffn" in layer:
+                target_layer = layer["r_ffn"].linear_first
+                adapter = adapter_class(
+                    r=gamma,
+                    lora_alpha=lora_alpha,
+                    linear_layer=target_layer
+                )
+                setattr(layer["r_ffn"], "linear_first", adapter)
+                target_layer = layer["r_ffn"].linear_second
+                adapter = adapter_class(
+                    r=gamma,
+                    lora_alpha=lora_alpha,
+                    linear_layer=target_layer
+                )
+                setattr(layer["r_ffn"], "linear_second", adapter)
 
     def forward(self, x_tab, x_ts):
         return self.lora(x_tab, x_ts)
