@@ -273,6 +273,7 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
         # setattr(self.resnet, "conv1", adapter)
 
         for layer in self.lora.blocks:
+            print(f"layer: {layer}")
             target_layer = layer["l_ffn"].linear_first
             adapter = adapter_class(
                 r=gamma,
