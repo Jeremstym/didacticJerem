@@ -273,21 +273,21 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
         # setattr(self.resnet, "conv1", adapter)
 
         for layer in self.lora.blocks:
-            print(f"layer: {layer}")
-            target_layer = layer["l_ffn"].linear_first
-            adapter = adapter_class(
-                r=gamma,
-                lora_alpha=lora_alpha,
-                linear_layer=target_layer
-            )
-            setattr(layer["l_ffn"], "linear_first", adapter)
-            target_layer = layer["l_ffn"].linear_second
-            adapter = adapter_class(
-                r=gamma,
-                lora_alpha=lora_alpha,
-                linear_layer=target_layer
-            )
-            setattr(layer["l_ffn"], "linear_second", adapter)
+            if "l_ffn" in layer:
+                target_layer = layer["l_ffn"].linear_first
+                adapter = adapter_class(
+                    r=gamma,
+                    lora_alpha=lora_alpha,
+                    linear_layer=target_layer
+                )
+                setattr(layer["l_ffn"], "linear_first", adapter)
+                target_layer = layer["l_ffn"].linear_second
+                adapter = adapter_class(
+                    r=gamma,
+                    lora_alpha=lora_alpha,
+                    linear_layer=target_layer
+                )
+                setattr(layer["l_ffn"], "linear_second", adapter)
 
     def forward(self, x):
         return self.lora(x)
@@ -297,16 +297,21 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
         if freeze: # 只更新lora, 非fc中的bias, 以及bn
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
-                if 'linear_first' not in n and 'linear_second' not in n:
-                    p.requires_grad = False
-                else:
-                    p.requires_grad = True
-            for n, p in self.named_parameters():
-                if 'bias' in n:
-                    if "fc" not in n:
+                if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
+                    if 'linear_first' not in n and 'linear_second' not in n:
+                        p.requires_grad = False
+                    else:
                         p.requires_grad = True
-                elif "bn" in n:
-                    p.requires_grad = True
+            # for n, p in self.named_parameters():
+            #     if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
+                    if 'bias' in n:
+                        if "fc" not in n:
+                            p.requires_grad = True
+                    elif "bn" in n:
+                        p.requires_grad = True
+
+                    else:
+                        p.requires_grad = True
         else:
             # Unfreeze
             for n, p in self.named_parameters():
