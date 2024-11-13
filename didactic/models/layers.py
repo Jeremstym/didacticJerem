@@ -437,14 +437,17 @@ class DownSampling(nn.Module):
 class LinearPooling(nn.Module):
     """Pooling layer for time series data in the sequence dimension."""
 
-    def __init__(self, n_tokens: int, d_token: int):
+    def __init__(self, n_tokens: int, d_token: int, hidden_dim: Optional[int] = None):
         """Initializes class instance.
 
         Args:
             n_tokens: Number of tokens in the input tensor
         """
         super().__init__()
-        self.linear_pool = nn.Linear(n_tokens, d_token)
+        if hidden_dim is not None:
+            self.linear_pool = nn.Sequential(nn.Linear(n_tokens, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, d_token))
+        else:
+            self.linear_pool = nn.Linear(n_tokens, d_token)
 
     def forward(self, x: Tensor) -> Tensor:
         """Applies a linear projection along the sequence dimension of the input tensor.
