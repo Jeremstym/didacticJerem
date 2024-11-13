@@ -303,9 +303,10 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
                         p.requires_grad = True
             # for n, p in self.named_parameters():
             #     if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
-                    if 'linear_first.bias' in n or "linear_second.bias" in n:
-                        # if "fc" not in n:
-                        p.requires_grad = True
+                    # if 'linear_first.bias' in n or "linear_second.bias" in n:
+                    if "bias" in n:
+                        if "fc" not in n:
+                            p.requires_grad = True
                     # elif "bn" in n:
                     #     p.requires_grad = True
 
