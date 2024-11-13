@@ -297,7 +297,6 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
                 if any([x in n for x in ["blocks.0", "blocks.1", "blocks.2"]]):
-                    print('HAPPENING')
                     if 'linear_first' not in n and 'linear_second' not in n:
                         p.requires_grad = False
                     else:
@@ -316,7 +315,6 @@ class AdapterWrapperFT_Transformer_CrossAtt(nn.Module):
             # Unfreeze
             for n, p in self.named_parameters():
                 p.requires_grad = True
-        raise ValueError()
         self.model_frozen = freeze
 
 
