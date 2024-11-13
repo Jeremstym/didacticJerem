@@ -5,8 +5,6 @@ defaults:
   - override /task/model/encoder: xtab
   - override /task/time_series_tokenizer/model: linear-embedding-differentiate-single
 
-ckpt: /home/stympopper/didacticJerem/ckpts/xtab_lora.ckpt
-
 trainer:
   max_steps: 2000
 
