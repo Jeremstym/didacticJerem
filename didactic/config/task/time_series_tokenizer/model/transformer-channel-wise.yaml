@@ -34,8 +34,8 @@ _args_:
     
     convolution:
       _target_: didactic.models.layers.TS_Patching
-      in_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-      out_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      in_features: ${task.embed_dim} #${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      out_features: ${task.embed_dim} #${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}}
       kernel_size: 8
       stride: 4
       padding: 0
