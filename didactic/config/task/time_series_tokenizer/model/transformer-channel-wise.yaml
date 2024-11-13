@@ -2,18 +2,23 @@ _target_: torch.nn.Sequential
 _args_:
   - _target_: collections.OrderedDict
 
-    convolution:
-      _target_: didactic.models.layers.TS_Patching
-      in_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-      out_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-      kernel_size: 8
-      stride: 4
-      padding: 0
+    linear_pooling:
+      _target_: didactic.models.layers.LinearPooling
+      n_tokens: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      d_token: ${task.embed_dim}
+
+    # convolution:
+    #   _target_: didactic.models.layers.TS_Patching
+    #   in_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+    #   out_features: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+    #   kernel_size: 8
+    #   stride: 4
+    #   padding: 0
 
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
       sequence_len: ${task.time_series_tokenizer.resample_dim}
-      d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+      d_model: ${task.embed_dim} #${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
 
     transformer:
       _target_: torch.nn.TransformerEncoder
@@ -21,19 +26,15 @@ _args_:
 
       norm:
         _target_: torch.nn.LayerNorm
-        normalized_shape: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+        normalized_shape: ${task.embed_dim} #${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
 
       encoder_layer:
         _target_: torch.nn.TransformerEncoderLayer
-        d_model: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-        nhead: 2
-        dim_feedforward: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+        d_model: ${task.embed_dim} #${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
+        nhead: 8
+        dim_feedforward: ${task.embed_dim} #${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
         dropout: 0.3
         activation: relu
         batch_first: True
         norm_first: False
     
-    linear_pooling:
-      _target_: didactic.models.layers.LinearPooling
-      n_tokens: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
-      d_token: ${task.embed_dim}
