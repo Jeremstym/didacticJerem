@@ -3,7 +3,7 @@
 defaults:
   - cardinal/cardiac-multimodal-representation
   - override /task/model/encoder: xtab
-  - override /task/time_series_tokenizer/model: linear-embedding-differentiate-single
+  - override /task/time_series_tokenizer/model: transformer
 
 trainer:
   max_steps: 2000
