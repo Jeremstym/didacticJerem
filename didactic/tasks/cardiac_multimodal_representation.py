@@ -24,7 +24,7 @@ from vital.utils.decorators import auto_move_data
 import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
-from didactic.models.adaptater import AdapterWrapperFT_Transformer, AdapterWrapperFT_Transformer_CrossAtt, LoRALinear
+from didactic.models.adaptater import AdapterWrapperFT_Transformer, AdapterWrapperFT_Transformer_CrossAtt, AdapterWrapperFT_Interleaved, LoRALinear
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -327,10 +327,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if perform_lora:
             lora_linar = LoRALinear
-            if self.separate_modality:
-                adapter_encoder = AdapterWrapperFT_Transformer_CrossAtt(self.encoder, lora_linar, gamma=8, lora_alpha=8)
-            else:
+            if not self.separate_modality:
                 adapter_encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=8, lora_alpha=8)
+            elif isintance(self.encoder, didactic.models.transformer.FT_Interleaved):
+                adapter_encoder = AdapterWrapperFT_Interleaved(self.encoder, lora_linar, gamma=8, lora_alpha=8)
+            else:
+                adapter_encoder = AdapterWrapperFT_Transformer_CrossAtt(self.encoder, lora_linar, gamma=8, lora_alpha=8)
             setattr(self, "encoder", adapter_encoder)
 
     @property
