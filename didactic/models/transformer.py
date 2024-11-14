@@ -766,8 +766,8 @@ class FT_Interleaved(nn.Module):
     def freeze_self_attention(self):
         for block in self.blocks:
             if "attention" in block:
-                block["attention"].freeze()
-                block["ffn"].freeze()
+                for param in block.parameters():
+                    param.requires_grad = False
 
     # def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
     #     layer = nn.ModuleDict(
