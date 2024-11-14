@@ -8,7 +8,6 @@ _args_:
       # hidden_dim: ${op.mul{${task.embed_dim},2}}
       d_token: ${task.embed_dim}
 
-
     positional_encoding:
       _target_: didactic.models.layers.PositionalEncoding
       sequence_len: ${task.time_series_tokenizer.resample_dim}
