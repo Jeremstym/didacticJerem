@@ -458,9 +458,7 @@ class LinearPooling(nn.Module):
         Returns:
             (N, S_out, E) or (N, S, E_out), Output tensor.
         """
-        x = self.linear_pool(x)
-        print(f"x shape is {x.shape}")
-        return x
+        return self.linear_pool(x)
 
 class TS_Patching(nn.Module):
     """Downsampling layer for time series data."""
