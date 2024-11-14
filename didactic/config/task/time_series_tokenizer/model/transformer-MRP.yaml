@@ -29,7 +29,7 @@ _args_:
       out_features: 1
       kernel_sizes: [ 16, 16, 16 ]
       strides: [ 8, 8, 8 ]
-      padding: [ 1, 1, 1 ]
+      padding: [ 0, 1, 2 ]
 
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
