@@ -689,12 +689,17 @@ class FT_Interleaved(nn.Module):
         layers = []
         total_blocks = max(self.n_self_blocks, self.n_cross_blocks)
 
-        for layer_idx in range(total_blocks):
-            if layer_idx < self.n_self_blocks:
+        if self.n_cross_blocks > 1:
+            for layer_idx in range(total_blocks):
+                if layer_idx < self.n_self_blocks:
+                    layers.append(self._init_attention_block(layer_idx))
+                
+                if layer_idx < self.n_cross_blocks:
+                    layers.append(self._init_cross_attention_block(layer_idx))
+        elif self.n_cross_blocks == 1:
+            for layer_idx in range(self.n_self_blocks):
                 layers.append(self._init_attention_block(layer_idx))
-            
-            if layer_idx < self.n_cross_blocks:
-                layers.append(self._init_cross_attention_block(layer_idx))
+            self.unique_cross_block = self._init_cross_attention_block(0)
 
         self.blocks = nn.ModuleList(layers)
 
@@ -899,6 +904,31 @@ class FT_Interleaved(nn.Module):
                 x_residual = self._start_residual(block, "ffn", x, stage="self_attention")
                 x_residual = block["ffn"](x_residual)
                 x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
+
+                if self.unique_cross_block:
+                    block = self.unique_cross_block
+
+                    block = cast(nn.ModuleDict, block)
+
+                    # Normalize the tokens from both modalities if prenormalization is enabled
+                    x_residual = self._start_residual(block, "cross_attention", x, stage="cross_attention")
+                    x_context_residual = self._start_residual(block, "cross_attention", x_context, stage="cross_attention")
+
+                    # Forward pass through the cross-attention block
+                    x_residual, x_context_residual = block["cross_attention"](x_residual, x_context_residual)
+
+                    # Residual connections after the attention layer for both modalities
+                    x = self._end_residual(block, "cross_attention", x, x_residual, stage="cross_attention")
+                    x_context = self._end_residual(block, "cross_attention", x_context, x_context_residual, stage="cross_attention")
+
+                    # Forward pass through the normalization, FFN layer, and residual connection for both modalities
+                    x_residual = self._start_residual(block, "cross_ffn", x, stage="cross_attention")
+                    x_residual = block["cross_ffn"](x_residual)
+                    x = self._end_residual(block, "cross_ffn", x, x_residual, stage="cross_attention")
+
+                    x_context_residual = self._start_residual(block, "cross_ffn", x_context, stage="cross_attention")
+                    x_context_residual = block["cross_ffn"](x_context_residual)
+                    x_context = self._end_residual(block, "cross_ffn", x_context, x_context_residual, stage="cross_attention")
 
             else:
                 block = cast(nn.ModuleDict, block)
