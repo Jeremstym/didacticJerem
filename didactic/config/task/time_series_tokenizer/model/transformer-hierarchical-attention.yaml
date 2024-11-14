@@ -63,9 +63,17 @@ _args_:
         _partial_: True
       shape: ${tuple:-1,${task.time_series_tokenizer.resample_dim},${task.embed_dim}}
 
+    downsamplig:
+      _target_: didactic.models.layers.TS_Patching
+      in_features: ${task.embed_dim}
+      out_features: ${task.embed_dim}
+      kernel_size: 16
+      stride: 8
+      padding: 0
+
     positional_encoding_time_wise:
       _target_: didactic.models.layers.PositionalEncoding
-      sequence_len: ${task.time_series_tokenizer.resample_dim}
+      sequence_len: 7 #${task.time_series_tokenizer.resample_dim}
       d_model: ${task.embed_dim}
 
     transformer_encoder_time_wise:
@@ -79,7 +87,7 @@ _args_:
       encoder_layer:
         _target_: torch.nn.TransformerEncoderLayer
         d_model: ${task.embed_dim}
-        nhead: 8
+        nhead: 4
         dim_feedforward: ${task.embed_dim}
         dropout: 0.3
         activation: relu
@@ -90,11 +98,3 @@ _args_:
     #   _target_: didactic.models.layers.LinearPooling
     #   n_tokens: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
     #   d_token: ${task.embed_dim}
-
-    downsamplig:
-      _target_: didactic.models.layers.TS_Patching
-      in_features: ${task.embed_dim}
-      out_features: ${task.embed_dim}
-      kernel_size: 16
-      stride: 8
-      padding: 0
