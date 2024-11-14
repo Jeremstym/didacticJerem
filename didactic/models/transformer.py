@@ -608,6 +608,7 @@ class FT_Interleaved(nn.Module):
         residual_dropout: float,
         prenormalization: bool,
         first_prenormalization: bool,
+        frozen_blocks: List[int],
     ) -> None:
         """
         Parameters
@@ -697,6 +698,9 @@ class FT_Interleaved(nn.Module):
 
         self.blocks = nn.ModuleList(layers)
 
+        if frozen_blocks:
+            self.freeze_blocks(frozen_blocks)
+
     def _init_attention_block(self, layer_idx: int) -> nn.ModuleDict:
         layer = nn.ModuleDict(
             {
@@ -752,6 +756,16 @@ class FT_Interleaved(nn.Module):
         layer["cross_ffn_normalization"] = get_nn_module(self.ffn_normalization)
 
         return layer
+
+    def freeze_blocks(self, blocks: List[int]) -> None:
+        """Freezes the specified blocks of the transformer.
+
+        Args:
+            blocks: List of block indices to freeze.
+        """
+        for block_idx in blocks:
+            for param in self.blocks[block_idx].parameters():
+                param.requires_grad = False
 
     # def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
     #     layer = nn.ModuleDict(
