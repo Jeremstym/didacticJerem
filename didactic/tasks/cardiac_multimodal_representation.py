@@ -329,7 +329,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             lora_linar = LoRALinear
             if not self.separate_modality:
                 adapter_encoder = AdapterWrapperFT_Transformer(self.encoder, lora_linar, gamma=8, lora_alpha=8)
-            elif isintance(self.encoder, didactic.models.transformer.FT_Interleaved):
+            elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved):
                 adapter_encoder = AdapterWrapperFT_Interleaved(self.encoder, lora_linar, gamma=8, lora_alpha=8)
             else:
                 adapter_encoder = AdapterWrapperFT_Transformer_CrossAtt(self.encoder, lora_linar, gamma=8, lora_alpha=8)
