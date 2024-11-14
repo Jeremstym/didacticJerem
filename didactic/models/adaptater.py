@@ -275,9 +275,13 @@ class AdapterWrapperFT_Interleaved(nn.Module):
         if freeze: # 只更新lora, 非fc中的bias, 以及bn
             # First freeze/ unfreeze all encoder weights
             for n, p in self.named_parameters():
-                if 'lora_' not in n and "cross_attention" not in n:
+                if 'attention' in n or "ffn" in n:
                     p.requires_grad = False
                 else:
+                    p.requires_grad = True
+                if 'lora_' in n:
+                    p.requires_grad = True
+                if "cross_attention" in n or "cross_ffn" in n:
                     p.requires_grad = True
             # for n, p in self.named_parameters():
             #     if 'linear_first.bias' in n or "linear_second.bias" in n:
