@@ -458,12 +458,14 @@ class LinearPooling(nn.Module):
         Returns:
             (N, S_out, E) or (N, S, E_out), Output tensor.
         """
-        return self.linear_pool(x)
+        x = self.linear_pool(x)
+        print(f"x shape is {x.shape}")
+        return x
 
 class TS_Patching(nn.Module):
     """Downsampling layer for time series data."""
 
-    def __init__(self, in_features: int, out_features: int, kernel_size: int, stride: int, padding=0):
+    def __init__(self, in_features: int, out_features: int, kernel_size: int, stride: int, padding=0, transpose: bool = False):
         """Initializes class instance.
 
         Args:
@@ -474,6 +476,7 @@ class TS_Patching(nn.Module):
         """
         super().__init__()
         self.conv = nn.Conv1d(in_features, out_features, kernel_size=kernel_size, stride=stride, padding=padding)
+        self.transpose = transpose
 
     def forward(self, x: Tensor) -> Tensor:
         """Performs a forward pass through the downsampling layer.
@@ -484,8 +487,10 @@ class TS_Patching(nn.Module):
         Returns:
             (N, S_ts, E), Output tensor.
         """
-        return self.conv(x.transpose(1, 2)).transpose(1, 2)
-
+        if self.transpose:
+            return self.conv(x.transpose(1, 2)).transpose(1, 2)
+        else:
+            return self.conv(x)
 
 class MultiResolutionPatching(nn.Module):
     """Multi-resolution patching layer for time series data."""
