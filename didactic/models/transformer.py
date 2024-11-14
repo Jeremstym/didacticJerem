@@ -608,7 +608,7 @@ class FT_Interleaved(nn.Module):
         residual_dropout: float,
         prenormalization: bool,
         first_prenormalization: bool,
-        frozen_blocks: List[int],
+        frozen_blocks: List[int] = [],
     ) -> None:
         """
         Parameters
