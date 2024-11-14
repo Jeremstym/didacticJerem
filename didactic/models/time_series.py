@@ -33,6 +33,7 @@ def multi_differentiate_ts(x: Tensor, orders: Sequence[int]) -> Tensor:
     for i, order in enumerate(orders):
         sub_tensor = differentiate_ts(tensor[:, i], order)
         tensor_list.append(sub_tensor)
+        print(f"Sub-tensor {i} shape: {sub_tensor.shape}")
     return tensor_list
 
 class MultiLinearEmbedding(nn.Module):
