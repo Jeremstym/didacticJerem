@@ -34,7 +34,7 @@ _args_:
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
       n_tokens: 21 #${_args_[0].positional_encoding.sequence_len}
-      d_token: 4
+      d_token: 192
 
     upsampling:
       _target_: torch.nn.Linear
@@ -53,7 +53,7 @@ _args_:
 
     transformer_encoder:
       _target_: torch.nn.TransformerEncoder
-      num_layers: 3
+      num_layers: 1
 
       norm:
         _target_: torch.nn.LayerNorm
