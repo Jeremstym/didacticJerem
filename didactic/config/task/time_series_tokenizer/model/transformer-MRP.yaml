@@ -16,12 +16,6 @@ _args_:
         _partial_: True
       orders: [ 0, 1, 2 ]
 
-    # expand_feat_dim:
-    #   _target_: vital.models.layers.Lambda
-    #   fn:
-    #     _target_: torch.unsqueeze
-    #     _partial_: True
-    #   dim: -1
 
     downsampling:
       _target_: didactic.models.layers.MultiResolutionPatching
@@ -30,6 +24,13 @@ _args_:
       kernel_sizes: [ 16, 16, 16 ]
       strides: [ 8, 8, 8 ]
       padding: [ 1, 1, 1 ]
+
+    expand_feat_dim:
+      _target_: vital.models.layers.Lambda
+      fn:
+        _target_: torch.unsqueeze
+        _partial_: True
+      dim: -1
 
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
