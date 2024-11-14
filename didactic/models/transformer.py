@@ -608,7 +608,7 @@ class FT_Interleaved(nn.Module):
         residual_dropout: float,
         prenormalization: bool,
         first_prenormalization: bool,
-        frozen_blocks: List[int] = [],
+        freeze_self_attention: bool = False,
     ) -> None:
         """
         Parameters
@@ -703,8 +703,9 @@ class FT_Interleaved(nn.Module):
 
         self.blocks = nn.ModuleList(layers)
 
-        if frozen_blocks:
-            self.freeze_blocks(frozen_blocks)
+        if freeze_self_attention:
+            self.freeze_self_attention()
+
 
     def _init_attention_block(self, layer_idx: int) -> nn.ModuleDict:
         layer = nn.ModuleDict(
@@ -762,15 +763,11 @@ class FT_Interleaved(nn.Module):
 
         return layer
 
-    def freeze_blocks(self, blocks: List[int]) -> None:
-        """Freezes the specified blocks of the transformer.
-
-        Args:
-            blocks: List of block indices to freeze.
-        """
-        for block_idx in blocks:
-            for param in self.blocks[block_idx].parameters():
-                param.requires_grad = False
+    def freeze_self_attention(self):
+        for block in self.blocks:
+            if "attention" in block:
+                block["attention"].freeze()
+                block["ffn"].freeze()
 
     # def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
     #     layer = nn.ModuleDict(
