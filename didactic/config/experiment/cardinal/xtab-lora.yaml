@@ -35,7 +35,7 @@ task:
       weight_decay: 1e-5
 
   time_series_tokenizer:
-    channel_first: False
+    channel_first: True
 
 # Change checkpoint loading defaults to:
 ckpt: ??? # Make it mandatory to provide a checkpoint
