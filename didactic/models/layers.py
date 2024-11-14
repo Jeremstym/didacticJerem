@@ -522,9 +522,9 @@ class MultiResolutionPatching(nn.Module):
             in_features, out_features, kernel_size=kernel_sizes[1], stride=strides[1], padding=padding[1]
         )
 
-        self.conv3 = nn.Conv1d(
-            in_features, out_features, kernel_size=kernel_sizes[2], stride=strides[2], padding=padding[2]
-        )
+        # self.conv3 = nn.Conv1d(
+        #     in_features, out_features, kernel_size=kernel_sizes[2], stride=strides[2], padding=padding[2]
+        # )
 
     def forward(self, x: List[Tensor]) -> Tensor:
         """Performs a forward pass through the multi-resolution patching layer.
@@ -542,7 +542,7 @@ class MultiResolutionPatching(nn.Module):
                 [
                 self.conv1(x[0].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
                 self.conv2(x[1].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
-                self.conv3(x[2].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
+                # self.conv3(x[2].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
             ], dim=1
         ) # (N, S_ts, 1)
         return conv_results
