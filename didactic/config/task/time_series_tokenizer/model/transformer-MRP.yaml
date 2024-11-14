@@ -33,8 +33,9 @@ _args_:
 
     linear_projection:
       _target_: didactic.models.layers.LinearPooling
+      transpose: True
       n_tokens: 21 #${_args_[0].positional_encoding.sequence_len}
-      d_token: 192
+      d_token: 4
 
     upsampling:
       _target_: torch.nn.Linear

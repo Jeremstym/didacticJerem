@@ -540,7 +540,7 @@ class MultiResolutionPatching(nn.Module):
                 self.conv3(x[2].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
             ], dim=1
         ) # (N, S_ts, 1)
-        return conv_results.squeeze(-1)
+        return conv_results
 
 
 class FTPredictionHead(nn.Module):
