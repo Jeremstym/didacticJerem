@@ -533,13 +533,14 @@ class MultiResolutionPatching(nn.Module):
         # return torch.cat(
         #     [self.conv1(x.transpose(1, 2)).transpose(1, 2), self.conv2(x.transpose(1, 2)).transpose(1, 2)], dim=1
         # )
-        return torch.cat(
+        conv_results = torch.cat(
                 [
                 self.conv1(x[0].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
                 self.conv2(x[1].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
                 self.conv3(x[2].unsqueeze(-1).transpose(1, 2)).transpose(1, 2),
             ], dim=1
         ) # (N, S_ts, 1)
+        return conv_results.squeeze(-1)
 
 
 class FTPredictionHead(nn.Module):
