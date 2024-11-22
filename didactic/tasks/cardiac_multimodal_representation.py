@@ -711,7 +711,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return metrics
 
     def _contrastive_shared_step(
-        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, out_features: Tensor
+        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Extract features from the original view + from a view corrupted by augmentations
         # anchor_out_features = out_features
