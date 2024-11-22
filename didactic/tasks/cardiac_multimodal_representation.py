@@ -570,16 +570,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         else:
             # Forward pass through the transformer encoder
-            if not enable_proj:
-                ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
-            else:
+            if enable_proj:
                 ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
                 tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
                 cls_tokens = tokens[:, -1, :]
                 tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
                 tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
 
-                tab_tokens = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+                tokens = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
 
             out_tokens = self.encoder(tokens)
 
