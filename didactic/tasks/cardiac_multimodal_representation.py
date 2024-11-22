@@ -25,6 +25,7 @@ import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
 from didactic.models.adaptater import AdapterWrapperFT_Transformer, AdapterWrapperFT_Transformer_CrossAtt, AdapterWrapperFT_Interleaved, LoRALinear
+from didactic.models.losses import OrthogonalLoss, NTXentLossDecoupling
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -41,8 +42,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         views: Sequence[ViewEnum] = tuple(ViewEnum),
         predict_losses: Dict[TabularAttribute | str, Callable[[Tensor, Tensor], Tensor]] | DictConfig = None,
         ordinal_mode: bool = True,
-        contrastive_loss: Callable[[Tensor, Tensor], Tensor] | DictConfig = None,
-        contrastive_loss_weight: float = 0,
+        contrastive_loss: Callable[[Tensor, Tensor, Tensor], Tensor] | DictConfig = None,
+        contrastive_loss_weight: float = 0.0,
+        orthgonal_loss: Callable[[Tensor, Tensor], Tensor] | DictConfig = None,
+        orthgonal_loss_weight: float = 0.0,
         tabular_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         time_series_tokenizer: Optional[TimeSeriesEmbedding | DictConfig] = None,
         cls_token: bool = True,
@@ -223,21 +226,32 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             attr in TabularAttribute.ordinal_attrs() for attr in self.predict_losses
         )
 
-        # Self-supervised losses and metrics
-        self.contrastive_loss = None
-        if contrastive_loss: # and self.hparams.contrastive_loss_weight:
-            self.contrastive_loss = (
-                hydra.utils.instantiate(contrastive_loss)
-                if isinstance(contrastive_loss, DictConfig)
-                else contrastive_loss
-            )
-
         # Compute shapes relevant for defining the models' architectures
         self.n_tabular_attrs = len(self.hparams.tabular_attrs)
         self.n_time_series_attrs = len(self.hparams.time_series_attrs) * len(self.hparams.views)
         if self.hparams.ts_pooling_factor:
             self.n_time_series_attrs *= self.hparams.ts_pooling_factor
         self.sequence_length = self.n_time_series_attrs + self.n_tabular_attrs + self.hparams.cls_token
+
+         # Self-supervised losses and metrics
+        self.contrastive_loss = None
+        self.orthogonal_loss = None
+        if contrastive_loss and self.hparams.contrastive_loss_weight:
+            self.contrastive_loss = (
+                hydra.utils.instantiate(contrastive_loss)
+                if isinstance(contrastive_loss, DictConfig)
+                else contrastive_loss
+            )
+        if orthgonal_loss and self.hparams.orthgonal_loss_weight:
+            self.orthogonal_loss = (
+                hydra.utils.instantiate(orthogonal_loss)
+                if isinstance(orthgonal_loss, DictConfig)
+                else orthgonal_loss
+            )
+
+        if self.hparams.contrastive_loss_weight:
+            self.tabular_lin_proj = nn.Linear(embed_dim, 2*embed_dim)
+            self.time_series_lin_proj = nn.Linear(embed_dim, embed_dim)
 
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
@@ -360,8 +374,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Build the projection head for contrastive learning, if contrastive learning is enabled
         contrastive_head = None
-        if self.contrastive_loss:
+        if self.contrastive_loss and not self.orthogonal_loss:
             contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
+        elif self.contrastive_loss and self.orthogonal_loss:
+            contrastive_head = nn.Identity()
 
         # Build the prediction heads (one by tabular attribute to predict) following the architecture proposed in
         # https://arxiv.org/pdf/2106.11959
@@ -646,6 +662,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.contrastive_loss:  # run self-supervised contrastive step
             metrics.update(self._contrastive_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
             losses.append(self.hparams.contrastive_loss_weight * metrics["cont_loss"])
+            if self.orthogonal_loss:
+                losses.append(self.hparams.orthogonal_loss_weight * metrics["orth_loss"])
 
         # Compute the sum of the (weighted) losses
         metrics["loss"] = sum(losses)
@@ -695,15 +713,29 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Extract features from the original view + from a view corrupted by augmentations
         # anchor_out_features = out_features
         # pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
-        out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, alignment=True)
+        # out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, alignment=True)
         # corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
+        ts_tokens, tab_tokens = in_tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+
+        ts_tokens = self.time_series_lin_proj(ts_tokens)
+        ts_avg = torch.mean(ts_tokens, dim=1) # (N, E)
+        tab_tokens = self.tabular_lin_proj(tab_tokens)
+        tab_avg = torch.mean(tab_tokens, dim=1, keepdim=True).reshape(-1, 2, self.hparams.embed_dim) # (N, 2, E)
 
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(out_features), self.contrastive_head(out_ts_features)
+                self.contrastive_head(ts_avg), self.contrastive_head(tab_avg[:, 0])
             )
         }
+        if self.orthogonal_loss:
+            metrics.update(
+                {
+                    "orth_loss": self.orthogonal_loss(
+                        self.contrastive_head(tab_avg[:, 0]), self.contrastive_head(tab_avg[:, 1])
+                    )
+                }
+            )
 
         return metrics
 
