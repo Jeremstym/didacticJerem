@@ -521,7 +521,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
-    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, alignment: bool = False) -> Tensor:
+    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, enable_proj: bool = False) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
         Args:
@@ -546,7 +546,16 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
-            ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+            if not enable_proj:
+                ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+            else:
+                ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
+                tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
+                cls_tokens = tokens[:, -1, :]
+                tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
+                tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
+
+                tab_tokens = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
 
             if self.hparams.cls_token and self.hparams.ts_cls_token:
                 # Add the CLS token to the end of each item in the batch
@@ -673,7 +682,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Forward pass through each target's prediction head
-        out_features = self.encode(in_tokens, avail_mask)
+        out_features = self.encode(in_tokens, avail_mask, enable_proj=True)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(out_features)
