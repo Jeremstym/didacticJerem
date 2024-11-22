@@ -43,7 +43,7 @@ class OrthogonalLoss(nn.Module):
             Scalar loss value.
         """
         assert x_unique.shape[1] == x_shared.shape[1], "Input tensors must have the same embedding dimension."
-        assert x.ndim == 2, "Input tensor must have 3 dimensions, (N, E)."
+        assert x_shared.ndim == 2, "Input tensor must have 2 dimensions, (N, E)."
         x = torch.mm(x_shared, x_unique.t())
         return torch.norm(x, p="fro") ** 2
 
