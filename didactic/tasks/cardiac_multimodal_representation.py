@@ -679,10 +679,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return metrics
 
     def _prediction_shared_step(
-        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
+        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, enable_proj: bool = False
     ) -> Dict[str, Tensor]:
         # Forward pass through each target's prediction head
-        out_features = self.encode(in_tokens, avail_mask, enable_proj=True)
+        if self.contrastive_loss and self.hparams.contrastive_loss_weight:
+            enable_proj = True
+        out_features = self.encode(in_tokens, avail_mask, enable_proj=enable_proj)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(out_features)
