@@ -715,7 +715,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
         # out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, alignment=True)
         # corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
-        ts_tokens, tab_tokens = in_tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+        ts_tokens, tab_tokens = in_tokens[:, : self.n_time_series_attrs], in_tokens[:, self.n_time_series_attrs :]
 
         ts_tokens = self.time_series_lin_proj(ts_tokens)
         ts_avg = torch.mean(ts_tokens, dim=1) # (N, E)
