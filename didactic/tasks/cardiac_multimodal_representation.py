@@ -725,7 +725,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(ts_avg), self.contrastive_head(tab_avg[:, 0])
+                self.contrastive_head(tab_avg[:, 0]), self.contrastive_head(tab_avg[:, 1]), self.contrastive_head(ts_avg)
             )
         }
         if self.orthogonal_loss:

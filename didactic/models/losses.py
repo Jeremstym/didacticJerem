@@ -1,5 +1,5 @@
 import math
-from typing import Literal, Tuple, Union, Dict, Callable
+from typing import Literal, Tuple, Union, Dict, Callable, List
 
 import torch
 from scipy.special import binom, factorial
@@ -176,7 +176,7 @@ class CLSAlignment(nn.Module):
 
 class TabularPredictor(nn.Module):
     '''Masked Tabular Reconstruction'''
-    def __init__(self, tabular_embedding_dim: int, cat_lengths_tabular: List, con_lengths_tabular: List, num_unique_cat: int=None) -> None:
+    def __init__(self, tabular_embedding_dim: int, cat_lengths_tabular: List[int], con_lengths_tabular: List[int], num_unique_cat: int=None) -> None:
         super(TabularPredictor, self).__init__()
         self.num_con = len(con_lengths_tabular)
         self.num_cat = len(cat_lengths_tabular)
