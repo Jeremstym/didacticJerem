@@ -661,11 +661,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             losses.append(self.hparams.contrastive_loss_weight * metrics["cont_loss"])
             if self.orthogonal_loss:
                 losses.append(self.hparams.orthogonal_loss_weight * metrics["orth_loss"])
-
-        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
-
         if self.predict_losses:  # run fully-supervised prediction step
-            metrics.update(self._prediction_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
+            metrics.update(self._prediction_shared_step(batch, batch_idx, in_tokens, avail_mask))
             losses.append(metrics["s_loss"])
 
         # Compute the sum of the (weighted) losses
@@ -673,9 +670,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return metrics
 
     def _prediction_shared_step(
-        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, out_features: Tensor
+        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Forward pass through each target's prediction head
+        out_features = self.encode(in_tokens, avail_mask)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(out_features)
