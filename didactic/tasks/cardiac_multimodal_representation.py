@@ -377,6 +377,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.contrastive_loss and not self.orthogonal_loss:
             contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
         elif self.contrastive_loss and self.orthogonal_loss:
+            print("Using NTXentLossDecoupling, contrastive head is not needed")
             contrastive_head = nn.Identity()
 
         # Build the prediction heads (one by tabular attribute to predict) following the architecture proposed in
