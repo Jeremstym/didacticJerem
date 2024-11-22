@@ -36,15 +36,15 @@ class OrthogonalLoss(nn.Module):
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, S_tab_unique, E), Tokens.
-            x_shared: (N, S_ts + S_tab_shared, E), Tokens.
+            x_unique: (N, E), Tokens.
+            x_shared: (N, E), Tokens.
 
         Returns:
             Scalar loss value.
         """
-        assert x_unique.shape[2] == x_shared.shape[2], "Input tensors must have the same embedding dimension."
-        assert x.ndim == 3, "Input tensor must have 3 dimensions, (N, S, E)."
-        x = torch.mm(x_unique, x_shared.transpose(1, 2))
+        assert x_unique.shape[1] == x_shared.shape[1], "Input tensors must have the same embedding dimension."
+        assert x.ndim == 2, "Input tensor must have 3 dimensions, (N, E)."
+        x = torch.mm(x_shared, x_unique.t())
         return torch.norm(x, p="fro") ** 2
 
 
