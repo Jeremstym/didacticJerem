@@ -585,7 +585,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Return the output tokens as-is
             out_features = out_tokens.squeeze(1) # (N, 1, E) -> (N, E)
 
-        return (tab_cls_token, ts_cls_token) if alignment else out_features # (N, E)
+        return out_features # (N, E)
 
     @auto_move_data
     def forward(
