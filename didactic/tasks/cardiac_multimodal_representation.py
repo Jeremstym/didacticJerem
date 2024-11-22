@@ -44,8 +44,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         ordinal_mode: bool = True,
         contrastive_loss: Callable[[Tensor, Tensor, Tensor], Tensor] | DictConfig = None,
         contrastive_loss_weight: float = 0.0,
-        orthgonal_loss: Callable[[Tensor, Tensor], Tensor] | DictConfig = None,
-        orthgonal_loss_weight: float = 0.0,
+        orthogonal_loss: Callable[[Tensor, Tensor], Tensor] | DictConfig = None,
+        orthogonal_loss_weight: float = 0.0,
         tabular_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         time_series_tokenizer: Optional[TimeSeriesEmbedding | DictConfig] = None,
         cls_token: bool = True,
@@ -242,11 +242,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 if isinstance(contrastive_loss, DictConfig)
                 else contrastive_loss
             )
-        if orthgonal_loss and self.hparams.orthgonal_loss_weight:
+        if orthogonal_loss and self.hparams.orthogonal_loss_weight:
             self.orthogonal_loss = (
                 hydra.utils.instantiate(orthogonal_loss)
-                if isinstance(orthgonal_loss, DictConfig)
-                else orthgonal_loss
+                if isinstance(orthogonal_loss, DictConfig)
+                else orthogonal_loss
             )
 
         if self.hparams.contrastive_loss_weight:
@@ -653,18 +653,20 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         )
 
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
-        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
-
+        
         metrics = {}
         losses = []
-        if self.predict_losses:  # run fully-supervised prediction step
-            metrics.update(self._prediction_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
-            losses.append(metrics["s_loss"])
         if self.contrastive_loss:  # run self-supervised contrastive step
-            metrics.update(self._contrastive_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
+            metrics.update(self._contrastive_shared_step(batch, batch_idx, in_tokens, avail_mask))
             losses.append(self.hparams.contrastive_loss_weight * metrics["cont_loss"])
             if self.orthogonal_loss:
                 losses.append(self.hparams.orthogonal_loss_weight * metrics["orth_loss"])
+
+        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
+
+        if self.predict_losses:  # run fully-supervised prediction step
+            metrics.update(self._prediction_shared_step(batch, batch_idx, in_tokens, avail_mask, out_features))
+            losses.append(metrics["s_loss"])
 
         # Compute the sum of the (weighted) losses
         metrics["loss"] = sum(losses)
