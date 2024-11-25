@@ -576,6 +576,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 cls_tokens = tokens[:, -1, :]
                 tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
                 tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
+                print(f"ts shape is {ts_tokens.shape}")
+                print(f"tab shape is {tab_tokens.shape}")
+                print(f"cls shape is {cls_tokens.shape}")
+                print(f"tab unique shape is {tab_tokens_unique.shape}")
+                print(f"tab shared shape is {tab_tokens_shared.shape}")
 
                 tokens = torch.cat([ts_tokens, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
 
