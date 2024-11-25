@@ -188,6 +188,52 @@ class ConcatMLP(nn.Module):
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
 
+class ConcatMLPDecoupling(nn.Module):
+    """A MPL to encode the concatenated input after the tabular Transformer."""
+
+    def __init__(
+        self,
+        n_tabular_attrs: int,
+        n_mlp_layers: int = 2,
+        d_token = 192,
+        dropout = 0.1
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            tab_tokens: the number of tokens from the tabular Transformer.
+            ts_feature: the number of features from the time series Transformer.
+        """
+        super().__init__()
+
+        self.n_tabular_attrs = n_tabular_attrs
+        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
+        """Performs the forward pass.
+
+        Args:
+            tab_tokens: the tabular tokens.
+            ts_feature: the time series feature.
+
+        Returns:
+            the output tensor.
+        """
+        # Remove CLS token
+        tab_tokens = tab_tokens[:, :-1, :]
+
+        # Separate unique/shared tabular tokens
+        tab_tokens_unique = tab_tokens[:, :self.n_tabular_attrs, :]
+        tab_tokens_shared = tab_tokens[:, self.n_tabular_attrs:, :]
+        # Average both modalities
+        tab_tokens_unique = tab_tokens_unique.mean(dim=1)
+        tab_tokens_shared = tab_tokens_shared.mean(dim=1)
+        # ts_tokens = ts_tokens.mean(dim=1)
+
+        x = torch.cat((tab_tokens_unique, tab_tokens_shared), dim=1)
+        output = self.mlp(x)
+        return output.unsqueeze(1) # (N, 1, E)
+
 class TabularMLP(nn.Module):
     """A simple MLP for tabular data.
 
