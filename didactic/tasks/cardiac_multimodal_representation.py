@@ -635,7 +635,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             )
 
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
-        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
+        if self.contrastive_loss and self.hparams.contrastive_loss_weight:
+            enable_proj = True
+        out_features = self.encode(in_tokens, avail_mask, enable_proj=enable_proj)  # (N, S, E) -> (N, E)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
