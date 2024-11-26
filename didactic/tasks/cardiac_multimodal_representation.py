@@ -249,9 +249,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 else orthogonal_loss
             )
 
-        if self.hparams.contrastive_loss_weight:
-            self.tabular_lin_proj = nn.Linear(embed_dim, 2*embed_dim)
-            self.time_series_lin_proj = nn.Linear(embed_dim, embed_dim)
+        # if self.hparams.contrastive_loss_weight:
+        #     self.tabular_lin_proj = nn.Linear(embed_dim, 2*embed_dim)
+        #     self.time_series_lin_proj = nn.Linear(embed_dim, embed_dim)
 
         # Initialize transformer encoder and self-supervised + prediction heads
         self.encoder, self.contrastive_head, self.prediction_heads = self.configure_model()
@@ -270,6 +270,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = 1
             self.separate_modality = True
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved):  # didactic submodule `FT_Interleaved`
+            self.nhead = self.hparams.model.encoder.attention_n_heads
+            self.separate_modality = True
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = True
         else:
@@ -521,7 +524,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
-    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, enable_proj: bool = False) -> Tensor:
+    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, output_intermediate: bool = False) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
         Args:
@@ -546,16 +549,16 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
-            if not enable_proj:
-                ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
-            else:
-                ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
-                tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
-                cls_tokens = tokens[:, -1, :]
-                tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
-                tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
+            # if not enable_proj:
+            #     ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+            # else:
+            #     ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
+            #     tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
+            #     cls_tokens = tokens[:, -1, :]
+            #     tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
+            #     tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
 
-                tab_tokens = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+            #     tab_tokens = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
 
             if self.hparams.cls_token and self.hparams.ts_cls_token:
                 # Add the CLS token to the end of each item in the batch
@@ -570,15 +573,17 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         else:
             # Forward pass through the transformer encoder
-            if enable_proj:
-                ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
-                tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
-                cls_tokens = tokens[:, -1, :]
-                tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
-                tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
+            # if enable_proj:
+            #     ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
+            #     tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
+            #     cls_tokens = tokens[:, -1, :]
+            #     tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
+            #     tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
 
-                tokens = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
-
+            #     tokens = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+            if output_intermediate:
+                return self.encoder(tokens, output_intermediate=output_intermediate)
+            
             out_tokens = self.encoder(tokens)
 
         if self.hparams.cls_token:
@@ -693,9 +698,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, enable_proj: bool = False
     ) -> Dict[str, Tensor]:
         # Forward pass through each target's prediction head
-        if self.contrastive_loss and self.hparams.contrastive_loss_weight:
-            enable_proj = True
-        out_features = self.encode(in_tokens, avail_mask, enable_proj=enable_proj)
+        out_features = self.encode(in_tokens, avail_mask)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(out_features)
@@ -738,24 +741,28 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # pre_ts_features, pre_features =  in_tokens[:, self.n_time_series_attrs, :], in_tokens[:, -1, :]
         # out_features, out_ts_features =  self.encode(in_tokens, avail_mask, enable_augments=False, alignment=True)
         # corrupted_out_features = self.encode(in_tokens, avail_mask, enable_augments=True)
-        ts_tokens, tab_tokens = in_tokens[:, : self.n_time_series_attrs], in_tokens[:, self.n_time_series_attrs :]
+        # ts_tokens, tab_tokens = in_tokens[:, : self.n_time_series_attrs], in_tokens[:, self.n_time_series_attrs :]
 
-        ts_tokens = self.time_series_lin_proj(ts_tokens)
-        ts_avg = torch.mean(ts_tokens, dim=1) # (N, E)
-        tab_tokens = self.tabular_lin_proj(tab_tokens)
-        tab_avg = torch.mean(tab_tokens, dim=1, keepdim=True).reshape(-1, 2, self.hparams.embed_dim) # (N, 2, E)
+        # Get the average of the tokens for each modality
+
+        ts_avg, tab_unique_avg, tab_shared_avg = self.encode(in_tokens, avail_mask, output_intermediate=True)
+
+        # ts_tokens = self.time_series_lin_proj(ts_tokens)
+        # ts_avg = torch.mean(ts_tokens, dim=1) # (N, E)
+        # tab_tokens = self.tabular_lin_proj(tab_tokens)
+        # tab_avg = torch.mean(tab_tokens, dim=1, keepdim=True).reshape(-1, 2, self.hparams.embed_dim) # (N, 2, E)
 
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(tab_avg[:, 0]), self.contrastive_head(tab_avg[:, 1]), self.contrastive_head(ts_avg)
+                self.contrastive_head(tab_unique_avg), self.contrastive_head(tab_shared_avg), self.contrastive_head(ts_avg)
             )
         }
         if self.orthogonal_loss:
             metrics.update(
                 {
                     "orth_loss": self.orthogonal_loss(
-                        self.contrastive_head(tab_avg[:, 0]), self.contrastive_head(tab_avg[:, 1])
+                        self.contrastive_head(tab_unique_avg), self.contrastive_head(tab_shared_avg)
                     )
                 }
             )
