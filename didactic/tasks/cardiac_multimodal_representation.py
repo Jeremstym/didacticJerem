@@ -550,7 +550,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
             # if not enable_proj:
-            #     ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
+            ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
             # else:
             #     ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
             #     tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
