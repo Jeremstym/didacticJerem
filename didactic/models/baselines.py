@@ -207,7 +207,7 @@ class ConcatMLPDecoupling(nn.Module):
         super().__init__()
 
         self.n_tabular_attrs = n_tabular_attrs
-        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
         """Performs the forward pass.
