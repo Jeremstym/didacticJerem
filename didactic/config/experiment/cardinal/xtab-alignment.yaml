@@ -35,7 +35,7 @@ task:
 tabular_unimodal_encoder:
     _target_: didactic.models.transformer.FT_Transformer
     d_token: 192
-    n_self_blocks: 1
+    n_self_blocks: 3
     n_cross_blocks: 0
     n_bidirectional_blocks: 0
     attention_n_heads: 8
@@ -62,7 +62,7 @@ tabular_unimodal_encoder:
 ts_unimodal_encoder:
     _target_: didactic.models.transformer.FT_Transformer
     d_token: 192
-    n_self_blocks: 1
+    n_self_blocks: 3
     n_cross_blocks: 0
     n_bidirectional_blocks: 0
     attention_n_heads: 8
