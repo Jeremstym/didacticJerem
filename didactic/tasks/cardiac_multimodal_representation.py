@@ -265,7 +265,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.separate_modality = bool(self.hparams.model.encoder.n_cross_blocks or self.hparams.model.encoder.n_bidirectional_blocks)
         elif isinstance(self.encoder, didactic.models.baselines.ConcatMLPDecoupling):  # didactic submodule `MLP`
             self.nhead = 1
-            self.separate_modality = True
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.baselines.FlatConcatMLP):  # didactic submodule `FlatConcatMLP`
             self.nhead = 1
             self.separate_modality = True
