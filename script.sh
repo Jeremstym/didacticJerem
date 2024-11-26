@@ -308,7 +308,8 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat-withTS/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
 
     # TEST WITHOUT TRAINING
 
