@@ -292,8 +292,8 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
 
         # Average both modalities
-        tabular_output_unique = tabular_output_unique.mean(dim=1)
-        tabular_output_shared = tabular_output_shared.mean(dim=1)
+        tabular_output_unique = tab_tokens_unique.mean(dim=1)
+        tabular_output_shared = tab_tokens_shared.mean(dim=1)
         ts_output = ts_output.mean(dim=1)
 
         if output_intermediate:
