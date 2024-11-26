@@ -267,6 +267,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = 1
             self.separate_modality = True
             assert not self.hparams.cls_token, "ConcatMLP does not support cls_token"
+        elif isinstance(self.encoder, didactic.models.baselines.ConcatMLPDecoupling2FTs):  # didactic submodule `MLP`
+            self.nhead = 1
+            self.separate_modality = True
+            assert not self.hparams.cls_token, "ConcatMLP does not support cls_token"
         elif isinstance(self.encoder, didactic.models.baselines.FlatConcatMLP):  # didactic submodule `FlatConcatMLP`
             self.nhead = 1
             self.separate_modality = True
