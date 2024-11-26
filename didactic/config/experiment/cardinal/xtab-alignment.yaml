@@ -2,7 +2,7 @@
 
 defaults:
   - cardinal/cardiac-multimodal-representation
-  - override /task/model/encoder: decoupling-mlp-concat
+  - override /task/model/encoder: xtab
 
 trainer:
   max_steps: 2000
