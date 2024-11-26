@@ -167,7 +167,6 @@ class ConcatMLP(nn.Module):
         """
         super().__init__()
 
-        # self.tabular_encoder = get_nn_module(tabular_encoder)
         self.tabular_encoder = get_nn_module(tabular_encoder)
         self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
@@ -209,7 +208,7 @@ class ConcatMLPDecoupling(nn.Module):
         self.n_tabular_attrs = n_tabular_attrs
         self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
-    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
         """Performs the forward pass.
 
         Args:
@@ -230,7 +229,67 @@ class ConcatMLPDecoupling(nn.Module):
         tab_tokens_shared = tab_tokens_shared.mean(dim=1)
         ts_tokens = ts_tokens.mean(dim=1)
 
+        if output_intermediate:
+            return tab_tokens_unique, tab_tokens_shared, ts_tokens
+
         x = torch.cat((tab_tokens_unique, tab_tokens_shared, ts_tokens), dim=1)
+        output = self.mlp(x)
+        return output.unsqueeze(1) # (N, 1, E)
+
+class ConcatMLPDecoupling2FTs(nn.Module):
+    """A MPL to encode the concatenated input after the tabular Transformer."""
+
+    def __init__(
+        self,
+        tabular_unimodal_encoder: str,
+        ts_unimodal_encoder: str,
+        n_tabular_attrs: int,
+        n_mlp_layers: int = 2,
+        d_token = 192,
+        dropout = 0.1
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            tab_tokens: the number of tokens from the tabular Transformer.
+            ts_feature: the number of features from the time series Transformer.
+        """
+        super().__init__()
+
+        self.n_tabular_attrs = n_tabular_attrs
+        self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.tabular_unimodal_encoder = get_nn_module(tabular_unimodal_encoder)
+        self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
+
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
+        """Performs the forward pass.
+
+        Args:
+            tab_tokens: the tabular tokens.
+            ts_feature: the time series feature.
+
+        Returns:
+            the output tensor.
+        """
+        # Remove CLS token
+        tab_tokens = tab_tokens[:, :-1, :]
+
+        # Encode tabular and time series data
+        tabular_output = self.tabular_unimodal_encoder(tab_tokens)
+        ts_output = self.ts_unimodal_encoder(ts_tokens)
+
+        # Separate unique/shared tabular tokens
+        tabular_output_unique = tabular_output[:, :self.n_tabular_attrs, :]
+        tabular_output_shared = tabular_output[:, self.n_tabular_attrs:, :]
+        # Average both modalities
+        tabular_output_unique = tabular_output_unique.mean(dim=1)
+        tabular_output_shared = tabular_output_shared.mean(dim=1)
+        ts_output = ts_output.mean(dim=1)
+
+        if output_intermediate:
+            return tabular_output_unique, tabular_output_shared, ts_output
+
+        x = torch.cat((ts_output, tabular_output_unique, tabular_output_shared), dim=1)
         output = self.mlp(x)
         return output.unsqueeze(1) # (N, 1, E)
 
