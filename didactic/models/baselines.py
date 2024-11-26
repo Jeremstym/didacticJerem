@@ -228,9 +228,9 @@ class ConcatMLPDecoupling(nn.Module):
         # Average both modalities
         tab_tokens_unique = tab_tokens_unique.mean(dim=1)
         tab_tokens_shared = tab_tokens_shared.mean(dim=1)
-        # ts_tokens = ts_tokens.mean(dim=1)
+        ts_tokens = ts_tokens.mean(dim=1)
 
-        x = torch.cat((tab_tokens_unique, tab_tokens_shared), dim=1)
+        x = torch.cat((tab_tokens_unique, tab_tokens_shared, ts_tokens), dim=1)
         output = self.mlp(x)
         return output.unsqueeze(1) # (N, 1, E)
 
