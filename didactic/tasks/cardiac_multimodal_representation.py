@@ -640,9 +640,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             )
 
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
-        if self.contrastive_loss and self.hparams.contrastive_loss_weight:
-            enable_proj = True
-        out_features = self.encode(in_tokens, avail_mask, enable_proj=enable_proj)  # (N, S, E) -> (N, E)
+        # if self.contrastive_loss and self.hparams.contrastive_loss_weight:
+        #     enable_proj = True
+        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
@@ -695,7 +695,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return metrics
 
     def _prediction_shared_step(
-        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor, enable_proj: bool = False
+        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Forward pass through each target's prediction head
         out_features = self.encode(in_tokens, avail_mask)
