@@ -559,7 +559,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             #     tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
 
             #     tab_tokens = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
-
+            if output_intermediate:
+                return self.encoder(tab_tokens, ts_tokens, output_intermediate=output_intermediate)
+                
             if self.hparams.cls_token and self.hparams.ts_cls_token:
                 # Add the CLS token to the end of each item in the batch
                 ts_tokens = self.cls_ts_token(ts_tokens)
