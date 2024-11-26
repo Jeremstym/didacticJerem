@@ -264,6 +264,8 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
         self.tabular_unimodal_encoder = get_nn_module(tabular_unimodal_encoder)
         self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
+        self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
+        self.time_series_lin_proj = nn.Linear(d_token, d_token)
 
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
         """Performs the forward pass.
@@ -282,9 +284,12 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         tabular_output = self.tabular_unimodal_encoder(tab_tokens)
         ts_output = self.ts_unimodal_encoder(ts_tokens)
 
-        # Separate unique/shared tabular tokens
-        tabular_output_unique = tabular_output[:, :self.n_tabular_attrs, :]
-        tabular_output_shared = tabular_output[:, self.n_tabular_attrs:, :]
+        # Linear projection
+        ts_tokens = self.time_series_lin_proj(ts_output)
+        tab_tokens = self.tabular_lin_proj(tabular_output)
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,:self.n_tabular_attrs,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
+        
         # Average both modalities
         tabular_output_unique = tabular_output_unique.mean(dim=1)
         tabular_output_shared = tabular_output_shared.mean(dim=1)
