@@ -207,6 +207,9 @@ class ConcatMLPDecoupling(nn.Module):
 
         self.n_tabular_attrs = n_tabular_attrs
         self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
+        self.time_series_lin_proj = nn.Linear(d_token, d_token)
+
 
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
         """Performs the forward pass.
@@ -218,12 +221,12 @@ class ConcatMLPDecoupling(nn.Module):
         Returns:
             the output tensor.
         """
-        # Remove CLS token
-        tab_tokens = tab_tokens[:, :-1, :]
-
-        # Separate unique/shared tabular tokens
-        tab_tokens_unique = tab_tokens[:, :self.n_tabular_attrs, :]
-        tab_tokens_shared = tab_tokens[:, self.n_tabular_attrs:, :]
+        
+        ts_tokens = self.time_series_lin_proj(ts_tokens)
+        tab_tokens = self.tabular_lin_proj(tab_tokens)
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,:self.n_tabular_attrs,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
+        
         # Average both modalities
         tab_tokens_unique = tab_tokens_unique.mean(dim=1)
         tab_tokens_shared = tab_tokens_shared.mean(dim=1)
