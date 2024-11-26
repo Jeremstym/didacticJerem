@@ -268,10 +268,6 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
         self.time_series_lin_proj = nn.Linear(d_token, d_token)
 
-        print(f"unimodal tabular encoder: {self.tabular_unimodal_encoder}")
-        print(f"unimodal ts encoder: {self.ts_unimodal_encoder}")
-        raise ValueError
-
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
         """Performs the forward pass.
 
