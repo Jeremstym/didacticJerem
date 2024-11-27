@@ -985,7 +985,6 @@ class FT_Alignment(nn.Module):
         bidirectional_attention_blocks = [] #FIXME: build bidirectional attention blocks later
 
         # Linear projections for alignment
-
         ts_tokens = self.time_series_lin_proj(x[:, : self.n_time_series_attrs])
         tab_tokens = self.tabular_lin_proj(x[:, self.n_time_series_attrs :-1])
         cls_tokens = x[:, -1, :]
