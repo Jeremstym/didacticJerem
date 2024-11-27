@@ -988,8 +988,8 @@ class FT_Alignment(nn.Module):
         ts_tokens = self.time_series_lin_proj(x[:, : self.n_time_series_attrs])
         tab_tokens = self.tabular_lin_proj(x[:, self.n_time_series_attrs :-1])
         cls_tokens = x[:, -1, :]
-        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,:self.n_tabular_attrs,:]
-        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
 
         if output_intermediate:
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
