@@ -311,7 +311,9 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat-withTS/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat-UniFTs/seed${seed}' +experiment=cardinal/xtab-alignment task/model/encoder=decoupling-uni-FTs-mlp-concat exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-CrossAtt/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs-CrossAtt
 
     # TEST WITHOUT TRAINING
 
