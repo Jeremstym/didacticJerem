@@ -286,6 +286,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment_2UniFTs_CrossAtt):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = False # temporary
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs):  # didactic submodule `FT_Interleaved`
+            self.nhead = self.hparams.model.encoder.attention_n_heads
+            self.separate_modality = False # temporary
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
