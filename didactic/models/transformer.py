@@ -2093,12 +2093,6 @@ class FT_Alignment_2UniFTs_CrossAtt(nn.Module):
         Returns:
             (N, S, E) / (N, S+S', E), The output sequence of the transformer.
         """
-
-        if (self.n_cross_blocks or self.n_bidirectional_blocks) and x_context is None:
-            raise ValueError(
-                "x_context from which K and V are extracted, must be "
-                "provided since the model includes cross-attention blocks."
-            )
         
         if x.ndim != 3:
             raise ValueError("The input tensor must have 3 dimensions: (n_objects, n_tokens, d_token)")
