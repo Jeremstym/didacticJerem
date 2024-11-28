@@ -307,14 +307,14 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-interleaved-frozen/seed${seed}' +experiment=cardinal/xtab-interleaved 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series ckpt=/home/stympopper/didacticJerem/ckpts/xtab_selfatt.ckpt
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
-    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat/seed${seed}' +experiment=cardinal/xtab-alignment task/model/encoder=decoupling-mlp-concat exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False
-    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat-withTS/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat/seed${seed}' +experiment=cardinal/xtab-alignment task/model/encoder=decoupling-mlp-concat exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat-withTS/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-MLPConcat-UniFTs/seed${seed}' +experiment=cardinal/xtab-alignment task/model/encoder=decoupling-uni-FTs-mlp-concat exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-CrossAtt/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs-CrossAtt
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-interleaved/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-interleaved/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs
 
     # TEST WITHOUT TRAINING
 

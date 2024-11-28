@@ -236,7 +236,7 @@ class ConcatMLPDecoupling(nn.Module):
         if output_intermediate:
             return tab_tokens_unique, tab_tokens_shared, ts_tokens
 
-        x = torch.cat((ts_tokens, tab_tokens_unique, tab_tokens_shared), dim=1)
+        x = torch.cat((tab_tokens_unique, tab_tokens_shared), dim=1)
         output = self.mlp(x)
         return output.unsqueeze(1) # (N, 1, E)
 
