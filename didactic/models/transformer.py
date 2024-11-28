@@ -2962,7 +2962,7 @@ class FT_Interleaved_2UniFTs(nn.Module):
             x = layer[f"{layer_name}_normalization"](x)
         return x
 
-    def forward(self, x: Tensor, x_context: Optional[Tensor] = None) -> Tensor:
+    def forward(self, x: Tensor, x_context: Optional[Tensor] = None, output_intermediate: bool = False) -> Tensor:
         """
         Performs a forward pass through the successive transformer blocks.
 
