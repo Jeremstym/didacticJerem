@@ -3006,7 +3006,7 @@ class FT_Interleaved_2UniFTs(nn.Module):
         x = torch.cat([ts_tokens, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
         x_context = tab_tokens_unique
 
-        for block in self.blocks:
+        for layer_idx, block in enumerate(self.blocks):
             if "cross_attention" not in block:
                 block = cast(nn.ModuleDict, block)
 
@@ -3024,7 +3024,7 @@ class FT_Interleaved_2UniFTs(nn.Module):
                 x_residual = block["ffn"](x_residual)
                 x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
 
-                if self.unique_cross_block:
+                if self.unique_cross_block and layer_idx < self.n_self_blocks-1:
                     block = self.unique_cross_block
 
                     block = cast(nn.ModuleDict, block)
