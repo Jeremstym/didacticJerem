@@ -1,4 +1,4 @@
-_target_: didactic.models.transformer.FT_Alignment_2UniFTs
+_target_: didactic.models.transformer.FT_Alignment_2UniFTs_CrossAtt
 
 d_token: 192
 n_self_blocks: 0
