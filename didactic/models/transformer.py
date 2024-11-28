@@ -2876,40 +2876,6 @@ class FT_Interleaved_2UniFTs(nn.Module):
                 if "attention_normalization" in block:
                     block["attention_normalization"].requires_grad_(False)
 
-    # def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
-    #     layer = nn.ModuleDict(
-    #         {
-    #             "bidirectional_attention": BidirectionalMultimodalAttention(
-    #                 d_token=self.d_token,
-    #                 n_heads=self.attention_n_heads,
-    #                 dropout=self.attention_dropout,
-    #                 bias=True,
-    #                 initialization=self.attention_initialization,
-    #             ),
-    #         }
-    #     )
-
-    #     layer.update(
-    #         {
-    #             f"bidirectional_attention_residual_dropout": nn.Dropout(self.residual_dropout),
-    #             f"bidirectional_ffn": self.FFN(
-    #                 d_token=self.d_token,
-    #                 d_hidden=self.ffn_d_hidden,
-    #                 bias_first=True,
-    #                 bias_second=True,
-    #                 dropout=self.ffn_dropout,
-    #                 activation=self.ffn_activation,
-    #             ),
-    #             f"bidirectional_ffn_residual_dropout": nn.Dropout(self.residual_dropout),
-    #         }
-    #     )
-    #     if layer_idx or not self.prenormalization or self.first_prenormalization:
-    #         layer[f"bidirectional_attention_normalization"] = get_nn_module(self.attention_normalization)
-    #     layer[f"bidirectional_ffn_normalization"] = get_nn_module(self.ffn_normalization)
-
-    #     return layer
-
-
     def _start_residual(self, layer: nn.ModuleDict, layer_name: str, x: Tensor, stage: str = "self_attention") -> Tensor:
         match stage:
             case "cross_attention":
@@ -2922,11 +2888,6 @@ class FT_Interleaved_2UniFTs(nn.Module):
                     "attention",
                     "ffn",
                 ], _INTERNAL_ERROR_MESSAGE
-            # case "bidirectional_attention":
-            #     assert layer_name in [
-            #         "bidirectional_attention",
-            #         "bidirectional_ffn",
-            #     ], _INTERNAL_ERROR_MESSAGE
             case _:
                 raise ValueError(f"Invalid stage: {stage}, should be 'cross_attention' or 'self_attention'")
 
