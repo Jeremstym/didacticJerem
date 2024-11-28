@@ -23,7 +23,7 @@ ffn_normalization:
 residual_dropout: 0.1
 prenormalization: True
 first_prenormalization: ${task.first_prenormalization}
-freeze_self_attention: True
+freeze_self_attention: False
 n_tabular_attrs: ${n_tabular_attrs}
 n_time_series_attrs: ${n_time_series_attrs}
 tabular_unimodal_encoder: ${tabular_unimodal_encoder}
