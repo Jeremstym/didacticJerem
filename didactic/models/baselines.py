@@ -207,7 +207,7 @@ class ConcatMLPDecoupling(nn.Module):
 
         self.d_token = d_token
         self.n_tabular_attrs = n_tabular_attrs
-        self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
         self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
         self.time_series_lin_proj = nn.Linear(d_token, d_token)
 
