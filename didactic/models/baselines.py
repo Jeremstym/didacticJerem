@@ -207,7 +207,7 @@ class ConcatMLPDecoupling(nn.Module):
 
         self.d_token = d_token
         self.n_tabular_attrs = n_tabular_attrs
-        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.mlp = MLP(3*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
         self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
         self.time_series_lin_proj = nn.Linear(d_token, d_token)
 
@@ -236,7 +236,7 @@ class ConcatMLPDecoupling(nn.Module):
         if output_intermediate:
             return tab_tokens_unique, tab_tokens_shared, ts_tokens
 
-        x = torch.cat((tab_tokens_unique, tab_tokens_shared), dim=1)
+        x = torch.cat((ts_tokens, tab_tokens_unique, tab_tokens_shared), dim=1)
         output = self.mlp(x)
         return output.unsqueeze(1) # (N, 1, E)
 
