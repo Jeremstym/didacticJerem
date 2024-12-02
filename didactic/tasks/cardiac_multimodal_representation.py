@@ -390,12 +390,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         encoder = hydra.utils.instantiate(self.hparams.model.encoder)
 
         # Build the projection head for contrastive learning, if contrastive learning is enabled
-        contrastive_head = None
-        if self.contrastive_loss and not self.orthogonal_loss:
-            contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
-        elif self.contrastive_loss and self.orthogonal_loss:
-            print("Using NTXentLossDecoupling, contrastive head is not needed")
-            contrastive_head = nn.Identity()
+        # contrastive_head = None
+        # if self.contrastive_loss and not self.orthogonal_loss:
+        #     contrastive_head = hydra.utils.instantiate(self.hparams.model.contrastive_head)
+        # elif self.contrastive_loss and self.orthogonal_loss:
+        print("Temporary set contrastive head to identity")
+        contrastive_head = nn.Identity()
 
         # Build the prediction heads (one by tabular attribute to predict) following the architecture proposed in
         # https://arxiv.org/pdf/2106.11959
