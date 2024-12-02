@@ -18,7 +18,7 @@ task:
   contrastive_loss_weight: 1.0
   orthogonal_loss:
     _target_: didactic.models.losses.OrthogonalLoss
-  orthogonal_loss_weight: 0.0
+  orthogonal_loss_weight: 1.0
   cls_token: True
   ts_cls_token: False
 
