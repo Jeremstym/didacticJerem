@@ -254,7 +254,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if reconstruction_loss and self.hparams.reconstruction_loss_weight:
             self.reconstruction_loss_unique = ReconstructionLoss(
                 num_con=self.tabular_num_attrs,
-                cat_lengths_tabular=self.tabular_cat_attrs_cardinalities,
+                cat_lengths_tabular=torch.tensor(self.tabular_cat_attrs_cardinalities),
                 d_token=self.hparams.embed_dim,
             )
 
