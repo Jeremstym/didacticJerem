@@ -994,7 +994,8 @@ class FT_Alignment(nn.Module):
         if output_intermediate:
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
-        x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+        # Set the unique tokens at the beginning of the sequence for extraction purposes
+        x = torch.cat([tab_tokens_unique, tab_tokens_shared, ts_tokens, cls_tokens.unsqueeze(1)], dim=1)
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
@@ -1561,7 +1562,8 @@ class FT_Alignment_2UniFTs(nn.Module):
         if output_intermediate:
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
-        x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+        # Set the unique tokens at the beginning of the sequence for extraction purposes
+        x = torch.cat([tab_tokens_unique, tab_tokens_shared, ts_tokens, cls_tokens.unsqueeze(1)], dim=1)
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
@@ -2125,7 +2127,7 @@ class FT_Alignment_2UniFTs_CrossAtt(nn.Module):
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
-        x = torch.cat([ts_tokens, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+        x = torch.cat([tab_tokens_shared, ts_tokens, cls_tokens.unsqueeze(1)], dim=1)
         x_context = tab_tokens_unique
 
         for block in self_attention_blocks:
@@ -2964,7 +2966,7 @@ class FT_Interleaved_2UniFTs(nn.Module):
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
-        x = torch.cat([ts_tokens, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+        x = torch.cat([tab_tokens_shared, ts_tokens, cls_tokens.unsqueeze(1)], dim=1)
         x_context = tab_tokens_unique
 
         for layer_idx, block in enumerate(self.blocks):
