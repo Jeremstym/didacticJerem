@@ -176,9 +176,9 @@ class CLSAlignment(nn.Module):
 
 class TabularPredictor(nn.Module):
     '''Masked Tabular Reconstruction'''
-    def __init__(self, tabular_embedding_dim: int, cat_lengths_tabular: List[int], con_lengths_tabular: List[int], num_unique_cat: int=None) -> None:
+    def __init__(self, tabular_embedding_dim: int, cat_lengths_tabular: List[int], num_con: int, num_unique_cat: int=None) -> None:
         super(TabularPredictor, self).__init__()
-        self.num_con = len(con_lengths_tabular)
+        self.num_con = num_con
         self.num_cat = len(cat_lengths_tabular)
         if num_unique_cat is None:
             self.num_unique_cat = sum(cat_lengths_tabular)
@@ -200,16 +200,16 @@ class TabularPredictor(nn.Module):
         if isinstance(m, nn.Linear) and m.bias is not None:
             m.bias.data.zero_()
         
-    def forward(self, x_shared: Tensor, x_unique: Tensor) -> Tensor:
+    def forward(self, x_unique: Tensor) -> Tensor:
         # remove clstokens
-        x_shared = x_shared[:, :-1,]
-        x_unique = x_unique[:, :-1,]
+        # x_shared = x_shared[:, :-1,]
+        # x_unique = x_unique[:, :-1,]
 
-        x = torch.cat((x_shared, x_unique), dim=1)
+        # x = torch.cat((x_shared, x_unique), dim=1)
         # continuous regessor
-        con_x = self.con_regressor(x[:, :self.num_con])
+        con_x = self.con_regressor(x_unique[:, :self.num_con])
         # categorical classifier
-        cat_x = self.cat_classifier(x[:, self.num_con:])
+        cat_x = self.cat_classifier(x_unique[:, self.num_con:])
         return (con_x, cat_x)
 
 class ReconstructionLoss(nn.Module):
@@ -222,11 +222,11 @@ class ReconstructionLoss(nn.Module):
     Loss is calculated attempting to match each subject's embeddings between the modalities i.e. the diagonal.
     """
 
-    def __init__(self, num_con: int, num_cat: int, cat_lengths_tabular: Tensor, d_token: int) -> None:
+    def __init__(self, num_con: int, cat_lengths_tabular: Tensor, d_token: int) -> None:
         super(ReconstructionLoss, self).__init__()
 
         self.num_con = num_con
-        self.num_cat = num_cat
+        self.num_cat = len(cat_lengths_tabular)
 
         cat_offsets = torch.cat([torch.tensor([0]), cat_lengths_tabular.cumsum(0)[:-1]]).to(cat_lengths_tabular.device)
         self.register_buffer("cat_offsets", cat_offsets, persistent=False)
