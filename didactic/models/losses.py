@@ -252,8 +252,12 @@ class ReconstructionLoss(nn.Module):
         out_con = out[0].squeeze(-1)
         target_con = y[:, : self.num_con]
         target_cat = (y[:, self.num_con :].long() + self.cat_offsets).reshape(N * self.num_cat)
-        mask_con = mask[:, : self.num_con]
-        mask_cat = mask[:, self.num_con :].reshape(N * self.num_cat)
+        if mask:
+            mask_con = mask[:, : self.num_con]
+            mask_cat = mask[:, self.num_con :].reshape(N * self.num_cat)
+        else:
+            mask_con = torch.ones_like(target_con)
+            mask_cat = torch.ones_like(target_cat)
 
         # cat loss
         prob_cat = self.softmax(out_cat)
