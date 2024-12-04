@@ -788,7 +788,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         tab_labels = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1) # (N, S_tab)
 
         # Compute the reconstruction loss
-        metrics = {"rec_loss": self.reconstruction_loss_unique(tab_features, tabular_attrs)}
+        metrics = {"rec_loss": self.reconstruction_loss_unique(tab_features, tab_labels)}
 
         return metrics
 
