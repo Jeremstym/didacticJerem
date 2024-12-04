@@ -25,7 +25,7 @@ import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
 from didactic.models.adaptater import AdapterWrapperFT_Transformer, AdapterWrapperFT_Transformer_CrossAtt, AdapterWrapperFT_Interleaved, LoRALinear
-from didactic.models.losses import OrthogonalLoss, NTXentLossDecoupling
+from didactic.models.losses import OrthogonalLoss, NTXentLossDecoupling, ReconstructionLoss
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -46,6 +46,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         contrastive_loss_weight: float = 0.0,
         orthogonal_loss: Callable[[Tensor, Tensor], Tensor] | DictConfig = None,
         orthogonal_loss_weight: float = 0.0,
+        reconstruction_loss: ReconstructionLoss | DictConfig = None,
+        reconstruction_loss_weight: float = 0.0,
         tabular_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         time_series_tokenizer: Optional[TimeSeriesEmbedding | DictConfig] = None,
         cls_token: bool = True,
@@ -248,6 +250,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 if isinstance(orthogonal_loss, DictConfig)
                 else orthogonal_loss
             )
+        
+        if reconstruction_loss and self.hparams.reconstruction_loss_weight:
+            self.reconstruction_loss_unique = ReconstructionLoss(
+                num_con=self.tabular_num_attrs,
+                cat_lengths_tabular=self.tabular_cat_attrs_cardinalities,
+                d_token=self.hparams.embed_dim,
+            )
+
 
         # if self.hparams.contrastive_loss_weight:
         #     self.tabular_lin_proj = nn.Linear(embed_dim, 2*embed_dim)
@@ -538,7 +548,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
-    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, output_intermediate: bool = False) -> Tensor:
+    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, output_intermediate: bool = False, output_unique: bool = False) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
         Args:
@@ -601,6 +611,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 return self.encoder(tokens, output_intermediate=output_intermediate)
             
             out_tokens = self.encoder(tokens)
+
+        if output_unique:
+            return out_tokens[:, :self.n_tabular_attrs, :]
 
         if self.hparams.cls_token:
             # Only keep the CLS token (i.e. the last token) from the tokens outputted by the encoder
@@ -705,6 +718,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.predict_losses:  # run fully-supervised prediction step
             metrics.update(self._prediction_shared_step(batch, batch_idx, in_tokens, avail_mask))
             losses.append(metrics["s_loss"])
+        if self.reconstruction_loss_unique:  # run reconstruction step
+            metrics.update(self._reconstruction_step(batch, batch_idx, in_tokens, avail_mask))
+            losses.append(self.hparams.reconstruction_loss_weight * metrics["rec_loss"])
 
         # Compute the sum of the (weighted) losses
         metrics["loss"] = sum(losses)
@@ -746,6 +762,33 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Reduce loss across the multiple targets
         losses["s_loss"] = torch.stack(list(losses.values())).mean()
         metrics.update(losses)
+
+        return metrics
+
+    def _reconstruction_step(
+        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
+    ) -> Dict[str, Tensor]:
+        # Forward pass through the encoder
+        tab_features = self.encode(in_tokens, avail_mask, output_unique=True)
+
+        # Extract tabular attributes from the batch to get labels for the reconstruction loss
+        tabular_attrs = {attr: attr_data for attr, attr_data in batch.items() if attr in self.hparams.tabular_attrs}
+        num_attrs, cat_attrs = None, None
+        if self.tabular_num_attrs:
+            # Group the numerical attributes from the `tabular_attrs` input in a single tensor
+            num_attrs = torch.hstack(
+                [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
+            )  # (N, S_num)
+        if self.tabular_cat_attrs:
+            # Group the categorical attributes from the `tabular_attrs` input in a single tensor
+            cat_attrs = torch.hstack(
+                [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
+            )  # (N, S_cat)
+
+        tab_labels = torch.cat([torch.nan_to_num(num_attrs), cat_attrs.clip(0)], dim=1) # (N, S_tab)
+
+        # Compute the reconstruction loss
+        metrics = {"rec_loss": self.reconstruction_loss_unique(tab_features, tabular_attrs)}
 
         return metrics
 
