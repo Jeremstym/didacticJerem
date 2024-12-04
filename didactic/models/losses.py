@@ -238,7 +238,7 @@ class ReconstructionLoss(nn.Module):
         """
         Args:
             x: (N, S, E), Token tensor.
-            y: (N, S, E), Token tensor.
+            y: (N, S, 1), Token tensor.
             mask: (N, S), Mask tensor.
 
         Returns:
