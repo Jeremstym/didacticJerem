@@ -25,7 +25,7 @@ import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding
 from didactic.models.adaptater import AdapterWrapperFT_Transformer, AdapterWrapperFT_Transformer_CrossAtt, AdapterWrapperFT_Interleaved, LoRALinear
-from didactic.models.losses import OrthogonalLoss, NTXentLossDecoupling, ReconstructionLoss
+from didactic.models.losses import ReconstructionLoss
 
 logger = logging.getLogger(__name__)
 CardiacAttribute = TabularAttribute | Tuple[ViewEnum, TimeSeriesAttribute]
@@ -48,6 +48,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         orthogonal_loss_weight: float = 0.0,
         reconstruction_loss: ReconstructionLoss | DictConfig = None,
         reconstruction_loss_weight: float = 0.0,
+        inter_sample_loss: Callable[[Tensor, Tensor], Tensor] | DictConfig = None,
+        inter_sample_loss_weight: float = 0.0,
         tabular_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         time_series_tokenizer: Optional[TimeSeriesEmbedding | DictConfig] = None,
         cls_token: bool = True,
@@ -239,6 +241,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.contrastive_loss = None
         self.orthogonal_loss = None
         self.reconstruction_loss_unique = None
+        self.inter_sample_loss = None
         if contrastive_loss and self.hparams.contrastive_loss_weight:
             self.contrastive_loss = (
                 hydra.utils.instantiate(contrastive_loss)
@@ -257,6 +260,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 num_con=len(self.tabular_num_attrs),
                 cat_lengths_tabular=torch.tensor(self.tabular_cat_attrs_cardinalities),
                 d_token=self.hparams.embed_dim,
+            )
+        if inter_sample_loss and self.hparams.inter_sample_loss_weight:
+            self.inter_sample_loss = (
+                hydra.utils.instantiate(inter_sample_loss)
+                if isinstance(inter_sample_loss, DictConfig)
+                else inter_sample_loss
             )
 
 
@@ -722,6 +731,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if self.reconstruction_loss_unique:  # run reconstruction step
             metrics.update(self._reconstruction_step(batch, batch_idx, in_tokens, avail_mask))
             losses.append(self.hparams.reconstruction_loss_weight * metrics["rec_loss"])
+        if self.inter_sample_loss:
+            metrics.update(self._inter_sample_step(batch, batch_idx, in_tokens, avail_mask))
+            losses.append(self.hparams.inter_sample_loss_weight * metrics["inter_loss"])
 
         # Compute the sum of the (weighted) losses
         metrics["loss"] = sum(losses)
@@ -790,6 +802,19 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         # Compute the reconstruction loss
         metrics = {"rec_loss": self.reconstruction_loss_unique(tab_features, tab_labels)}
+
+        return metrics
+
+    def _inter_sample_step(
+        self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
+    ) -> Dict[str, Tensor]:
+        # Forward pass through the
+        ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
+
+        # Compute the inter-sample loss/metrics
+        metrics = {
+            "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg)
+        }
 
         return metrics
 

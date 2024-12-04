@@ -22,6 +22,9 @@ task:
   reconstruction_loss:
     _target_: didactic.models.losses.ReconstructionLoss
   reconstruction_loss_weight: 0.0
+  inter_sample_loss:
+    _target_: didactic.models.losses.CLIPLoss
+  inter_sample_loss_weight: 0.0
   cls_token: True
   ts_cls_token: False
 

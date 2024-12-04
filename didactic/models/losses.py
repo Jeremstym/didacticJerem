@@ -273,3 +273,60 @@ class ReconstructionLoss(nn.Module):
         loss = (loss_cat + loss_con) / 2
 
         return loss #, prob_cat, target_cat, mask_cat
+
+class TripletSoftplusLoss(nn.Module):
+    """Triplet Softplus Loss."""
+
+    def __init__(self):
+        """Initializes class instance."""
+        super().__init__()
+
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts_anchor: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            ts_anchor: (N, E), Anchor token.
+            tab_shared: (N, E), Shared token.
+            tab_unique: (N, E), Unique token.
+
+        Returns:
+            Scalar loss value.
+        """
+        # Normalize embeddings
+        ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+
+        return F.softplus(torch.mm(ts_anchor, tab_unique.t()) - torch.mm(ts_anchor, tab_shared.t())).mean()
+
+class CLIPLoss(nn.Module):
+    """CLIP Loss."""
+
+    def __init__(self, temperature: float = 1.0):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            tab_unique: (N, E), Unique token.
+            ts_anchor: (N, E), Anchor
+
+        Returns:
+            Scalar loss value.
+        """
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
+        tab_unique = torch.mm(tab_unique, y.t())
+        tab_unique /= self.temperature
+        tab_unique = torch.exp(tab_unique)
+        x_1 = tab_unique.diag() / tab_unique.sum(dim=1)
+        x_2 = tab_unique.diag() / tab_unique.sum(dim=0)
+        return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
+        # return -torch.log(x).mean()
