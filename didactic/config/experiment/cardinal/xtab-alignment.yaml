@@ -19,6 +19,9 @@ task:
   orthogonal_loss:
     _target_: didactic.models.losses.OrthogonalLoss
   orthogonal_loss_weight: 1.0
+  reconstruction_loss:
+    _target_: didactic.models.losses.ReconstructionLoss
+  reconstruction_loss_weight: 1.0
   cls_token: True
   ts_cls_token: False
 
