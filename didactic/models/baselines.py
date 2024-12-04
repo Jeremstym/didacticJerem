@@ -238,7 +238,8 @@ class ConcatMLPDecoupling(nn.Module):
         if output_intermediate:
             return tab_tokens_unique, tab_tokens_shared, ts_tokens
 
-        x = torch.cat((ts_tokens, tab_tokens_unique, tab_tokens_shared), dim=1)
+        # Set the unique tokens at the beginning of the sequence for extraction purposes
+        x = torch.cat((tab_tokens_unique, tab_tokens_shared, ts_tokens), dim=1)
         output = self.mlp(x)
         return output.unsqueeze(1) # (N, 1, E)
 
@@ -301,7 +302,8 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         if output_intermediate:
             return tabular_output_unique, tabular_output_shared, ts_output
 
-        x = torch.cat((ts_output, tabular_output_unique, tabular_output_shared), dim=1)
+        # Set the unique outputs at the beginning of the sequence for extraction purposes
+        x = torch.cat((tabular_output_unique, tabular_output_shared, ts_output), dim=1)
         output = self.mlp(x)
         return output.unsqueeze(1) # (N, 1, E)
 
