@@ -324,7 +324,7 @@ class CLIPLoss(nn.Module):
         """
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
-        tab_unique = torch.mm(tab_unique, y.t())
+        tab_unique = torch.mm(tab_unique, ts_anchor.t())
         tab_unique /= self.temperature
         tab_unique = torch.exp(tab_unique)
         x_1 = tab_unique.diag() / tab_unique.sum(dim=1)
