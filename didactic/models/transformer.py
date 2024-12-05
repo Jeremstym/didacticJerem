@@ -2705,8 +2705,6 @@ class FT_Interleaved_Alignment(nn.Module):
         freeze_self_attention: bool = False,
         n_tabular_attrs: int,
         n_time_series_attrs: int,
-        tabular_unimodal_encoder: str,
-        ts_unimodal_encoder: str,
     ) -> None:
         """
         Parameters
