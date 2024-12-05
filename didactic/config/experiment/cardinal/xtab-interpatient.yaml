@@ -13,7 +13,7 @@ task:
       _target_: torch.nn.CrossEntropyLoss
   ordinal_mode: False
   contrastive_loss:
-    _target_: didactic.models.losses.TripletSoftplusLoss
+    _target_: didactic.models.losses.NTXentLossDecoupling
     temperature: 0.1
   contrastive_loss_weight: 1.0
   orthogonal_loss:
