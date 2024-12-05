@@ -25,7 +25,7 @@ task:
   inter_sample_loss:
     _target_: didactic.models.losses.CLIPLoss
     temperature: 1.0
-  inter_sample_loss_weight: 0.2
+  inter_sample_loss_weight: 1.0
   cls_token: True
   ts_cls_token: False
 
