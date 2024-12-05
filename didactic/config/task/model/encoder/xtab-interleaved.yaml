@@ -23,4 +23,4 @@ ffn_normalization:
 residual_dropout: 0.1
 prenormalization: True
 first_prenormalization: ${task.first_prenormalization}
-freeze_self_attention: True
+freeze_self_attention: False
