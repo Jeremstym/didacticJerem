@@ -776,22 +776,6 @@ class FT_Alignment(nn.Module):
                     initialization=self.attention_initialization,
                 ),
             }
-            # {   
-            #     "l_cross_attention": MultiheadAttention(
-            #         d_token=self.d_token,
-            #         n_heads=self.attention_n_heads,
-            #         dropout=self.attention_dropout,
-            #         bias=True,
-            #         initialization=self.attention_initialization,
-            #     ),
-            #     "r_cross_attention": MultiheadAttention(
-            #         d_token=self.d_token,
-            #         n_heads=self.attention_n_heads,
-            #         dropout=self.attention_dropout,
-            #         bias=True,
-            #         initialization=self.attention_initialization,
-            #     ),
-            # }
         )
 
         for modality_side in ["l", "r"]:
@@ -839,41 +823,6 @@ class FT_Alignment(nn.Module):
             layer[f"{modality_side}_ffn_1_normalization"] = get_nn_module(self.ffn_normalization)
 
         return layer
-
-    def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
-        layer = nn.ModuleDict(
-            {
-                "bidirectional_attention": BidirectionalMultimodalAttention(
-                    d_token=self.d_token,
-                    n_heads=self.attention_n_heads,
-                    dropout=self.attention_dropout,
-                    bias=True,
-                    initialization=self.attention_initialization,
-                ),
-            }
-        )
-
-        for modality_side in ["l", "r"]:
-            layer.update(
-                {
-                    f"{modality_side}_bidirectional_attention_residual_dropout": nn.Dropout(self.residual_dropout),
-                    f"{modality_side}_ffn_bidirectional": self.FFN(
-                        d_token=self.d_token,
-                        d_hidden=self.ffn_d_hidden,
-                        bias_first=True,
-                        bias_second=True,
-                        dropout=self.ffn_dropout,
-                        activation=self.ffn_activation,
-                    ),
-                    f"{modality_side}_ffn_bidirectional_residual_dropout": nn.Dropout(self.residual_dropout),
-                }
-            )
-            if layer_idx or not self.prenormalization or self.first_prenormalization:
-                layer[f"{modality_side}_bidirectional_attention_normalization"] = get_nn_module(self.attention_normalization)
-            layer[f"{modality_side}_ffn_bidirectional_normalization"] = get_nn_module(self.ffn_normalization)
-
-        return layer
-
 
     def _start_residual(self, layer: nn.ModuleDict, layer_name: str, x: Tensor, stage: str = "self_attention") -> Tensor:
         match stage:
@@ -999,109 +948,20 @@ class FT_Alignment(nn.Module):
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
-            if x_context is not None:
-
-                # Normalize the tokens from both modalities if prenormalization is enabled
-                x_residual = self._start_residual(block, "l_attention", x, stage="self_attention")
-
-                # Forward pass through the self-attention block
-                x_residual, _ = block["l_attention"](x_residual, x_residual)
-
-                # Residual connections after the attention layer for both modalities
-                x = self._end_residual(block, "l_attention", x, x_residual, stage="self_attention")
-
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "l_ffn", x, stage="self_attention")
-                x_residual = block["l_ffn"](x_residual)
-                x = self._end_residual(block, "l_ffn", x, x_residual, stage="self_attention")
-
-                # Do the same for the context modality
-                x_context_residual = self._start_residual(block, "r_attention", x_context, stage="self_attention")
-                x_context_residual, _ = block["r_attention"](x_context_residual, x_context_residual)
-                x_context = self._end_residual(block, "r_attention", x_context, x_context_residual, stage="self_attention")
-                x_context_residual = self._start_residual(block, "r_ffn", x_context, stage="self_attention")
-                x_context_residual = block["r_ffn"](x_context_residual)
-                x_context = self._end_residual(block, "r_ffn", x_context, x_context_residual, stage="self_attention")
-
-            else:
-                # Normalize the tokens from both modalities if prenormalization is enabled
-                x_residual = self._start_residual(block, "attention", x, stage="self_attention")
-
-                # Forward pass through the self-attention block
-                x_residual, _ = block["attention"](x_residual, x_residual)
-
-                # Residual connections after the attention layer for both modalities
-                x = self._end_residual(block, "attention", x, x_residual, stage="self_attention")
-
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "ffn", x, stage="self_attention")
-                x_residual = block["ffn"](x_residual)
-                x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
-
-        
-        for block in cross_attention_blocks:
-            block = cast(nn.ModuleDict, block)
-
+             
             # Normalize the tokens from both modalities if prenormalization is enabled
-            x_residual = self._start_residual(block, "l_cross_attention", x, stage="cross_attention")
-            x_context_residual = self._start_residual(block, "r_cross_attention", x_context, stage="cross_attention")
+            x_residual = self._start_residual(block, "attention", x, stage="self_attention")
 
-            # Forward pass through the cross-attention block
-            x_residual, x_context_residual = block["cross_attention"](x_residual, x_context_residual)
+            # Forward pass through the self-attention block
+            x_residual, _ = block["attention"](x_residual, x_residual)
 
             # Residual connections after the attention layer for both modalities
-            x = self._end_residual(block, "l_cross_attention", x, x_residual, stage="cross_attention")
-            x_context = self._end_residual(block, "r_cross_attention", x_context, x_context_residual, stage="cross_attention")
+            x = self._end_residual(block, "attention", x, x_residual, stage="self_attention")
 
             # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_0", x, stage="cross_attention")
-            x_residual = block["l_ffn_0"](x_residual)
-            x = self._end_residual(block, "l_ffn_0", x, x_residual, stage="cross_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_0", x_context, stage="cross_attention")
-            x_context_residual = block["r_ffn_0"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_0", x_context, x_context_residual, stage="cross_attention")
-
-            # Forward pass through the self-attention block inside the cross-attention module for both modalities
-            x_residual = self._start_residual(block, "l_self_attention", x, stage="cross_attention")
-            x_residual, _ = block["l_self_attention"](x_residual, x_residual)
-            x = self._end_residual(block, "l_self_attention", x, x_residual, stage="cross_attention")
-
-            x_context_residual = self._start_residual(block, "r_self_attention", x_context, stage="cross_attention")
-            x_context_residual, _ = block["r_self_attention"](x_context_residual, x_context_residual)
-            x_context = self._end_residual(block, "r_self_attention", x_context, x_context_residual, stage="cross_attention")
-
-            # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_1", x, stage="cross_attention")
-            x_residual = block["l_ffn_1"](x_residual)
-            x = self._end_residual(block, "l_ffn_1", x, x_residual, stage="cross_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_1", x_context, stage="cross_attention")
-            x_context_residual = block["r_ffn_1"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_1", x_context, x_context_residual, stage="cross_attention")
-        
-        for block in bidirectional_attention_blocks:
-            block = cast(nn.ModuleDict, block)
-
-            # Normalize the tokens from both modalities if prenormalization is enabled
-            x_residual = self._start_residual(block, "l_bidirectional_attention", x, stage="bidirectional_attention")
-            x_context_residual = self._start_residual(block, "r_bidirectional_attention", x_context, stage="bidirectional_attention")
-
-            # Forward pass through the bidirectional attention block
-            x_residual, x_context_residual = block["bidirectional_attention"](x_residual, x_context_residual)
-
-            # Residual connections after the attention layer for both modalities
-            x = self._end_residual(block, "l_bidirectional_attention", x, x_residual, stage="bidirectional_attention")
-            x_context = self._end_residual(block, "r_bidirectional_attention", x_context, x_context_residual, stage="bidirectional_attention")
-
-            # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_bidirectional", x, stage="bidirectional_attention")
-            x_residual = block["l_ffn_bidirectional"](x_residual)
-            x = self._end_residual(block, "l_ffn_bidirectional", x, x_residual, stage="bidirectional_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_bidirectional", x_context, stage="bidirectional_attention")
-            x_context_residual = block["r_ffn_bidirectional"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_bidirectional", x_context, x_context_residual, stage="bidirectional_attention") 
+            x_residual = self._start_residual(block, "ffn", x, stage="self_attention")
+            x_residual = block["ffn"](x_residual)
+            x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
 
         output_tensor = torch.cat([x_context, x], dim=1) if x_context is not None else x
 
@@ -1337,22 +1197,6 @@ class FT_Alignment_2UniFTs(nn.Module):
                     initialization=self.attention_initialization,
                 ),
             }
-            # {   
-            #     "l_cross_attention": MultiheadAttention(
-            #         d_token=self.d_token,
-            #         n_heads=self.attention_n_heads,
-            #         dropout=self.attention_dropout,
-            #         bias=True,
-            #         initialization=self.attention_initialization,
-            #     ),
-            #     "r_cross_attention": MultiheadAttention(
-            #         d_token=self.d_token,
-            #         n_heads=self.attention_n_heads,
-            #         dropout=self.attention_dropout,
-            #         bias=True,
-            #         initialization=self.attention_initialization,
-            #     ),
-            # }
         )
 
         for modality_side in ["l", "r"]:
@@ -1400,41 +1244,6 @@ class FT_Alignment_2UniFTs(nn.Module):
             layer[f"{modality_side}_ffn_1_normalization"] = get_nn_module(self.ffn_normalization)
 
         return layer
-
-    def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
-        layer = nn.ModuleDict(
-            {
-                "bidirectional_attention": BidirectionalMultimodalAttention(
-                    d_token=self.d_token,
-                    n_heads=self.attention_n_heads,
-                    dropout=self.attention_dropout,
-                    bias=True,
-                    initialization=self.attention_initialization,
-                ),
-            }
-        )
-
-        for modality_side in ["l", "r"]:
-            layer.update(
-                {
-                    f"{modality_side}_bidirectional_attention_residual_dropout": nn.Dropout(self.residual_dropout),
-                    f"{modality_side}_ffn_bidirectional": self.FFN(
-                        d_token=self.d_token,
-                        d_hidden=self.ffn_d_hidden,
-                        bias_first=True,
-                        bias_second=True,
-                        dropout=self.ffn_dropout,
-                        activation=self.ffn_activation,
-                    ),
-                    f"{modality_side}_ffn_bidirectional_residual_dropout": nn.Dropout(self.residual_dropout),
-                }
-            )
-            if layer_idx or not self.prenormalization or self.first_prenormalization:
-                layer[f"{modality_side}_bidirectional_attention_normalization"] = get_nn_module(self.attention_normalization)
-            layer[f"{modality_side}_ffn_bidirectional_normalization"] = get_nn_module(self.ffn_normalization)
-
-        return layer
-
 
     def _start_residual(self, layer: nn.ModuleDict, layer_name: str, x: Tensor, stage: str = "self_attention") -> Tensor:
         match stage:
@@ -1567,109 +1376,20 @@ class FT_Alignment_2UniFTs(nn.Module):
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
-            if x_context is not None:
-
-                # Normalize the tokens from both modalities if prenormalization is enabled
-                x_residual = self._start_residual(block, "l_attention", x, stage="self_attention")
-
-                # Forward pass through the self-attention block
-                x_residual, _ = block["l_attention"](x_residual, x_residual)
-
-                # Residual connections after the attention layer for both modalities
-                x = self._end_residual(block, "l_attention", x, x_residual, stage="self_attention")
-
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "l_ffn", x, stage="self_attention")
-                x_residual = block["l_ffn"](x_residual)
-                x = self._end_residual(block, "l_ffn", x, x_residual, stage="self_attention")
-
-                # Do the same for the context modality
-                x_context_residual = self._start_residual(block, "r_attention", x_context, stage="self_attention")
-                x_context_residual, _ = block["r_attention"](x_context_residual, x_context_residual)
-                x_context = self._end_residual(block, "r_attention", x_context, x_context_residual, stage="self_attention")
-                x_context_residual = self._start_residual(block, "r_ffn", x_context, stage="self_attention")
-                x_context_residual = block["r_ffn"](x_context_residual)
-                x_context = self._end_residual(block, "r_ffn", x_context, x_context_residual, stage="self_attention")
-
-            else:
-                # Normalize the tokens from both modalities if prenormalization is enabled
-                x_residual = self._start_residual(block, "attention", x, stage="self_attention")
-
-                # Forward pass through the self-attention block
-                x_residual, _ = block["attention"](x_residual, x_residual)
-
-                # Residual connections after the attention layer for both modalities
-                x = self._end_residual(block, "attention", x, x_residual, stage="self_attention")
-
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "ffn", x, stage="self_attention")
-                x_residual = block["ffn"](x_residual)
-                x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
-
-        
-        for block in cross_attention_blocks:
-            block = cast(nn.ModuleDict, block)
-
+            
             # Normalize the tokens from both modalities if prenormalization is enabled
-            x_residual = self._start_residual(block, "l_cross_attention", x, stage="cross_attention")
-            x_context_residual = self._start_residual(block, "r_cross_attention", x_context, stage="cross_attention")
+            x_residual = self._start_residual(block, "attention", x, stage="self_attention")
 
-            # Forward pass through the cross-attention block
-            x_residual, x_context_residual = block["cross_attention"](x_residual, x_context_residual)
+            # Forward pass through the self-attention block
+            x_residual, _ = block["attention"](x_residual, x_residual)
 
             # Residual connections after the attention layer for both modalities
-            x = self._end_residual(block, "l_cross_attention", x, x_residual, stage="cross_attention")
-            x_context = self._end_residual(block, "r_cross_attention", x_context, x_context_residual, stage="cross_attention")
+            x = self._end_residual(block, "attention", x, x_residual, stage="self_attention")
 
             # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_0", x, stage="cross_attention")
-            x_residual = block["l_ffn_0"](x_residual)
-            x = self._end_residual(block, "l_ffn_0", x, x_residual, stage="cross_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_0", x_context, stage="cross_attention")
-            x_context_residual = block["r_ffn_0"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_0", x_context, x_context_residual, stage="cross_attention")
-
-            # Forward pass through the self-attention block inside the cross-attention module for both modalities
-            x_residual = self._start_residual(block, "l_self_attention", x, stage="cross_attention")
-            x_residual, _ = block["l_self_attention"](x_residual, x_residual)
-            x = self._end_residual(block, "l_self_attention", x, x_residual, stage="cross_attention")
-
-            x_context_residual = self._start_residual(block, "r_self_attention", x_context, stage="cross_attention")
-            x_context_residual, _ = block["r_self_attention"](x_context_residual, x_context_residual)
-            x_context = self._end_residual(block, "r_self_attention", x_context, x_context_residual, stage="cross_attention")
-
-            # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_1", x, stage="cross_attention")
-            x_residual = block["l_ffn_1"](x_residual)
-            x = self._end_residual(block, "l_ffn_1", x, x_residual, stage="cross_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_1", x_context, stage="cross_attention")
-            x_context_residual = block["r_ffn_1"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_1", x_context, x_context_residual, stage="cross_attention")
-        
-        for block in bidirectional_attention_blocks:
-            block = cast(nn.ModuleDict, block)
-
-            # Normalize the tokens from both modalities if prenormalization is enabled
-            x_residual = self._start_residual(block, "l_bidirectional_attention", x, stage="bidirectional_attention")
-            x_context_residual = self._start_residual(block, "r_bidirectional_attention", x_context, stage="bidirectional_attention")
-
-            # Forward pass through the bidirectional attention block
-            x_residual, x_context_residual = block["bidirectional_attention"](x_residual, x_context_residual)
-
-            # Residual connections after the attention layer for both modalities
-            x = self._end_residual(block, "l_bidirectional_attention", x, x_residual, stage="bidirectional_attention")
-            x_context = self._end_residual(block, "r_bidirectional_attention", x_context, x_context_residual, stage="bidirectional_attention")
-
-            # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_bidirectional", x, stage="bidirectional_attention")
-            x_residual = block["l_ffn_bidirectional"](x_residual)
-            x = self._end_residual(block, "l_ffn_bidirectional", x, x_residual, stage="bidirectional_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_bidirectional", x_context, stage="bidirectional_attention")
-            x_context_residual = block["r_ffn_bidirectional"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_bidirectional", x_context, x_context_residual, stage="bidirectional_attention") 
+            x_residual = self._start_residual(block, "ffn", x, stage="self_attention")
+            x_residual = block["ffn"](x_residual)
+            x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
 
         output_tensor = torch.cat([x_context, x], dim=1) if x_context is not None else x
 
@@ -1907,22 +1627,6 @@ class FT_Alignment_2UniFTs_CrossAtt(nn.Module):
                     initialization=self.attention_initialization,
                 ),
             }
-            # {   
-            #     "l_cross_attention": MultiheadAttention(
-            #         d_token=self.d_token,
-            #         n_heads=self.attention_n_heads,
-            #         dropout=self.attention_dropout,
-            #         bias=True,
-            #         initialization=self.attention_initialization,
-            #     ),
-            #     "r_cross_attention": MultiheadAttention(
-            #         d_token=self.d_token,
-            #         n_heads=self.attention_n_heads,
-            #         dropout=self.attention_dropout,
-            #         bias=True,
-            #         initialization=self.attention_initialization,
-            #     ),
-            # }
         )
 
         for modality_side in ["l", "r"]:
@@ -1970,41 +1674,6 @@ class FT_Alignment_2UniFTs_CrossAtt(nn.Module):
             layer[f"{modality_side}_ffn_1_normalization"] = get_nn_module(self.ffn_normalization)
 
         return layer
-
-    def _init_bidirectional_block(self, layer_idx: int) -> nn.ModuleDict:
-        layer = nn.ModuleDict(
-            {
-                "bidirectional_attention": BidirectionalMultimodalAttention(
-                    d_token=self.d_token,
-                    n_heads=self.attention_n_heads,
-                    dropout=self.attention_dropout,
-                    bias=True,
-                    initialization=self.attention_initialization,
-                ),
-            }
-        )
-
-        for modality_side in ["l", "r"]:
-            layer.update(
-                {
-                    f"{modality_side}_bidirectional_attention_residual_dropout": nn.Dropout(self.residual_dropout),
-                    f"{modality_side}_ffn_bidirectional": self.FFN(
-                        d_token=self.d_token,
-                        d_hidden=self.ffn_d_hidden,
-                        bias_first=True,
-                        bias_second=True,
-                        dropout=self.ffn_dropout,
-                        activation=self.ffn_activation,
-                    ),
-                    f"{modality_side}_ffn_bidirectional_residual_dropout": nn.Dropout(self.residual_dropout),
-                }
-            )
-            if layer_idx or not self.prenormalization or self.first_prenormalization:
-                layer[f"{modality_side}_bidirectional_attention_normalization"] = get_nn_module(self.attention_normalization)
-            layer[f"{modality_side}_ffn_bidirectional_normalization"] = get_nn_module(self.ffn_normalization)
-
-        return layer
-
 
     def _start_residual(self, layer: nn.ModuleDict, layer_name: str, x: Tensor, stage: str = "self_attention") -> Tensor:
         match stage:
@@ -2132,46 +1801,29 @@ class FT_Alignment_2UniFTs_CrossAtt(nn.Module):
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
-            if x_context is not None:
 
-                # Normalize the tokens from both modalities if prenormalization is enabled
-                x_residual = self._start_residual(block, "l_attention", x, stage="self_attention")
+            # Normalize the tokens from both modalities if prenormalization is enabled
+            x_residual = self._start_residual(block, "l_attention", x, stage="self_attention")
 
-                # Forward pass through the self-attention block
-                x_residual, _ = block["l_attention"](x_residual, x_residual)
+            # Forward pass through the self-attention block
+            x_residual, _ = block["l_attention"](x_residual, x_residual)
 
-                # Residual connections after the attention layer for both modalities
-                x = self._end_residual(block, "l_attention", x, x_residual, stage="self_attention")
+            # Residual connections after the attention layer for both modalities
+            x = self._end_residual(block, "l_attention", x, x_residual, stage="self_attention")
 
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "l_ffn", x, stage="self_attention")
-                x_residual = block["l_ffn"](x_residual)
-                x = self._end_residual(block, "l_ffn", x, x_residual, stage="self_attention")
+            # Forward pass through the normalization, FFN layer, and residual connection for both modalities
+            x_residual = self._start_residual(block, "l_ffn", x, stage="self_attention")
+            x_residual = block["l_ffn"](x_residual)
+            x = self._end_residual(block, "l_ffn", x, x_residual, stage="self_attention")
 
-                # Do the same for the context modality
-                x_context_residual = self._start_residual(block, "r_attention", x_context, stage="self_attention")
-                x_context_residual, _ = block["r_attention"](x_context_residual, x_context_residual)
-                x_context = self._end_residual(block, "r_attention", x_context, x_context_residual, stage="self_attention")
-                x_context_residual = self._start_residual(block, "r_ffn", x_context, stage="self_attention")
-                x_context_residual = block["r_ffn"](x_context_residual)
-                x_context = self._end_residual(block, "r_ffn", x_context, x_context_residual, stage="self_attention")
+            # Do the same for the context modality
+            x_context_residual = self._start_residual(block, "r_attention", x_context, stage="self_attention")
+            x_context_residual, _ = block["r_attention"](x_context_residual, x_context_residual)
+            x_context = self._end_residual(block, "r_attention", x_context, x_context_residual, stage="self_attention")
+            x_context_residual = self._start_residual(block, "r_ffn", x_context, stage="self_attention")
+            x_context_residual = block["r_ffn"](x_context_residual)
+            x_context = self._end_residual(block, "r_ffn", x_context, x_context_residual, stage="self_attention")
 
-            else:
-                # Normalize the tokens from both modalities if prenormalization is enabled
-                x_residual = self._start_residual(block, "attention", x, stage="self_attention")
-
-                # Forward pass through the self-attention block
-                x_residual, _ = block["attention"](x_residual, x_residual)
-
-                # Residual connections after the attention layer for both modalities
-                x = self._end_residual(block, "attention", x, x_residual, stage="self_attention")
-
-                # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-                x_residual = self._start_residual(block, "ffn", x, stage="self_attention")
-                x_residual = block["ffn"](x_residual)
-                x = self._end_residual(block, "ffn", x, x_residual, stage="self_attention")
-
-        
         for block in cross_attention_blocks:
             block = cast(nn.ModuleDict, block)
 
@@ -2213,29 +1865,6 @@ class FT_Alignment_2UniFTs_CrossAtt(nn.Module):
             x_context_residual = block["r_ffn_1"](x_context_residual)
             x_context = self._end_residual(block, "r_ffn_1", x_context, x_context_residual, stage="cross_attention")
         
-        for block in bidirectional_attention_blocks:
-            block = cast(nn.ModuleDict, block)
-
-            # Normalize the tokens from both modalities if prenormalization is enabled
-            x_residual = self._start_residual(block, "l_bidirectional_attention", x, stage="bidirectional_attention")
-            x_context_residual = self._start_residual(block, "r_bidirectional_attention", x_context, stage="bidirectional_attention")
-
-            # Forward pass through the bidirectional attention block
-            x_residual, x_context_residual = block["bidirectional_attention"](x_residual, x_context_residual)
-
-            # Residual connections after the attention layer for both modalities
-            x = self._end_residual(block, "l_bidirectional_attention", x, x_residual, stage="bidirectional_attention")
-            x_context = self._end_residual(block, "r_bidirectional_attention", x_context, x_context_residual, stage="bidirectional_attention")
-
-            # Forward pass through the normalization, FFN layer, and residual connection for both modalities
-            x_residual = self._start_residual(block, "l_ffn_bidirectional", x, stage="bidirectional_attention")
-            x_residual = block["l_ffn_bidirectional"](x_residual)
-            x = self._end_residual(block, "l_ffn_bidirectional", x, x_residual, stage="bidirectional_attention")
-
-            x_context_residual = self._start_residual(block, "r_ffn_bidirectional", x_context, stage="bidirectional_attention")
-            x_context_residual = block["r_ffn_bidirectional"](x_context_residual)
-            x_context = self._end_residual(block, "r_ffn_bidirectional", x_context, x_context_residual, stage="bidirectional_attention") 
-
         output_tensor = torch.cat([x_context, x], dim=1) if x_context is not None else x
 
         return output_tensor
