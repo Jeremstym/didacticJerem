@@ -90,7 +90,7 @@ class NTXentLossDecoupling(nn.Module):
 class SupInfoNCELossDecoupling(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
 
-    def __init__(self, temperature: float = 0.1):
+    def __init__(self, temperature: float = 0.1, margin: float = 0.0):
         """Initializes class instance.
 
         Args:
@@ -98,6 +98,7 @@ class SupInfoNCELossDecoupling(nn.Module):
         """
         super().__init__()
         self.temperature = temperature
+        self.margin = margin
 
     def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
@@ -114,6 +115,7 @@ class SupInfoNCELossDecoupling(nn.Module):
         ts = F.normalize(ts, p=2, dim=1)
         sim_shared = torch.mm(x_shared, ts.t())
         sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared -= self.margin
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
@@ -342,7 +344,7 @@ class TripletSoftplusLoss(nn.Module):
 class CLIPLoss(nn.Module):
     """CLIP Loss."""
 
-    def __init__(self, temperature: float = 1.0):
+    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
         """Initializes class instance.
 
         Args:
@@ -350,6 +352,7 @@ class CLIPLoss(nn.Module):
         """
         super().__init__()
         self.temperature = temperature
+        self.margin = margin
 
     def forward(self, tab_unique: Tensor, ts_anchor: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
@@ -364,6 +367,7 @@ class CLIPLoss(nn.Module):
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
         tab_unique = torch.mm(tab_unique, ts_anchor.t())
+        tab_unique -= torch.eyes(tab_unique.shape[0]).to(tab_unique.device) * self.margin
         tab_unique /= self.temperature
         tab_unique = torch.exp(tab_unique)
         x_1 = tab_unique.diag() / tab_unique.sum(dim=1)
