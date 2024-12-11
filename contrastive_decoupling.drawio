@@ -153,11 +153,11 @@
             <mxPoint x="474" y="557.17" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="qxaNI2jQHCd072IgQ3Vt-44" value="Moving away" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
-          <mxGeometry x="468.41" y="542" width="90" height="30" as="geometry" />
+        <mxCell id="qxaNI2jQHCd072IgQ3Vt-44" value="Bring closer" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="467.41" y="542" width="90" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="qxaNI2jQHCd072IgQ3Vt-45" value="Bring closer" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
-          <mxGeometry x="466.41" y="523" width="90" height="30" as="geometry" />
+        <mxCell id="qxaNI2jQHCd072IgQ3Vt-45" value="Moving away" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="470.41" y="523" width="90" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
