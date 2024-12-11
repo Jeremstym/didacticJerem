@@ -29,7 +29,7 @@ MANIFEST
 resultsWORKSHOP/
 # Diagrams
 diagrams/
-*.drawio
+.drawio
 
 # Lightning /camus
 test_tube_exp/
