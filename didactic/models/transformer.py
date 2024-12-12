@@ -3790,8 +3790,9 @@ class FT_Interleaved_Inverted(nn.Module):
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
-        x = torch.cat([tab_tokens_unique, cls_tokens.unsqueeze(1)], dim=1)
-        x_context = torch.cat([tab_tokens_shared, ts_tokens,], dim=1)
+        x = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+        # x_context = torch.cat([tab_tokens_shared, ts_tokens,], dim=1)
+        x_context = ts_tokens
 
         for layer_idx, block in enumerate(self.blocks):
             if "cross_attention" not in block:
