@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=electronic,hard
-#SBATCH --nodelist=punk,kavinsky,modjo,daft
+#SBATCH --nodelist=punk
 #SBATCH --job-name=TEST-comparison-on-model
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
