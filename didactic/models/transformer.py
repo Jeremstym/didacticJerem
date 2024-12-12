@@ -36,9 +36,9 @@ def aggregate_tokens(
     if mode == "average":
         return ts_tokens.mean(dim=1), tab_unique_tokens.mean(dim=0), tab_shared_tokens.mean(dim=0)
     elif mode == "weighted_pooling":
-        ts_sequence_pooling = SequencePooling(d_model=ts_tokens.shape[-1])
-        tab_unique_pooling = SequencePooling(d_model=tab_unique_tokens.shape[-1])
-        tab_shared_pooling = SequencePooling(d_model=tab_shared_tokens.shape[-1])
+        ts_sequence_pooling = SequencePooling(d_model=ts_tokens.shape[-1]).to(ts_tokens.device)
+        tab_unique_pooling = SequencePooling(d_model=tab_unique_tokens.shape[-1]).to(tab_unique_tokens.device)
+        tab_shared_pooling = SequencePooling(d_model=tab_shared_tokens.shape[-1]).to(tab_shared_tokens.device)
         return ts_sequence_pooling(ts_tokens), tab_unique_pooling(tab_unique_tokens), tab_shared_pooling(tab_shared_tokens)
     else:
         raise ValueError(f"Unexpected value for 'mode': {mode}. Use one of: ['average', 'weighted_pooling'].")
