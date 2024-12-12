@@ -3595,9 +3595,6 @@ class FT_Interleaved_Inverted(nn.Module):
         self.n_tabular_attrs = n_tabular_attrs
         self.n_time_series_attrs = n_time_series_attrs
 
-        self.tabular_unimodal_encoder = get_nn_module(tabular_unimodal_encoder)
-        self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
-
         
         layers = []
         total_blocks = max(self.n_self_blocks, self.n_cross_blocks)
