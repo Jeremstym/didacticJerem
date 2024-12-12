@@ -10,12 +10,38 @@ from torch import Tensor, nn
 
 from .layers import get_nn_module, MultiheadAttention, MultiheadCrossAttention
 from .baselines import BidirectionalMultimodalAttention
-
-from didactic.tasks.utils import aggregate_tokens
+from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 
 ModuleType = Union[str, Callable[..., nn.Module]]
 _INTERNAL_ERROR_MESSAGE = "Internal error. Please, open an issue."
 
+def aggregate_tokens(
+    ts_tokens: Tensor,
+    tab_unique_tokens: Tensor,
+    tab_shared_tokens: Tensor,
+    mode: str = "average"
+) -> Tuple[Tensor, Tensor, Tensor]:
+    """Aggregate tokens from tabular and time-series attributes.
+    
+    Args:
+        tab_unique_tokens: (N, U) Unique tokens from tabular attributes.
+        tab_shared_tokens: (N, S) Shared tokens from tabular attributes.
+        ts_tokens: (N, L) Tokens from time-series attributes.
+        mode: Aggregation mode to use. One of: ['average', 'avg_token'].
+
+    Returns:
+        (N, E), (U, E), (S, E) Aggregated tokens from time-series, unique tabular, and shared tabular attributes.
+    """
+
+    if mode == "average":
+        return ts_tokens.mean(dim=1), tab_unique_tokens.mean(dim=0), tab_shared_tokens.mean(dim=0)
+    elif mode == "weighet_pooling":
+        ts_sequence_pooling = SequencePooling(d_model=ts_tokens.shape[-1])
+        tab_unique_pooling = SequencePooling(d_model=tab_unique_tokens.shape[-1])
+        tab_shared_pooling = SequencePooling(d_model=tab_shared_tokens.shape[-1])
+        return ts_sequence_pooling(ts_tokens), tab_unique_pooling(tab_unique_tokens), tab_shared_pooling(tab_shared_tokens)
+    else:
+        raise ValueError(f"Unexpected value for 'mode': {mode}. Use one of: ['average', 'avg_token'].")
 
 class FT_Transformer(nn.Module):
     """Transformer with extra features.
