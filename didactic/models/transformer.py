@@ -11,6 +11,8 @@ from torch import Tensor, nn
 from .layers import get_nn_module, MultiheadAttention, MultiheadCrossAttention
 from .baselines import BidirectionalMultimodalAttention
 
+from didactic.tasks.utils import aggregate_tokens
+
 ModuleType = Union[str, Callable[..., nn.Module]]
 _INTERNAL_ERROR_MESSAGE = "Internal error. Please, open an issue."
 
@@ -3114,6 +3116,7 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
         n_time_series_attrs: int,
         tabular_unimodal_encoder: str,
         ts_unimodal_encoder: str,
+        intermediate_mode: str = "average",
     ) -> None:
         """
         Parameters
@@ -3200,6 +3203,7 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
         self.tabular_unimodal_encoder = get_nn_module(tabular_unimodal_encoder)
         self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
 
+        self.intermediate_mode = intermediate_mode
         
         layers = []
         total_blocks = max(self.n_self_blocks, self.n_cross_blocks)
@@ -3370,6 +3374,7 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
         tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
 
         if output_intermediate:
+            return aggregate_tokens(ts_tokens, tab_tokens_unique, tab_tokens_shared, mode=self.intermediate_mode)
             return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)

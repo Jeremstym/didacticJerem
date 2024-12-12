@@ -4,6 +4,7 @@ from typing import Any, Dict, Iterable, Literal, Sequence, Tuple
 
 import numpy as np
 import torch
+from torch import Tensor
 from torch.utils.data import default_collate
 from tqdm.auto import tqdm
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
@@ -16,6 +17,7 @@ from vital.utils.format.torch import numpy_to_torch, torch_apply, torch_to_numpy
 
 from didactic.models.explain import attention_rollout, k_number, register_attn_weights_hook
 from didactic.tasks.cardiac_multimodal_representation import CardiacMultimodalRepresentationTask
+from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 
 logger = logging.getLogger(__name__)
 
@@ -254,3 +256,31 @@ def summarize_patients_attn(
             }
         )
         return attn_summary_by_subset
+
+def aggregate_tokens(
+    ts_tokens: Tensor,
+    tab_unique_tokens: Tensor,
+    tab_shared_tokens: Tensor,
+    mode: str = "average"
+) -> Tuple[Tensor, Tensor, Tensor]:
+    """Aggregate tokens from tabular and time-series attributes.
+    
+    Args:
+        tab_unique_tokens: (N, U) Unique tokens from tabular attributes.
+        tab_shared_tokens: (N, S) Shared tokens from tabular attributes.
+        ts_tokens: (N, L) Tokens from time-series attributes.
+        mode: Aggregation mode to use. One of: ['average', 'avg_token'].
+
+    Returns:
+        (N, E), (U, E), (S, E) Aggregated tokens from time-series, unique tabular, and shared tabular attributes.
+    """
+
+    if mode == "average":
+        return ts_tokens.mean(dim=1), tab_unique_tokens.mean(dim=0), tab_shared_tokens.mean(dim=0)
+    elif mode == "weighet_pooling":
+        ts_sequence_pooling = SequencePooling(d_model=ts_tokens.shape[-1])
+        tab_unique_pooling = SequencePooling(d_model=tab_unique_tokens.shape[-1])
+        tab_shared_pooling = SequencePooling(d_model=tab_shared_tokens.shape[-1])
+        return ts_sequence_pooling(ts_tokens), tab_unique_pooling(tab_unique_tokens), tab_shared_pooling(tab_shared_tokens)
+    else:
+        raise ValueError(f"Unexpected value for 'mode': {mode}. Use one of: ['average', 'avg_token'].")
