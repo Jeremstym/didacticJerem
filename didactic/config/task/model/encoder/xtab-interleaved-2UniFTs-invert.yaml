@@ -28,3 +28,4 @@ n_tabular_attrs: ${n_tabular_attrs}
 n_time_series_attrs: ${n_time_series_attrs}
 tabular_unimodal_encoder: ${tabular_unimodal_encoder}
 ts_unimodal_encoder: ${ts_unimodal_encoder}
+intermediate_mode: pooling
