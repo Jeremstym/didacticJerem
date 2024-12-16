@@ -28,6 +28,11 @@ task:
   inter_sample_loss_weight: 0.1
   cls_token: True
   ts_cls_token: False
+  tabular_double_tokenizer: False
+  tabular_shared_tokenizer:
+    _target_: didactic.models.tabular.TabularEmbedding
+    d_token: ${task.embed_dim}
+
 
   # Architecture parameters to define the same architecture as XTab
   embed_dim: 192
@@ -67,6 +72,33 @@ tabular_unimodal_encoder:
     _partial_: True
 
 ts_unimodal_encoder:
+    _target_: didactic.models.transformer.FT_Transformer
+    d_token: 192
+    n_self_blocks: 3
+    n_cross_blocks: 0
+    n_bidirectional_blocks: 0
+    attention_n_heads: 8
+    attention_dropout: 0.2
+    attention_initialization: kaiming
+    attention_normalization:
+      _target_: torch.nn.LayerNorm
+      normalized_shape: ${task.model.encoder.d_token}
+      _partial_: True
+    ffn_d_hidden: ${task.model.encoder.d_token}
+    ffn_dropout: 0.1
+    ffn_activation:
+      _target_: didactic.models.layers.ReGLU
+      _partial_: True
+    ffn_normalization:
+      _target_: torch.nn.LayerNorm
+      normalized_shape: ${task.model.encoder.d_token}
+      _partial_: True
+    residual_dropout: 0.1
+    prenormalization: True
+    first_prenormalization: ${task.first_prenormalization}
+    _partial_: True
+
+  tabular_shared_encoder:
     _target_: didactic.models.transformer.FT_Transformer
     d_token: 192
     n_self_blocks: 3

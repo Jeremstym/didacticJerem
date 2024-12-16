@@ -53,6 +53,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         tabular_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         time_series_tokenizer: Optional[TimeSeriesEmbedding | DictConfig] = None,
         cls_token: bool = True,
+        tabular_double_tokenizer: bool = False,
+        tabular_shared_tokenizer: Optional[TabularEmbedding | DictConfig] = None,
         mtr_p: float | Tuple[float, float] = 0,
         mt_by_attr: bool = False,
         perform_lora: bool = False,
@@ -139,6 +141,13 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 "You configured neither tabular attributes nor time-series attributes as input variables to the model, "
                 "but the model requires at least one input. Set non-empty values for either or both `tabular_attrs` "
                 "and `time_series_attrs`."
+            )
+
+        if tabular_double_tokenizer and not (tabular_tokenizer and tabular_shared_tokenizer):
+            raise ValueError(
+                "You have enabled the double tabular tokenizer, but have not provided a unique tokenizer for tabular "
+                "attributes. Make sure to provide a unique tokenizer for tabular attributes when enabling the double "
+                "tabular tokenizer."
             )
 
         super().__init__(*args, **kwargs)
@@ -321,6 +330,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_Dummy):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = False # temporary
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_DoubleTok):  # didactic submodule `FT_Interleaved`
+            self.nhead = self.hparams.model.encoder.attention_n_heads
+            self.separate_modality = False # temporary
+            assert self.hparams.tabular_double_tokenizer, "Double tokenizer is not enabled"
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
@@ -336,10 +349,19 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     n_num_features=len(self.tabular_num_attrs),
                     cat_cardinalities=self.tabular_cat_attrs_cardinalities,
                 )
+            if tabular_double_tokenizer:
+                tabular_shared_tokenizer = hydra.utils.instantiate(
+                    tabular_shared_tokenizer,
+                    n_num_features=len(self.tabular_num_attrs),
+                    cat_cardinalities=self.tabular_cat_attrs_cardinalities,
+                )
+            else: 
+                tabular_shared_tokenizer = None
         else:
             # Set tokenizer to `None` if it's not going to be used
             tabular_tokenizer = None
         self.tabular_tokenizer = tabular_tokenizer
+        self.tabular_shared_tokenizer = tabular_shared_tokenizer
 
         if time_series_attrs:
             if isinstance(time_series_tokenizer, DictConfig):
@@ -524,6 +546,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
                 )  # (N, S_tab, E)
             tokens.append(tab_attrs_tokens)
+            if self.tabular_shared_tokenizer:
+                tab_attrs_tokens_shared = self.tabular_shared_tokenizer(
+                    x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
+                    x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
+                )
+                tokens.append(tab_attrs_tokens_shared)
 
             # Identify missing data in tabular attributes
             if self.tabular_num_attrs:
@@ -595,16 +623,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         if self.separate_modality:
             # Split the sequence of tokens into tabular and time-series tokens
-            # if not enable_proj:
             ts_tokens, tab_tokens = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs :]
-            # else:
-            #     ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
-            #     tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
-            #     cls_tokens = tokens[:, -1, :]
-            #     tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
-            #     tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
-
-            #     tab_tokens = torch.cat([tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+            
             if output_intermediate:
                 return self.encoder(tab_tokens, ts_tokens, output_intermediate=output_intermediate)
                 
@@ -619,20 +639,16 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 # Forward pass through the transformer encoder (starting with the cross-attention module)
                 out_tokens = self.encoder(tab_tokens, ts_tokens)
 
-        else:
-            # Forward pass through the transformer encoder
-            # if enable_proj:
-            #     ts_tokens = self.time_series_lin_proj(tokens[:, : self.n_time_series_attrs])
-            #     tab_tokens = self.tabular_lin_proj(tokens[:, self.n_time_series_attrs :-1])
-            #     cls_tokens = tokens[:, -1, :]
-            #     tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,:self.n_tabular_attrs,:]
-            #     tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.hparams.embed_dim)[:,self.n_tabular_attrs:,:]
+        elif self.hparams.tabular_double_tokenizer:
+            # Split the sequence of tokens into shared tabular, unique tabular and time-series tokens
+            ts_tokens, tab_tokens_unique, tab_tokens_shared = tokens[:, : self.n_tabular_attrs], tokens[:, self.n_tabular_attrs:2*self.n_tabular_attrs], tokens[:, 2*self.n_tabular_attrs :]
 
-            #     tokens = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
+        else:
             if output_intermediate:
-                return self.encoder(tokens, output_intermediate=output_intermediate)
+                return self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared, output_intermediate=output_intermediate)
             
-            out_tokens = self.encoder(tokens)
+            # Forward pass through the transformer encoder
+            out_tokens = self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared)
 
         if output_unique:
             return out_tokens[:, :self.n_tabular_attrs, :]
