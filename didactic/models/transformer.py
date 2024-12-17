@@ -3619,7 +3619,7 @@ class FT_Interleaved_2UniFTs_DoubleTok(nn.Module):
         self.n_cross_blocks = n_cross_blocks
         self.n_bidirectional_blocks = n_bidirectional_blocks
 
-        self.linear_proj = nn.Linear(n_tabular_attrs, 1)
+        self.linear_proj = nn.Linear(n_tabular_attrs-1, 1)
 
         self.n_tabular_attrs = n_tabular_attrs
         self.n_time_series_attrs = n_time_series_attrs
