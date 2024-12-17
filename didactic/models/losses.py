@@ -434,7 +434,7 @@ class CLIPLoss(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, tab_unique: Tensor, ts_anchor: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels=None) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -454,3 +454,44 @@ class CLIPLoss(nn.Module):
         x_2 = tab_unique.diag() / tab_unique.sum(dim=0)
         return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
         # return -torch.log(x).mean()
+
+class SupCLIPLoss(nn.Module):
+    """SupCLIP Loss."""
+
+    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+        self.margin = margin
+
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            tab_unique: (N, E), Unique token.
+            ts_anchor: (N, E), Anchor
+
+        Returns:
+            Scalar loss value.
+        """
+        labels = labels.view(-1, 1)
+        label_mask = torch.eq(labels, labels.t()).float().to(labels.device)
+        
+        # Remove self contrastive elements in diagonal
+        # label_mask -= torch.eye(label_mask.shape[0]).to(label_mask.device)
+
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
+        tab_unique = torch.mm(tab_unique, ts_anchor.t())
+        tab_unique -= torch.eye(tab_unique.shape[0]).to(tab_unique.device) * self.margin
+        tab_unique /= self.temperature
+        tab_unique = torch.exp(tab_unique)
+        x_1 = torch.log(tab_unique * label_mask / tab_unique.sum(dim=1))
+        x_2 = torch.log(tab_unique * label_mask / tab_unique.sum(dim=0))
+        x_1 = torch.sum(x_1, dim=1) / label_mask.sum(dim=1)
+        x_2 = torch.sum(x_2, dim=0) / label_mask.sum(dim=0)
+        return (-x_1.mean() - x_2.mean()) / 2
