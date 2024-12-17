@@ -848,13 +848,26 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     def _inter_sample_step(
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
+        metrics = {}
         # Forward pass through the
         ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
+       
+       # Iterate on the attributes to get labels
+        for attr, loss in self.predict_losses.items():
+            target, _ = batch[attr], predictions[attr]
 
-        # Compute the inter-sample loss/metrics
-        metrics = {
-            "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg)
-        }
+            if attr in TabularAttribute.categorical_attrs():
+                notna_mask = target != MISSING_CAT_ATTR
+            else:  # attr in TabularAttribute.numerical_attrs():
+                notna_mask = ~target.isnan()        
+            
+
+            # Compute the inter-sample loss/metrics
+            metrics.update(
+                {
+                    "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask])
+                }
+            )
 
         return metrics
 
