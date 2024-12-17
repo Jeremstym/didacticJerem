@@ -851,23 +851,23 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         metrics = {}
        
        # Iterate on the attributes to get labels
-        for attr, loss in self.predict_losses.items():
-            target = batch[attr]
+        # for attr, loss in self.predict_losses.items():
+            # target = batch[attr]
 
-            if attr in TabularAttribute.categorical_attrs():
-                notna_mask = target != MISSING_CAT_ATTR
-            else:  # attr in TabularAttribute.numerical_attrs():
-                notna_mask = ~target.isnan()        
+            # if attr in TabularAttribute.categorical_attrs():
+            #     notna_mask = target != MISSING_CAT_ATTR
+            # else:  # attr in TabularAttribute.numerical_attrs():
+            #     notna_mask = ~target.isnan()        
             
-            # Forward pass through the
-            ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
+        # Forward pass through the
+        ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
 
-            # Compute the inter-sample loss/metrics
-            metrics.update(
-                {
-                    "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask])
-                }
-            )
+        # Compute the inter-sample loss/metrics
+        metrics.update(
+            {
+                "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg)
+            }
+        )
             
         if metrics["inter_loss"].isnan().any():
             raise ValueError("Inter-sample loss is NaN")
