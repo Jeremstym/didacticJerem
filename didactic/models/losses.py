@@ -488,12 +488,15 @@ class SupCLIPLoss(nn.Module):
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
         similarity = torch.mm(tab_unique, ts_anchor.t())
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
+        print(f"smiliarity before temp: {similarity}")
         similarity /= self.temperature
+        print(f"smiliarity after temp: {similarity}")
         similarity = torch.exp(similarity)
+        print(f"smiliarity after exp: {similarity}")
+        print(f"logits are {similarity * label_mask / similarity.sum(dim=1)}")
         x_1 = torch.log(similarity * label_mask / similarity.sum(dim=1))
         x_2 = torch.log(similarity * label_mask / similarity.sum(dim=0))
         if x_1.isnan().any():
-            print(f'x_1: {x_1}')
             raise ValueError("NaN in x_1")
         if x_2.isnan().any():
             raise ValueError("NaN in x_2")
