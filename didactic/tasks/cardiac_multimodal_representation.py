@@ -866,6 +866,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Compute the inter-sample loss/metrics
         target = batch[TabularAttribute.ht_severity]
         notna_mask = ~target.isnan()
+        print(f"tab_unique_avg: {tab_unique_avg}, ts_avg: {ts_avg}, target: {target[notna_mask]}")
         metrics.update(
             {
                 "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask])
