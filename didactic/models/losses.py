@@ -480,18 +480,22 @@ class SupCLIPLoss(nn.Module):
         """
         labels = labels.view(-1, 1)
         label_mask = torch.eq(labels, labels.t()).float().to(labels.device)
+
+        print(f"label_mask: {label_mask}")
+        print(f"sum 1 label_mask: {label_mask.sum(dim=1)}")
+        print(f"sum 0 label_mask: {label_mask.sum(dim=0)}")
         
         # Remove self contrastive elements in diagonal
         # label_mask -= torch.eye(label_mask.shape[0]).to(label_mask.device)
 
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
-        tab_unique = torch.mm(tab_unique, ts_anchor.t())
-        tab_unique -= torch.eye(tab_unique.shape[0]).to(tab_unique.device) * self.margin
-        tab_unique /= self.temperature
-        tab_unique = torch.exp(tab_unique)
-        x_1 = torch.log(tab_unique * label_mask / tab_unique.sum(dim=1))
-        x_2 = torch.log(tab_unique * label_mask / tab_unique.sum(dim=0))
+        similarity = torch.mm(tab_unique, ts_anchor.t())
+        similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
+        similarity /= self.temperature
+        similarity = torch.exp(similarity)
+        x_1 = torch.log(similarity * label_mask / similarity.sum(dim=1))
+        x_2 = torch.log(similarity * label_mask / similarity.sum(dim=0))
         x_1 = torch.sum(x_1, dim=1) / label_mask.sum(dim=1)
         x_2 = torch.sum(x_2, dim=0) / label_mask.sum(dim=0)
         return (-x_1.mean() - x_2.mean()) / 2

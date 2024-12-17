@@ -856,9 +856,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         for attr, loss in self.predict_losses.items():
             target = batch[attr]
 
-            print(f'target is {target}')
-            print(f"target shape is {target.shape}")
-
             if attr in TabularAttribute.categorical_attrs():
                 notna_mask = target != MISSING_CAT_ATTR
             else:  # attr in TabularAttribute.numerical_attrs():
