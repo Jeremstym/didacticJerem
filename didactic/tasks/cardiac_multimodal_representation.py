@@ -653,13 +653,13 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
             # Forward pass through the transformer encoder
             out_tokens = self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared)
-            
+
         else:
             if output_intermediate:
-                return self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared, output_intermediate=output_intermediate)
+                return self.encoder(tokens, output_intermediate=output_intermediate)
             
             # Forward pass through the transformer encoder
-            out_tokens = self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared)
+            out_tokens = self.encoder(tokens)
 
         if output_unique:
             return out_tokens[:, :self.n_tabular_attrs, :]
