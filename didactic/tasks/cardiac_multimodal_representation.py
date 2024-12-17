@@ -849,8 +849,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
         metrics = {}
-        # Forward pass through the
-        ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
        
        # Iterate on the attributes to get labels
         for attr, loss in self.predict_losses.items():
@@ -861,6 +859,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             else:  # attr in TabularAttribute.numerical_attrs():
                 notna_mask = ~target.isnan()        
             
+            # Forward pass through the
+            ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
 
             # Compute the inter-sample loss/metrics
             metrics.update(
