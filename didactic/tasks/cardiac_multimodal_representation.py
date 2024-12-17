@@ -857,6 +857,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             target = batch[attr]
 
             print(f'target is {target}')
+            print(f"target shape is {target.shape}")
 
             if attr in TabularAttribute.categorical_attrs():
                 notna_mask = target != MISSING_CAT_ATTR
