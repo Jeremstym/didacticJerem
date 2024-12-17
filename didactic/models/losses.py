@@ -493,6 +493,7 @@ class SupCLIPLoss(nn.Module):
         x_1 = torch.log(similarity * label_mask / similarity.sum(dim=1))
         x_2 = torch.log(similarity * label_mask / similarity.sum(dim=0))
         if x_1.isnan().any():
+            print(f'x_1: {x_1}')
             raise ValueError("NaN in x_1")
         if x_2.isnan().any():
             raise ValueError("NaN in x_2")
