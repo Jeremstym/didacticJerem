@@ -560,6 +560,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 notna_mask.append(~(num_attrs.isnan()))
             if self.tabular_cat_attrs:
                 notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
+            if self.tabular_shared_tokenizer:
+                notna_mask.append(~(num_attrs.isnan()))
+                notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
 
         # Cast to float to make sure tokens are not represented using double
         tokens = torch.cat(tokens, dim=1).float()  # (N, S_ts + S_tab, E)
