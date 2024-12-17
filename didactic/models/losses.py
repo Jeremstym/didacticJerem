@@ -480,10 +480,6 @@ class SupCLIPLoss(nn.Module):
         """
         labels = labels.view(-1, 1)
         label_mask = torch.eq(labels, labels.t()).float().to(labels.device)
-
-        print(f"label_mask: {label_mask}")
-        print(f"sum 1 label_mask: {label_mask.sum(dim=1)}")
-        print(f"sum 0 label_mask: {label_mask.sum(dim=0)}")
         
         # Remove self contrastive elements in diagonal
         # label_mask -= torch.eye(label_mask.shape[0]).to(label_mask.device)
