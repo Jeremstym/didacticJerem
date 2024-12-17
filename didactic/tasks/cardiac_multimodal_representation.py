@@ -648,6 +648,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # Split the sequence of tokens into shared tabular, unique tabular and time-series tokens
             ts_tokens, tab_tokens_unique, tab_tokens_shared = tokens[:, : self.n_tabular_attrs], tokens[:, self.n_tabular_attrs:2*self.n_tabular_attrs], tokens[:, 2*self.n_tabular_attrs :]
 
+            if output_intermediate:
+                return self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared, output_intermediate=output_intermediate)
+
+            # Forward pass through the transformer encoder
+            out_tokens = self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared)
+            
         else:
             if output_intermediate:
                 return self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared, output_intermediate=output_intermediate)
