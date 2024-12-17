@@ -781,8 +781,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     def _prediction_shared_step(
         self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor,
     ) -> Dict[str, Tensor]:
-        # Forward pass through each target's prediction head
-        out_features = self.encode(in_tokens, avail_mask)
+        # Forward pass through the encoder without gradient computation to fine-tune only the prediction heads
+        with torch.no_grad():
+            out_features = self.encode(in_tokens, avail_mask)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(out_features)
