@@ -3791,7 +3791,7 @@ class FT_Interleaved_2UniFTs_DoubleTok(nn.Module):
         self.batch_size = ts_tokens.shape[0] # Save the batch size for later use in explainability
 
         # Extract the class tokens
-        cls_tokens = tab_shared_tokens[:, -1, :]
+        cls_tokens = tab_tokens_shared[:, -1, :]
 
         # Unimodal encoding for both modalities
         ts_tokens = self.ts_unimodal_encoder(ts_tokens)
