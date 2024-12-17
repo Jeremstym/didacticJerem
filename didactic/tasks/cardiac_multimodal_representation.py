@@ -856,6 +856,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         for attr, loss in self.predict_losses.items():
             target = batch[attr]
 
+            if target.isnan().any():
+                raise ValueError(
+                    f"Inter-sample loss is not defined for missing values in the target attribute '{attr}'."
+                )
+
             if attr in TabularAttribute.categorical_attrs():
                 notna_mask = target != MISSING_CAT_ATTR
             else:  # attr in TabularAttribute.numerical_attrs():
@@ -868,7 +873,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask])
                 }
             )
-
+        if metrics["inter_loss"].isnan().any():
+            raise ValueError("Inter-sample loss is NaN")
         return metrics
 
     def _contrastive_shared_step(
