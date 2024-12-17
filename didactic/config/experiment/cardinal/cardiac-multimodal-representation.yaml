@@ -125,7 +125,8 @@ task:
 
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
-    sequence_len: ${op.add:${op.add:${n_tabular_attrs},${n_time_series_attrs}},${task.cls_token}}
+    # sequence_len: ${op.add:${op.add:${n_tabular_attrs},${n_time_series_attrs}},${task.cls_token}}
+    sequence_len: 41
     d_model: ${task.embed_dim}
 
   tabular_tokenizer:
