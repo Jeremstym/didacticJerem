@@ -854,7 +854,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
        
         # Iterate on the attributes to get labels
-        for attr, loss in self.predict_losses.items():
+        for attr, _ in self.predict_losses.items():
             target = batch[attr]
 
             if attr in TabularAttribute.categorical_attrs():
