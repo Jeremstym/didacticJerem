@@ -486,8 +486,12 @@ class SupCLIPLoss(nn.Module):
 
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
+        print(f"tab_unique: {tab_unique}")
+        print(f"ts_anchor: {ts_anchor}")
         similarity = torch.mm(tab_unique, ts_anchor.t())
+        print(f"similarity: {similarity}")
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
+        print(f"similarity after margin: {similarity}")
         print(f"smiliarity before temp: {similarity}")
         similarity /= self.temperature
         print(f"smiliarity after temp: {similarity}")
