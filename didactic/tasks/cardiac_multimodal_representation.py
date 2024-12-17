@@ -646,7 +646,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
 
         elif self.hparams.tabular_double_tokenizer:
             # Split the sequence of tokens into shared tabular, unique tabular and time-series tokens
-            ts_tokens, tab_tokens_unique, tab_tokens_shared = tokens[:, : self.n_tabular_attrs], tokens[:, self.n_tabular_attrs:2*self.n_tabular_attrs], tokens[:, 2*self.n_tabular_attrs :]
+            ts_tokens, tab_tokens_unique, tab_tokens_shared = tokens[:, : self.n_time_series_attrs], tokens[:, self.n_time_series_attrs:2*self.n_tabular_attrs], tokens[:, 2*self.n_tabular_attrs :]
 
             if output_intermediate:
                 return self.encoder(ts_tokens, tab_tokens_unique, tab_tokens_shared, output_intermediate=output_intermediate)
