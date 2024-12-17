@@ -868,6 +868,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask])
                 }
             )
+            break
         if metrics["inter_loss"].isnan().any():
             raise ValueError("Inter-sample loss is NaN")
         return metrics
