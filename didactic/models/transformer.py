@@ -3619,7 +3619,7 @@ class FT_Interleaved_2UniFTs_DoubleTok(nn.Module):
         self.n_cross_blocks = n_cross_blocks
         self.n_bidirectional_blocks = n_bidirectional_blocks
 
-        self.linear_proj = nn.Linear(n_tabular_attrs-1, 1)
+        self.linear_proj = nn.Linear(d_token, d_token)
 
         self.n_tabular_attrs = n_tabular_attrs
         self.n_time_series_attrs = n_time_series_attrs
@@ -3799,10 +3799,10 @@ class FT_Interleaved_2UniFTs_DoubleTok(nn.Module):
         tab_tokens_shared = self.tabular_shared_encoder(tab_tokens_shared[:, :-1])
 
         if output_intermediate:
-            ts_tokens = self.linear_proj(ts_tokens.transpose(1,2))
-            tab_tokens_unique = self.linear_proj(tab_tokens_unique.transpose(1,2))
-            tab_tokens_shared = self.linear_proj(tab_tokens_shared.transpose(1,2))
-            return ts_tokens.squeeze(-1), tab_tokens_unique.squeeze(-1), tab_tokens_shared.squeeze(-1)
+            ts_tokens = self.linear_proj(ts_tokens)
+            tab_tokens_unique = self.linear_proj(tab_tokens_unique)
+            tab_tokens_shared = self.linear_proj(tab_tokens_shared)
+            return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
         x = torch.cat([tab_tokens_unique, cls_tokens.unsqueeze(1)], dim=1)
