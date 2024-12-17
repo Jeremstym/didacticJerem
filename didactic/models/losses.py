@@ -478,6 +478,9 @@ class SupCLIPLoss(nn.Module):
         Returns:
             Scalar loss value.
         """
+        print(f'tab_unique: {tab_unique}')
+        print(f'ts_anchor: {ts_anchor}')
+        print(f'labels: {labels}')
         labels = labels.view(-1, 1)
         label_mask = torch.eq(labels, labels.t()).float().to(labels.device)
         
