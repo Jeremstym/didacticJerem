@@ -478,8 +478,17 @@ class SupCLIPLoss(nn.Module):
         Returns:
             Scalar loss value.
         """
+        batch_size = tab_unique.shape[0]
         labels = labels.view(-1, 1)
-        label_mask = torch.eq(labels, labels.t()).float().to(labels.device)
+        mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
+
+        logits_mask = torch.scatter(
+            torch.ones_like(mask),
+            1,
+            torch.arange(batch_size).view(-1, 1).to(tab_unique.device),
+            0
+        )
+        mask = mask * logits_mask
         
         # Remove self contrastive elements in diagonal
         # label_mask -= torch.eye(label_mask.shape[0]).to(label_mask.device)
@@ -489,7 +498,7 @@ class SupCLIPLoss(nn.Module):
         similarity = torch.mm(tab_unique, ts_anchor.t())
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
         similarity /= self.temperature
-        similarity = torch.exp(similarity)
+        similarity = torch.exp(similarity) * logits_mask
         x_1 = torch.log(similarity / similarity.sum(dim=1))
         x_2 = torch.log(similarity / similarity.sum(dim=0))
         x_1 = torch.sum(x_1, dim=1) / label_mask.sum(dim=1)
