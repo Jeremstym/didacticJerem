@@ -3399,9 +3399,9 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
         tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
         tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
 
-        if output_intermediate:
-            return aggregate_tokens(ts_tokens, tab_tokens_unique, tab_tokens_shared, mode=self.intermediate_mode)
-            return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
+        # if output_intermediate:
+        #     # return aggregate_tokens(ts_tokens, tab_tokens_unique, tab_tokens_shared, mode=self.intermediate_mode)
+        #     return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
         x = torch.cat([tab_tokens_unique, cls_tokens.unsqueeze(1)], dim=1)
@@ -3475,7 +3475,11 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
 
         # Concatenation is only for hook purposes
         output_tensor = torch.cat([x_context, x], dim=1) if x_context is not None else x
-
+        if output_intermediate:
+            ts_tokens = output_tensor[:, self.n_tabular_attrs:self.n_tabular_attrs+self.n_time_series_attrs]
+            tab_tokens_unique = output_tensor[:, self.n_tabular_attrs+self.n_time_series_attrs:-1]
+            tab_tokens_shared = output_tensor[:, :self.n_tabular_attrs]
+            return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
         return output_tensor
 
 class FT_Interleaved_2UniFTs_DoubleTok(nn.Module):
