@@ -182,6 +182,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self.token_tags = (
             tuple("/".join([view, attr]) for view, attr in itertools.product(views, time_series_attrs)) + tabular_attrs
         )
+        if tabular_double_tokenizer:
+            self.token_tags = self.token_tags + tuple(f"{attr}_shared" for attr in tabular_attrs)
         if cls_token:
             self.token_tags = self.token_tags + ("CLS",)
 
