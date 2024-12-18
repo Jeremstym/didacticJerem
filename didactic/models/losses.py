@@ -519,7 +519,7 @@ class LaaFLoss(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor = None) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
