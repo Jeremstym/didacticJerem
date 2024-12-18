@@ -455,7 +455,7 @@ class CLIPLoss(nn.Module):
         return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
         # return -torch.log(x).mean()
 
-class SupCLIPLoss(nn.Module):
+class SupConCLIPLoss(nn.Module):
     """SupCLIP Loss."""
 
     def __init__(self, temperature: float = 1.0, margin: float = 0.0):
@@ -544,5 +544,5 @@ class LaaFLoss(nn.Module):
         similarity = torch.exp(similarity)
         x_1 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=1)
         x_2 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=0)
-        
+
         return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
