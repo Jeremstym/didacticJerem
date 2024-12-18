@@ -509,7 +509,7 @@ class SupCLIPLoss(nn.Module):
 class LaaFLoss(nn.Module):
     """SupCLIP Loss."""
 
-    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
+    def __init__(self, d_token: int, temperature: float = 1.0, margin: float = 0.0):
         """Initializes class instance.
 
         Args:
@@ -518,6 +518,7 @@ class LaaFLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
         self.margin = margin
+        self.label_dictionary = nn.Embedding(3, d_token)
 
     def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor = None) -> Tensor:
         """Performs a forward pass through the loss function.
@@ -530,6 +531,11 @@ class LaaFLoss(nn.Module):
             Scalar loss value.
         """
 
+        label_embedding = self.label_dictionary(labels)
+        # Add label embedding to tab_unique
+        tab_unique += label_embedding
+
+        # Normalize embeddings and calculate similarity
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
         similarity = torch.mm(tab_unique, ts_anchor.t())
@@ -538,4 +544,5 @@ class LaaFLoss(nn.Module):
         similarity = torch.exp(similarity)
         x_1 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=1)
         x_2 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=0)
+        
         return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
