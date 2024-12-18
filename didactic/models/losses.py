@@ -529,30 +529,13 @@ class LaaFLoss(nn.Module):
         Returns:
             Scalar loss value.
         """
-        batch_size = tab_unique.shape[0]
-        labels = labels.view(-1, 1)
-        mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
-
-        # logits_mask = torch.scatter(
-        #     torch.ones_like(mask),
-        #     1,
-        #     torch.arange(batch_size).view(-1, 1).to(tab_unique.device),
-        #     0
-        # )
-        # mask = mask * logits_mask
-        
-        # Remove self contrastive elements in diagonal
-        # label_mask -= torch.eye(label_mask.shape[0]).to(label_mask.device)
 
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
         similarity = torch.mm(tab_unique, ts_anchor.t())
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
         similarity /= self.temperature
-        exp_similarity = torch.exp(similarity) * mask
-        # Write in this form to avoid -inf in log
-        x_1 = similarity - torch.log(exp_similarity.sum(dim=1))
-        x_2 = similarity - torch.log(exp_similarity.sum(dim=0))
-        x_1 = (x_1 * mask).sum(dim=1) / mask.sum(dim=1)
-        x_2 = (x_2 * mask).sum(dim=0) / mask.sum(dim=0)
-        return (-x_1.mean() - x_2.mean()) / 2
+        similarity = torch.exp(similarity)
+        x_1 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=1)
+        x_2 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=0)
+        return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
