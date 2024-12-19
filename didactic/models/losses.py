@@ -160,8 +160,8 @@ class SupInfoNCELossDecoupling(nn.Module):
         sim_shared = torch.exp(sim_shared)
         sim_unique = torch.exp(sim_unique)
 
-        loss_ts_unique = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=1)) + sim_shared.diag()).mean()
-        loss_ts_shared = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=0)) + sim_shared.diag()).mean()
+        loss_ts_unique = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=1) + sim_shared.diag())).mean()
+        loss_ts_shared = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=0) + sim_shared.diag())).mean()
 
         loss = (loss_ts_unique + loss_ts_shared) / 2
 
