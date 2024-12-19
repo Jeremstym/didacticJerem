@@ -500,8 +500,8 @@ class SupConCLIPLoss(nn.Module):
         similarity /= self.temperature
         exp_similarity = torch.exp(similarity)
         # Write in this form to avoid -inf in log
-        x_1 = similarity - torch.log(exp_similarity.sum(dim=1))
-        x_2 = similarity - torch.log(exp_similarity.sum(dim=0))
+        x_1 = similarity - torch.log(exp_similarity.sum(dim=1, keepdim=True))
+        x_2 = similarity - torch.log(exp_similarity.sum(dim=0, keepdim=True))
         x_1 = (x_1 * mask).sum(dim=1) / mask.sum(dim=1)
         x_2 = (x_2 * mask).sum(dim=0) / mask.sum(dim=0)
         return (-x_1.mean() - x_2.mean()) / 2
