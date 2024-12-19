@@ -498,7 +498,7 @@ class SupConCLIPLoss(nn.Module):
         similarity = torch.mm(tab_unique, ts_anchor.t())
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
         similarity /= self.temperature
-        exp_similarity = torch.exp(similarity) * mask
+        exp_similarity = torch.exp(similarity)
         # Write in this form to avoid -inf in log
         x_1 = similarity - torch.log(exp_similarity.sum(dim=1, keepdim=True))
         x_2 = similarity - torch.log(exp_similarity.sum(dim=0, keepdim=True))
