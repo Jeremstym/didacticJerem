@@ -348,7 +348,7 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-SupInfo-CLIP-invert-margin90-50/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
  
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-interleaved-noorth-invert/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-CONSISTENCY/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+    ### poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-CONSISTENCY/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-interleaved-noorth-nodecoupling-invert/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss_weight=0.0 task.inter_sample_loss_weight=0.0
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-interleaved-invert/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-invert 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-interleaved-invert2/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-invert 
@@ -360,8 +360,8 @@ for seed in {42..51}; do
 
     # ALL INVERTED BELOW
 
-    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
-    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-unmasked_denominator/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+    ## A FAIRE :poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-unmasked_denominator/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
     
     # TEST WITHOUT TRAINING
 
