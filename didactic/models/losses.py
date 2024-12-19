@@ -559,7 +559,7 @@ class NTXentLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, ts: Tensor, labels=None) -> Tensor:
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels=None) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -604,7 +604,7 @@ class SupConNTXentLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, ts: Tensor, labels: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
