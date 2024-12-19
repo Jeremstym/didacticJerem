@@ -634,7 +634,7 @@ class SupConNTXentLoss(nn.Module):
         pairwise_mask = (~torch.eye(batch_size * 2, batch_size * 2, dtype=torch.bool, device=tab_unique.device)).float()
 
         denominator = pairwise_mask * torch.exp(similarity / self.temperature)
-        logits = positives_mask / self.temperature - torch.log(torch.sum(denominator, dim=1))
+        logits = positives_mask / self.temperature - torch.log(torch.sum(denominator, dim=1, keepdim=True))
         grouped_logits = torch.sum(logits, dim=1) / torch.sum(mask, dim=1)
 
         loss = - torch.sum(grouped_logits) / (2 * batch_size)
