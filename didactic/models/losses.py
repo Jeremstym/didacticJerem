@@ -498,7 +498,7 @@ class SupConCLIPLoss(nn.Module):
         similarity = torch.mm(tab_unique, ts_anchor.t())
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
         similarity /= self.temperature
-        exp_similarity = torch.exp(similarity) * mask
+        exp_similarity = torch.exp(similarity)
         # Write in this form to avoid -inf in log
         x_1 = similarity - torch.log(exp_similarity.sum(dim=1))
         x_2 = similarity - torch.log(exp_similarity.sum(dim=0))
@@ -615,22 +615,26 @@ class SupConNTXentLoss(nn.Module):
             Scalar loss value.
         """
         batch_size = tab_unique.size(0)
+        labels = labels.view(-1, 1)
+        double_labels = torch.cat([labels, labels], dim=0) # (2N, 1)
+        mask = torch.eq(double_labels, double_labels.t()).float().to(tab_unique.device) # (2N, 2N)
 
         # compute similarity between the embeddings of both views of the data
         z = torch.cat([tab_unique, ts_anchor], dim=0)
-        similarity = F.cosine_similarity(z.unsqueeze(1), z.unsqueeze(0), dim=2)  # (N * 2, N * 2)
+        similarity = F.cosine_similarity(z.unsqueeze(1), z.unsqueeze(0), dim=2) # (2N, 2N)
 
         # Create a mask for the positive samples, i.e. the corresponding samples in each view
-        sim_ij = torch.diag(similarity, batch_size)
-        sim_ji = torch.diag(similarity, -batch_size)
-        positives_mask = torch.cat([sim_ij, sim_ji], dim=0)
+        masked_similarity = similarity * mask
+        sim_ij = masked_similarity[:batch_size, batch_size:]
+        sim_ji = masked_similarity[batch_size:, :batch_size]
+        positives_mask = torch.cat([sim_ij, sim_ji], dim=0) # (2N, N)
 
         # For the denominator, we need to include both the positive and negative samples, so we use the inverse of the
         # identity matrix, so that we only exclude the similarities between each embedding and itself
         pairwise_mask = (~torch.eye(batch_size * 2, batch_size * 2, dtype=torch.bool, device=tab_unique.device)).float()
 
-        numerator = torch.exp(positives_mask / self.temperature)
         denominator = pairwise_mask * torch.exp(similarity / self.temperature)
+        numerator = torch.exp(positives_mask / self.temperature)
 
         all_losses = -torch.log(numerator / torch.sum(denominator, dim=1))
         loss = torch.sum(all_losses) / (2 * batch_size)
