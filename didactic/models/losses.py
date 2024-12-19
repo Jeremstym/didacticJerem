@@ -48,7 +48,7 @@ class OrthogonalLoss(nn.Module):
         return torch.norm(x, p="fro") ** 2
 
 
-class NTXentLossDecoupling(nn.Module):
+class DecouplingLoss(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
 
     def __init__(self, temperature: float = 0.1):
@@ -64,8 +64,8 @@ class NTXentLossDecoupling(nn.Module):
         """Performs a forward pass through the loss function.
 
         Args:
-            z_i: (N, E), Embeddings.
-            z_j: (N, E), Embeddings.
+            x_unique: (N, E), Embeddings.
+            x_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
@@ -103,8 +103,8 @@ class NTXentLossDecoupling2(nn.Module):
         """Performs a forward pass through the loss function.
 
         Args:
-            z_i: (N, E), Embeddings.
-            z_j: (N, E), Embeddings.
+            x_unique: (N, E), Embeddings.
+            x_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
@@ -143,8 +143,8 @@ class SupInfoNCELossDecoupling(nn.Module):
         """Performs a forward pass through the loss function.
 
         Args:
-            z_i: (N, E), Embeddings.
-            z_j: (N, E), Embeddings.
+            x_unique: (N, E), Embeddings.
+            x_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
@@ -184,8 +184,8 @@ class SupInfoNCELossDecoupling2(nn.Module):
         """Performs a forward pass through the loss function.
 
         Args:
-            z_i: (N, E), Embeddings.
-            z_j: (N, E), Embeddings.
+            x_unique: (N, E), Embeddings.
+            x_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
@@ -546,3 +546,48 @@ class LaaFLoss(nn.Module):
         x_2 = similarity.diag() / (similarity - torch.diag(similarity.diag())).sum(dim=0)
 
         return (-torch.log(x_1).mean() - torch.log(x_2).mean()) / 2
+
+class NTXentLoss(nn.Module):
+    """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
+
+    def __init__(self, temperature: float = 0.1):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, ts: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            tab_unique: (N, E), Embeddings.
+            ts_anchor: (N, E), Embeddings.
+
+        Returns:
+            Scalar loss value.
+        """
+        batch_size = tab_unique.size(0)
+
+        # compute similarity between the embeddings of both views of the data
+        z = torch.cat([tab_unique, ts_anchor], dim=0)
+        similarity = F.cosine_similarity(z.unsqueeze(1), z.unsqueeze(0), dim=2)  # (N * 2, N * 2)
+
+        # Create a mask for the positive samples, i.e. the corresponding samples in each view
+        sim_ij = torch.diag(similarity, batch_size)
+        sim_ji = torch.diag(similarity, -batch_size)
+        positives_mask = torch.cat([sim_ij, sim_ji], dim=0)
+
+        # For the denominator, we need to include both the positive and negative samples, so we use the inverse of the
+        # identity matrix, so that we only exclude the similarities between each embedding and itself
+        pairwise_mask = (~torch.eye(batch_size * 2, batch_size * 2, dtype=torch.bool, device=tab_unique.device)).float()
+
+        numerator = torch.exp(positives_mask / self.temperature)
+        denominator = pairwise_mask * torch.exp(similarity / self.temperature)
+
+        all_losses = -torch.log(numerator / torch.sum(denominator, dim=1))
+        loss = torch.sum(all_losses) / (2 * batch_size)
+
+        return loss
