@@ -195,7 +195,7 @@ class LearnMarginInfoNCELossDecoupling(nn.Module):
         ts = F.normalize(ts, p=2, dim=1)
         sim_shared = torch.mm(x_shared, ts.t())
         sim_unique = torch.mm(x_unique, ts.t())
-        sim_shared -= self.margin * torch.eye(sim_shared.shape[0]).to(sim_shared.device)
+        sim_shared -= self.margin.to(sim_shared.device) * torch.eye(sim_shared.shape[0]).to(sim_shared.device)
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
