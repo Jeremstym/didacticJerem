@@ -465,7 +465,7 @@ class TripletSoftplusLoss(nn.Module):
 class CLIPLoss(nn.Module):
     """CLIP Loss."""
 
-    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
+    def __init__(self, temperature: float = 1.0, margin: float = 0.0, learn_margin: bool = False):
         """Initializes class instance.
 
         Args:
@@ -473,7 +473,10 @@ class CLIPLoss(nn.Module):
         """
         super().__init__()
         self.temperature = temperature
-        self.margin = margin
+        if learn_margin:
+            self.margin = nn.Parameter(torch.tensor(margin)).to(device("cuda"))
+        else:
+            self.margin = margin
 
     def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels=None) -> Tensor:
         """Performs a forward pass through the loss function.
