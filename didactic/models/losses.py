@@ -126,7 +126,7 @@ class NTXentLossDecoupling2(nn.Module):
 
         return loss
 
-class SupInfoNCELossDecoupling(nn.Module):
+class MarginInfoNCELossDecoupling(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
 
     def __init__(self, temperature: float = 0.1, margin: float = 0.0):
@@ -154,7 +154,48 @@ class SupInfoNCELossDecoupling(nn.Module):
         ts = F.normalize(ts, p=2, dim=1)
         sim_shared = torch.mm(x_shared, ts.t())
         sim_unique = torch.mm(x_unique, ts.t())
-        sim_shared -= self.margin
+        sim_shared -= self.margin * torch.eye(sim_shared.shape[0]).to(sim_shared.device)
+        sim_shared /= self.temperature
+        sim_unique /= self.temperature
+        sim_shared = torch.exp(sim_shared)
+        sim_unique = torch.exp(sim_unique)
+
+        loss_ts_unique = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=1) + sim_shared.diag())).mean()
+        loss_ts_shared = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=0) + sim_shared.diag())).mean()
+
+        loss = (loss_ts_unique + loss_ts_shared) / 2
+
+        return loss
+
+class LearnMarginInfoNCELossDecoupling(nn.Module):
+    """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
+
+    def __init__(self, temperature: float = 0.1):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+        self.margin = nn.Parameter(torch.tensor(0.0))
+
+    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            x_unique: (N, E), Embeddings.
+            x_shared: (N, E), Embeddings.
+
+        Returns:
+            Scalar loss value.
+        """
+        x_unique = F.normalize(x_unique, p=2, dim=1)
+        x_shared = F.normalize(x_shared, p=2, dim=1)
+        ts = F.normalize(ts, p=2, dim=1)
+        sim_shared = torch.mm(x_shared, ts.t())
+        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared -= self.margin * torch.eye(sim_shared.shape[0]).to(sim_shared.device)
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
