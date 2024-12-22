@@ -439,10 +439,11 @@ class ReconstructionLoss(nn.Module):
 class TripletSoftplusLoss(nn.Module):
     """Triplet Softplus Loss."""
 
-    def __init__(self, temperature: float = 1.0):
+    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
         """Initializes class instance."""
         super().__init__()
         self.temperature = temperature
+        self.margin = margin
 
     def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts_anchor: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
@@ -460,7 +461,7 @@ class TripletSoftplusLoss(nn.Module):
         tab_shared = F.normalize(tab_shared, p=2, dim=1)
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
 
-        return F.softplus((torch.mm(ts_anchor, tab_unique.t()) - torch.mm(ts_anchor, tab_shared.t()))/self.temperature).mean()
+        return F.softplus((torch.mm(ts_anchor, tab_unique.t()) - torch.mm(ts_anchor, tab_shared.t()) + self.margin)/self.temperature).mean()
 
 class CLIPLoss(nn.Module):
     """CLIP Loss."""
