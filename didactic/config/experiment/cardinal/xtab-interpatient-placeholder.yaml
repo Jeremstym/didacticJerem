@@ -16,7 +16,7 @@ task:
     _target_: didactic.models.losses.MarginInfoNCELossDecoupling
     temperature: 0.1
     margin: 0.7
-  contrastive_loss_weight: 1.0
+  contrastive_loss_weight: 0.0
   orthogonal_loss:
     _target_: didactic.models.losses.OrthogonalLoss
   orthogonal_loss_weight: 0.0
@@ -24,9 +24,9 @@ task:
     _target_: didactic.models.losses.ReconstructionLoss
   reconstruction_loss_weight: 0.0
   inter_sample_loss:
-    _target_: didactic.models.losses.CLIPLoss
+    _target_: didactic.models.losses.SupConCLIPLoss
     temperature: 0.5
-    margin: 0.3
+    # margin: 0.3
   inter_sample_loss_weight: 1.0
   cls_token: True
   ts_cls_token: False
