@@ -308,6 +308,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = True
+        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer_2UniFTs):  # didactic submodule `Transformer`
+            self.nhead = self.hparams.model.encoder.attention_n_heads
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = False # temporary

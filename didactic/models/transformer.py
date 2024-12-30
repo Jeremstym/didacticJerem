@@ -636,6 +636,10 @@ class FT_Transformer_2UniFTs(nn.Module):
         residual_dropout: float,
         prenormalization: bool,
         first_prenormalization: bool,
+        n_tabular_attrs: int,
+        n_time_series_attrs: int,
+        tabular_unimodal_encoder: str,
+        ts_unimodal_encoder: str,
     ) -> None:
         """
         Parameters
@@ -712,6 +716,12 @@ class FT_Transformer_2UniFTs(nn.Module):
         self.n_self_blocks = n_self_blocks
         self.n_cross_blocks = n_cross_blocks
         self.n_bidirectional_blocks = n_bidirectional_blocks
+
+        self.n_tabular_attrs = n_tabular_attrs
+        self.n_time_series_attrs = n_time_series_attrs
+
+        self.tabular_unimodal_encoder = get_nn_module(tabular_unimodal_encoder)
+        self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
         
         layers = []
 
@@ -988,6 +998,15 @@ class FT_Transformer_2UniFTs(nn.Module):
         self_attention_blocks = self.blocks[: self.n_self_blocks]
         cross_attention_blocks = self.blocks[self.n_self_blocks :]
         bidirectional_attention_blocks = [] #FIXME: build bidirectional attention blocks later
+
+        # Extract the CLS token
+        cls_token = x[:, -1, :]
+
+        # Unimodal encoding for both modalities
+        ts_tokens = self.ts_unimodal_encoder(x[:, : self.n_time_series_attrs])
+        tab_tokens = self.tabular_unimodal_encoder(x[:, self.n_time_series_attrs :-1])
+
+        x = torch.cat([tab_tokens, ts_tokens, cls_token.unsqueeze(1)], dim=1)
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
