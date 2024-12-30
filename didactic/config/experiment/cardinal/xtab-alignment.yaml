@@ -24,7 +24,7 @@ task:
   reconstruction_loss_weight: 0.0
   inter_sample_loss:
     _target_: didactic.models.losses.SupConCLIPLoss
-    temperature: 0.5
+    temperature: 0.1
     # d_token: ${task.embed_dim}
   inter_sample_loss_weight: 1.0
   cls_token: True
