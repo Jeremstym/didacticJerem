@@ -1,4 +1,3 @@
-_target_: didactic.models.baselines.ConcatMLP
+_target_: didactic.models.baselines.AvgConcatMLP
 
-tabular_encoder: ${task.tabular_encoder}
 n_mlp_layers: 2

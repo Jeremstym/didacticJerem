@@ -187,6 +187,39 @@ class ConcatMLP(nn.Module):
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
 
+class AvgConcatMLP(nn.Module):
+    """A MPL to encode the concatenated input after the tabular Transformer."""
+
+    def __init__(
+        self,
+        n_mlp_layers: int = 2,
+        d_token = 192,
+        dropout = 0.1
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            tab_tokens: the number of tokens from the tabular Transformer.
+            ts_feature: the number of features from the time series Transformer.
+        """
+        super().__init__()
+
+        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
+        """Performs the forward pass.
+
+        Args:
+            tab_tokens: the tabular tokens.
+            ts_feature: the time series feature.
+
+        Returns:
+            the output tensor.
+        """
+        x = torch.cat((tab_tokens.mean(dim=1), ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
+        output = self.mlp(x) # (N, E)
+        return output.unsqueeze(1) # (N, 1, E)
+
 class ConcatMLPDecoupling(nn.Module):
     """A MPL to encode the concatenated input after the tabular Transformer."""
 
