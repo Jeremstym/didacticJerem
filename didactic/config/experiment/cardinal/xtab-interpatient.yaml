@@ -13,7 +13,7 @@ task:
       _target_: torch.nn.CrossEntropyLoss
   ordinal_mode: False
   contrastive_loss:
-    _target_: didactic.models.losses.TripletSoftplusLoss
+    _target_: didactic.models.losses.SupInfoNCELoss
     temperature: 0.1
     # margin: 1.0
   contrastive_loss_weight: 1.0
@@ -25,7 +25,7 @@ task:
   reconstruction_loss_weight: 0.0
   inter_sample_loss:
     _target_: didactic.models.losses.SupConCLIPLoss
-    temperature: 0.5
+    temperature: 0.1
     # margin: 0.4
   inter_sample_loss_weight: 1.0
   cls_token: True
