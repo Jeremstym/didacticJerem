@@ -375,6 +375,7 @@ for seed in {42..51}; do
 
     ### poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLP-concat-baseline/seed${seed}' +experiment=cardinal/baseline-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
     ### poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLP-FT-concat-baseline/seed${seed}' +experiment=cardinal/baseline-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-ft-mlp-concat
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLP-2UniFTs-concat-baseline/seed${seed}' +experiment=cardinal/baseline-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=decoupling-uni-FTs-mlp-concat
 
     # TEST WITHOUT TRAINING
 
