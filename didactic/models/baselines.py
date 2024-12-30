@@ -227,8 +227,8 @@ class ConcatMLPDecoupling(nn.Module):
         
         ts_tokens = self.time_series_lin_proj(ts_tokens)
         tab_tokens = self.tabular_lin_proj(tab_tokens)
-        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,:self.n_tabular_attrs,:]
-        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
         
         # Average both modalities
         tab_tokens_unique = tab_tokens_unique.mean(dim=1)
@@ -291,8 +291,8 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         # Linear projection
         ts_tokens = self.time_series_lin_proj(ts_output)
         tab_tokens = self.tabular_lin_proj(tabular_output)
-        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,:self.n_tabular_attrs,:]
-        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
 
         # Average both modalities
         tabular_output_unique = tab_tokens_unique.mean(dim=1)
