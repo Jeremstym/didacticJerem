@@ -377,7 +377,7 @@ def generate_cv_splits(
     logger.info("Generating splits...")
     split_dict = {}
     skf = StratifiedKFold(n_splits=n_splits, random_state=seed)
-    for train_index, test_index in skf.split(list(patients_stratify), stratify_labels):
+    for i, (train_index, test_index) in enumerate(skf.split(list(patients_stratify), stratify_labels)):
         patient_ids_train, patient_ids_test = [list(patients_stratify)[i] for i in train_index], [list(patients_stratify)[i] for i in test_index]
         split_dict[f"split_{i}"] = (sorted(patient_ids_train), sorted(patient_ids_test))
     return split_dict
