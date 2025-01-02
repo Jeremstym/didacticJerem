@@ -8,6 +8,7 @@ import seaborn as sns
 from matplotlib.axes import Axes
 from seaborn import PairGrid
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold
 from tqdm.auto import tqdm
 
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
@@ -330,3 +331,53 @@ def generate_patients_splits(
         list(patients_stratify), test_size=test_size, train_size=train_size, random_state=seed, stratify=stratify_labels
     )
     return sorted(patient_ids_train), sorted(patient_ids_test)
+
+def generate_cv_splits(
+    patients: Patients,
+    stratify: TabularAttribute,
+    n_splits: int,
+    seed: int = None,
+    progress_bar: bool = False,
+) -> Tuple[List[Patient.Id], List[Patient.Id]]:
+    """Splits patients into train and test subsets, preserving the distribution of `stratify` variable across subsets.
+
+    Notes:
+        - Wrapper around `sklearn.model_selection.train_test_split` that performs binning on continuous variables, since
+          out-of-the-box `sklearn`'s `train_test_split` only works with categorical `stratify` variables.
+
+    Args:
+        patients: Collection of patients to split.
+        stratify: Name of the tabular attribute whose distribution in each of the subset should be similar. Contrary to
+            `sklearn.model_selection.train_test_split`, this attribute can be continuous.
+        seed: Seed to control the shuffling applied to the data before applying the split.
+        progress_bar: If ``True``, enables progress bars detailing the progress of the collecting data from patients.
+
+    Returns:
+        Lists of patients in the train and tests subsets, respectively.
+    """
+    patients = patients.values()
+    msg = "Collecting patients' data"
+    if progress_bar:
+        patients = tqdm(patients, desc=msg, unit="patient")
+    else:
+        logger.info(msg + "...")
+
+    # Collect the data of the attribute by which to stratify the split from the patient
+    patients_stratify = {patient.id: patient.attrs[stratify] for patient in patients}
+
+    if stratify in TabularAttribute.numerical_attrs():
+        # Compute categorical stratify variable from scalar attribute
+        stratify_vals = list(patients_stratify.values())
+        stratify_bins = np.linspace(min(stratify_vals), max(stratify_vals), num=bins + 1)
+        stratify_bins[-1] += 1e-6  # Add epsilon to the last bin's upper bound since it's excluded by `np.digitize`
+        stratify_labels = np.digitize(stratify_vals, stratify_bins) - 1  # Subtract 1 because bin indexing starts at 1
+    else:
+        stratify_labels = list(patients_stratify.values())
+
+    logger.info("Generating splits...")
+    split_dict = {}
+    skf = StratifiedKFold(n_splits=n_splits, random_state=seed)
+    for train_index, test_index in skf.split(list(patients_stratify), stratify_labels):
+        patient_ids_train, patient_ids_test = list(patients_stratify)[train_index], list(patients_stratify)[test_index]
+        split_dict[f"split_{i}"] = (sorted(patient_ids_train), sorted(patient_ids_test))
+    return split_dict

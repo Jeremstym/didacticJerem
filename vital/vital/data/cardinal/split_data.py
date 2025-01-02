@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from vital.data.cardinal.config import TabularAttribute
-from vital.data.cardinal.utils.data_dis import generate_patients_splits
+from vital.data.cardinal.utils.data_dis import generate_patients_splits, generate_cv_splits
 from vital.data.cardinal.utils.itertools import Patients
 from vital.utils.parsing import int_or_float
 
@@ -46,10 +46,17 @@ def main():
     parser.add_argument(
         "--seed", type=int, help="Seed to control the shuffling applied to the data before applying the split"
     )
+    parser.add_argument(
+        "--cross_val",
+        optional=True,
+        type=bool,
+        default=False,
+        help="If True, will generate a cross-validation split instead of a single split. The number of splits is"
+    )
     args = parser.parse_args()
     kwargs = vars(args)
 
-    output_dir, train_name, test_name, stratify_attr, bins, test_size, seed = (
+    output_dir, train_name, test_name, stratify_attr, bins, test_size, seed, cross_val = (
         kwargs.pop("output_dir"),
         kwargs.pop("train_name"),
         kwargs.pop("test_name"),
@@ -57,11 +64,28 @@ def main():
         kwargs.pop("bins"),
         kwargs.pop("test_size"),
         kwargs.pop("seed"),
+        kwargs.pop("cross_val"),
     )
 
-    patient_ids_train, patient_ids_test = generate_patients_splits(
-        Patients(**kwargs), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
-    )
+    # Generate the split
+    if cross_val:
+        patient_ids_splits = generate_cv_splits(
+            Patients(**kwargs), stratify_attr, n_splits=bins, seed=seed, progress_bar=True
+        )
+        for i, patient_ids_train, patient_ids_test in enumerate(patient_ids_splits.values()):
+            (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patient_ids_train))
+            (output_dir / f"{test_name}_cv{i}.txt").write_text("\n".join(patient_ids_test))
+
+            patients_ids_train, patients_ids_val = generate_patients_splits(
+                Patients(exclude_patients=(output_dir / f"{test_name}_cv{i}.txt").read_text()), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
+            )
+            (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patients_ids_train))
+            (output_dir / f"val_cv{i}.txt").write_text("\n".join(patients_ids_val))
+
+    else:
+        patient_ids_train, patient_ids_test = generate_patients_splits(
+            Patients(**kwargs), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
+        )
 
     # Save the generated split
     output_dir.mkdir(parents=True, exist_ok=True)
