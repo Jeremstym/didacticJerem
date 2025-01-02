@@ -475,7 +475,7 @@ class CLIPLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
         if learn_margin:
-            self.margin = nn.Parameter(torch.tensor(margin)).to(device("cuda"))
+            self.margin = nn.Parameter(torch.tensor(margin)).to(torch.device("cuda"))
         else:
             self.margin = margin
 
