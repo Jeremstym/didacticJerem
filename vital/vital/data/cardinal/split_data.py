@@ -84,6 +84,8 @@ def main():
             (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patients_ids_train))
             (output_dir / f"val_cv{i}.txt").write_text("\n".join(patients_ids_val))
 
+            kwargs.pop("exclude_patients")
+
     else:
         patient_ids_train, patient_ids_test = generate_patients_splits(
             Patients(**kwargs), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
