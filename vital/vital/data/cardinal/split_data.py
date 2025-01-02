@@ -48,7 +48,6 @@ def main():
     )
     parser.add_argument(
         "--cross_val",
-        optional=True,
         type=bool,
         default=False,
         help="If True, will generate a cross-validation split instead of a single split. The number of splits is"
