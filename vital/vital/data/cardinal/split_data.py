@@ -76,7 +76,11 @@ def main():
             (output_dir / f"{test_name}_cv{i}.txt").write_text("\n".join(patient_ids_test))
 
             patients_ids_train, patients_ids_val = generate_patients_splits(
-                Patients(exclude_patients=(output_dir / f"{test_name}_cv{i}.txt").read_text()), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
+                Patients(exclude_patients=(output_dir / f"{test_name}_cv{i}.txt").read_text(), **kwargs),
+                stratify_attr, bins=bins,
+                test_size=test_size,
+                seed=seed,
+                progress_bar=True
             )
             (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patients_ids_train))
             (output_dir / f"val_cv{i}.txt").write_text("\n".join(patients_ids_val))
