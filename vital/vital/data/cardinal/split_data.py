@@ -71,7 +71,7 @@ def main():
         patient_ids_splits = generate_cv_splits(
             Patients(**kwargs), stratify_attr, n_splits=bins, seed=seed, progress_bar=True
         )
-        for i, patient_ids_train, patient_ids_test in enumerate(patient_ids_splits.values()):
+        for i, (patient_ids_train, patient_ids_test) in enumerate(patient_ids_splits.values()):
             (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patient_ids_train))
             (output_dir / f"{test_name}_cv{i}.txt").write_text("\n".join(patient_ids_test))
 
