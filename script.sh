@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=electronic,hard
-#SBATCH --job-name=TEST-CV
+#SBATCH --job-name=TEST-comparison-on-model
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=3-16:00:00
@@ -369,7 +369,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-TripletSoftPlus-CLIP/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-SupCLIPonly/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss_weight=0.0
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-SupCLIP-tempO.1/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss_weight=0.0
-    ### poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-SupCLIP/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-SupCLIP/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-CLIP/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder2 exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTXonly/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.inter_sample_loss_weight=0.0
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLP-concat-baseline/seed${seed}' +experiment=cardinal/baseline-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False
@@ -386,8 +387,8 @@ for seed in {42..51}; do
 
     # TEST CROSS VALIDATION
 
-    for fold in {0..4}; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold
-    done
+    # for fold in {0..4}; do
+    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold
+    # done
 
 done
