@@ -24,7 +24,7 @@ task:
     _target_: didactic.models.losses.ReconstructionLoss
   reconstruction_loss_weight: 0.0
   inter_sample_loss:
-    _target_: didactic.models.losses.SupConCLIPLoss
+    _target_: didactic.models.losses.CLIPLoss
     temperature: 0.5
     # margin: 0.3
     learn_margin: True
