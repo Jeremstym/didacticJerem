@@ -28,8 +28,8 @@ MANIFEST
 # Results
 resultsWORKSHOP/
 # Diagrams
-diagrams/
-*.drawio
+# diagrams/
+# *.drawio
 
 # Lightning /camus
 test_tube_exp/
