@@ -74,7 +74,7 @@
           <mxGeometry x="950" y="280" width="80" height="40" as="geometry" />
         </mxCell>
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-33" value="" style="group;rotation=-179;" vertex="1" connectable="0" parent="1">
-          <mxGeometry x="1030" y="-100" width="50" height="180" as="geometry" />
+          <mxGeometry x="1020" y="-101" width="237" height="510" as="geometry" />
         </mxCell>
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-31" value="" style="endArrow=none;html=1;rounded=0;fontStyle=1;edgeStyle=orthogonalEdgeStyle;curved=1;strokeWidth=2;" edge="1" parent="b5ZvEWZHJdZfXE5YK8wL-33">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -96,11 +96,11 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-38" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="907" y="35" width="360" height="360" as="geometry" />
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-38" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;" vertex="1" parent="b5ZvEWZHJdZfXE5YK8wL-33">
+          <mxGeometry x="-123" y="150" width="360" height="360" as="geometry" />
         </mxCell>
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-37" value="&lt;font&gt;Multimodal fusion scheme&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="1121" y="100" width="89" height="240" as="geometry" />
+          <mxGeometry x="1108" y="100" width="89" height="240" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
