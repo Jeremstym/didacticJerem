@@ -191,8 +191,8 @@
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-70" value="Prediction head" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" vertex="1" parent="1">
           <mxGeometry x="1290" y="610" width="69" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-76" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Unimodal tokenizer&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="146" width="230" height="40" as="geometry" />
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-76" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Unimodal processing&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="136" width="250" height="40" as="geometry" />
         </mxCell>
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-77" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;Information decoupling&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="558" width="270" height="40" as="geometry" />
