@@ -138,10 +138,10 @@
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-57" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Self-attention&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="1055" y="770" width="120" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-58" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Cross-attention&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-58" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Cross-attention&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#F4FFD3;" vertex="1" parent="1">
           <mxGeometry x="1055" y="560" width="120" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-59" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Cross-attention&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-61" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Cross-attention&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;gradientColor=#F4FFD3;" vertex="1" parent="1">
           <mxGeometry x="1055" y="700" width="120" height="50" as="geometry" />
         </mxCell>
       </root>
