@@ -96,6 +96,9 @@
             </Array>
           </mxGeometry>
         </mxCell>
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-37" value="&lt;font style=&quot;font-size: 21px;&quot;&gt;Fusion scheme&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1121" y="90" width="249" height="250" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
