@@ -81,10 +81,10 @@
         <mxCell id="ANjaZCNTPqNwZQU7dTNT-58" value="1 patient" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
           <mxGeometry x="434" y="30" width="70" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="ANjaZCNTPqNwZQU7dTNT-62" value="Label 1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+        <mxCell id="ANjaZCNTPqNwZQU7dTNT-62" value="Label 1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#9673a6;fillColor=#e1d5e7;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="240" y="160" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="ANjaZCNTPqNwZQU7dTNT-63" value="Label 2" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=Helvetica;fontSize=12;fontColor=default;" vertex="1" parent="1">
+        <mxCell id="ANjaZCNTPqNwZQU7dTNT-63" value="Label 2" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#6c8ebf;fillColor=#33FFFF;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="489" y="370" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
