@@ -551,6 +551,46 @@ class SupConCLIPLoss(nn.Module):
         x_2 = (x_2 * mask).sum(dim=0) / mask.sum(dim=0)
         return (-x_1.mean() - x_2.mean()) / 2
 
+class SupConCLIPLoss2(nn.Module):
+    """SupCLIP Loss."""
+
+    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+        self.margin = margin
+
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            tab_unique: (N, E), Unique token.
+            ts_anchor: (N, E), Anchor
+
+        Returns:
+            Scalar loss value.
+        """
+        batch_size = tab_unique.shape[0]
+        labels = labels.view(-1, 1)
+        mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
+
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
+        similarity = torch.mm(tab_unique, ts_anchor.t())
+        similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
+        similarity /= self.temperature
+        exp_similarity = torch.exp(similarity)
+        # Write in this form to avoid -inf in log
+        x_1 = similarity - torch.log(exp_similarity.sum(dim=1, keepdim=True) - similarity.diag()[..., None])
+        x_2 = similarity - torch.log(exp_similarity.sum(dim=0, keepdim=True) - similarity.diag()[..., None])
+        x_1 = (x_1 * mask).sum(dim=1) / mask.sum(dim=1)
+        x_2 = (x_2 * mask).sum(dim=0) / mask.sum(dim=0)
+        return (-x_1.mean() - x_2.mean()) / 2
+
 class LearnMarginSupConCLIPLoss(nn.Module):
     """SupCLIP Loss."""
 
