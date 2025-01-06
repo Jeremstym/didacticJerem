@@ -2,7 +2,7 @@ _target_: didactic.models.transformer.FT_Transformer
 
 d_token: 192
 n_self_blocks: 3
-n_cross_blocks: 2
+n_cross_blocks: 3
 n_bidirectional_blocks: 0
 attention_n_heads: 8
 attention_dropout: 0.2
