@@ -229,7 +229,7 @@ class MMCLEncoder(nn.Module):
         tabular_output = self.tabular_encoder(tab_tokens)
         ts_output = self.ts_unimodal_encoder(ts_tokens)
         if output_intermediate:
-            return ts_output.mean(dim=1), tabular_output.mean(dim=1), None
+            return ts_output.mean(dim=1), tabular_output, None
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
