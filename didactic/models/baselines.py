@@ -193,7 +193,7 @@ class MMCLEncoder(nn.Module):
     def __init__(
         self,
         n_tabular_attrs: int,
-        ts_unimodal_encoder: str,
+        ts_encoder: str,
         n_mlp_layers: int = 2,
         d_token = 192,
         dropout = 0.1
@@ -213,7 +213,7 @@ class MMCLEncoder(nn.Module):
             d_token=d_token,
             dropout=dropout
         )
-        self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
+        self.ts_encoder = get_nn_module(ts_encoder)
         self.fusion_mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
