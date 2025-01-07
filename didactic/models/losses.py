@@ -654,7 +654,7 @@ class LaaFLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
         self.margin = margin
-        self.label_dictionary = nn.Embedding(3, d_token)
+        # self.label_dictionary = nn.Embedding(3, d_token)
 
     def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor = None) -> Tensor:
         """Performs a forward pass through the loss function.
@@ -667,9 +667,9 @@ class LaaFLoss(nn.Module):
             Scalar loss value.
         """
 
-        label_embedding = self.label_dictionary(labels)
+        # label_embedding = self.label_dictionary(labels)
         # Add label embedding to tab_unique
-        tab_unique += label_embedding
+        # tab_unique += label_embedding
 
         # Normalize embeddings and calculate similarity
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
