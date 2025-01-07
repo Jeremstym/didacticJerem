@@ -187,6 +187,53 @@ class ConcatMLP(nn.Module):
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
 
+class MMCLEncoder(nn.Module):
+    """A MPL to encode the concatenated input after the tabular Transformer."""
+
+    def __init__(
+        self,
+        n_tabular_attrs: int,
+        ts_unimodal_encoder: str,
+        n_mlp_layers: int = 2,
+        d_token = 192,
+        dropout = 0.1
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            tab_tokens: the number of tokens from the tabular Transformer.
+            ts_feature: the number of features from the time series Transformer.
+        """
+        super().__init__()
+
+        self.tabular_encoder = MLP(
+            in_features=n_tabular_attrs,
+            out_features=d_token,
+            n_layers=n_mlp_layers,
+            d_token=d_token,
+            dropout=dropout
+        )
+        self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
+        self.fusion_mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor, output_intermediate: bool = False) -> Tensor:
+        """Performs the forward pass.
+
+        Args:
+            tab_tokens: the tabular tokens.
+            ts_feature: the time series feature.
+
+        Returns:
+            the output tensor.
+        """
+        tabular_output = self.tabular_encoder(tab_tokens)
+        ts_output = self.ts_unimodal_encoder(ts_tokens)
+        if output_intermediate:
+            return ts_output.mean(dim=1), tabular_output.mean(dim=1), None
+        x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
+        output = self.mlp(x) # (N, E)
+        return output.unsqueeze(1) # (N, 1, E)
+
 class AvgConcatMLP(nn.Module):
     """A MPL to encode the concatenated input after the tabular Transformer."""
 
@@ -269,7 +316,7 @@ class ConcatMLPDecoupling(nn.Module):
         ts_tokens = ts_tokens.mean(dim=1)
 
         if output_intermediate:
-            return tab_tokens_unique, tab_tokens_shared, ts_tokens
+            return ts_tokens, tab_tokens_unique, tab_tokens_shared
 
         # Set the unique tokens at the beginning of the sequence for extraction purposes
         x = torch.cat((tab_tokens_unique, tab_tokens_shared, ts_tokens), dim=1)
@@ -333,7 +380,7 @@ class ConcatMLPDecoupling2FTs(nn.Module):
         ts_output = ts_output.mean(dim=1)
 
         if output_intermediate:
-            return tabular_output_unique, tabular_output_shared, ts_output
+            return ts_output, tabular_output_unique, tabular_output_shared
 
         # Set the unique outputs at the beginning of the sequence for extraction purposes
         x = torch.cat((tabular_output_unique, tabular_output_shared, ts_output), dim=1)
