@@ -386,6 +386,7 @@ for seed in {42..51}; do
     ### poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP2/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder2 exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
 
     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-Transformer/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment  
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-bidirectional/seed${seed}' +experiment=cardinal/bidirectional-xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.contrastive_loss=null
 
     # TEST WITHOUT TRAINING
 
