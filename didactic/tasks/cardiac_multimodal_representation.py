@@ -311,6 +311,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif isinstance(self.encoder, didactic.models.baselines.MMCLEncoder):  # didactic submodule `MMCLEncoder (BoB)`
             self.nhead = 1
             self.separate_modality = True
+            assert not self.contrastive_loss, "MMCLEncoder does not support contrastive loss"
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = True
