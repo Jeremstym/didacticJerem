@@ -226,7 +226,8 @@ class MMCLEncoder(nn.Module):
         Returns:
             the output tensor.
         """
-        tabular_output = self.tabular_encoder(tab_tokens.squeeze(-1))
+        tab_tokens = tab_tokens.mean(dim=2) # (N, S_tab), the tensors are the same on the last dimension
+        tabular_output = self.tabular_encoder(tab_tokens)
         ts_output = self.ts_unimodal_encoder(ts_tokens)
         if output_intermediate:
             return ts_output.mean(dim=1), tabular_output, None
