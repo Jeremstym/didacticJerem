@@ -232,7 +232,7 @@ class MMCLEncoder(nn.Module):
         if output_intermediate:
             return ts_output.mean(dim=1), tabular_output, None
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
-        output = self.mlp(x) # (N, E)
+        output = self.fusion_mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
 
 class AvgConcatMLP(nn.Module):
