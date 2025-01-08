@@ -25,14 +25,14 @@ task:
   inter_sample_loss:
     _target_: didactic.models.losses.LaaFLoss
     temperature: 0.1
-    # d_token: ${task.embed_dim}
+    d_token: ${task.embed_dim}
   inter_sample_loss_weight: 1.0
   cls_token: True
   ts_cls_token: False
-  tabular_double_tokenizer: False
-  tabular_shared_tokenizer:
-    _target_: didactic.models.tabular.TabularEmbedding
-    d_token: ${task.embed_dim}
+  # tabular_double_tokenizer: False
+  # tabular_shared_tokenizer:
+  #   _target_: didactic.models.tabular.TabularEmbedding
+  #   d_token: ${task.embed_dim}
 
   ts_unimodal_encoder:
     _target_: didactic.models.transformer.FT_Transformer
@@ -61,10 +61,6 @@ task:
     first_prenormalization: ${task.first_prenormalization}
     _partial_: True
 
-  tabular_tokenizer:
-    _target_: torch.nn.Identity
-
-  cls_token: False
   # Architecture parameters to define the same architecture as XTab
   embed_dim: 192
   model:
