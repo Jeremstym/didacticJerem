@@ -7,6 +7,10 @@ defaults:
 trainer:
   max_steps: 2000
 
+# Encode tabular data with MLP needs not tokenizer
+tabular_tokenizer:
+    _target_: torch.nn.Identity
+
 task:
   predict_losses:
     ht_severity:
@@ -34,11 +38,20 @@ task:
   #   _target_: didactic.models.tabular.TabularEmbedding
   #   d_token: ${task.embed_dim}
 
-# Encode tabular data with MLP needs not tokenizer
-tabular_tokenizer:
-    _target_: torch.nn.Identity
+  # Architecture parameters to define the same architecture as XTab
+  embed_dim: 192
+  model:
+    encoder:
+      d_token: ${task.embed_dim}
 
-  ts_unimodal_encoder:
+  # Default to the light finetuning describe in XTab's paper
+  optim:
+    optimizer:
+      _target_: torch.optim.AdamW
+      lr: 1e-4
+      weight_decay: 1e-5
+  
+ts_unimodal_encoder:
     _target_: didactic.models.transformer.FT_Transformer
     d_token: 192
     n_self_blocks: 3
@@ -64,20 +77,6 @@ tabular_tokenizer:
     prenormalization: True
     first_prenormalization: ${task.first_prenormalization}
     _partial_: True
-
-  # Architecture parameters to define the same architecture as XTab
-  embed_dim: 192
-  model:
-    encoder:
-      d_token: ${task.embed_dim}
-
-  # Default to the light finetuning describe in XTab's paper
-  optim:
-    optimizer:
-      _target_: torch.optim.AdamW
-      lr: 1e-4
-      weight_decay: 1e-5
-  
 
 # Change checkpoint loading defaults to:
 ckpt: ??? # Make it mandatory to provide a checkpoint
