@@ -228,7 +228,7 @@ class MMCLEncoder(nn.Module):
         """
         tab_tokens = tab_tokens.mean(dim=2) # (N, S_tab), the tensors are the same on the last dimension
         tabular_output = self.tabular_encoder(tab_tokens)
-        ts_output = self.ts_unimodal_encoder(ts_tokens)
+        ts_output = self.ts_encoder(ts_tokens)
         if output_intermediate:
             return ts_output.mean(dim=1), tabular_output, None
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
