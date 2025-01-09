@@ -812,12 +812,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         for attr, loss in self.predict_losses.items():
             target, y_hat = batch[attr], predictions[attr]
 
-            if y_hat.isnan().any():
-                raise ValueError(
-                    f"NaN values were detected in the predictions for the attribute '{attr}'. This can happen if the "
-                    "model's output is not properly masked for missing data."
-                )
-
             if attr in TabularAttribute.categorical_attrs():
                 notna_mask = target != MISSING_CAT_ATTR
             else:  # attr in TabularAttribute.numerical_attrs():
