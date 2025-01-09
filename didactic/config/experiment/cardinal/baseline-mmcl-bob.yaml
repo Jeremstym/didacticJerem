@@ -26,7 +26,7 @@ task:
     _target_: didactic.models.losses.LaaFLoss
     temperature: 0.1
     d_token: ${task.embed_dim}
-  inter_sample_loss_weight: 1.0
+  inter_sample_loss_weight: 0.0
   cls_token: False
   ts_cls_token: False
   # tabular_double_tokenizer: False
