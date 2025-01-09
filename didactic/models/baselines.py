@@ -226,25 +226,13 @@ class MMCLEncoder(nn.Module):
         Returns:
             the output tensor.
         """
-        print(f"tab_tokens: {tab_tokens}")
-        if tab_tokens.isnan().any():
-            raise ValueError("NaN values in tab_tokens")
         tab_tokens = tab_tokens[:,:,0] # Select the first dimension as they are all the same
         tabular_output = self.tabular_encoder(tab_tokens)
-        print(f"tabular_output: {tabular_output}")
-        if tabular_output.isnan().any():
-            raise ValueError("NaN values in tabular_output")
         ts_output = self.ts_encoder(ts_tokens)
-        print(f"ts_output: {ts_output}")
-        if ts_output.isnan().any():
-            raise ValueError("NaN values in ts_output")
         if output_intermediate:
             return ts_output.mean(dim=1), tabular_output, None
         x = torch.cat((tabular_output, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.fusion_mlp(x) # (N, E)
-        print(f"output: {output}")
-        if output.isnan().any():
-            raise ValueError("NaN values in output")
         return output.unsqueeze(1) # (N, 1, E)
 
 class AvgConcatMLP(nn.Module):
