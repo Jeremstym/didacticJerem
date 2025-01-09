@@ -552,9 +552,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             if isinstance(self.tabular_tokenizer, nn.Identity):
                 num_attrs = torch.nan_to_num(num_attrs) if num_attrs is not None else None
                 cat_attrs = cat_attrs.clip(0) if cat_attrs is not None else None
-                # tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
-                # tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
-                # tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
                 tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
                 tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
                 tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
