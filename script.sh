@@ -391,7 +391,7 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-BOB-MMCL/seed${seed}' +experiment=cardinal/baseline-mmcl-bob 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
     
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-irene
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-irene task.embed_dim=768 
 
     # TEST WITHOUT TRAINING
 
