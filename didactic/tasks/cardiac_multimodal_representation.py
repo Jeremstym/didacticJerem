@@ -320,35 +320,39 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment_2UniFTs):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_Alignment):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment_2UniFTs_CrossAtt):  # didactic submodule `FT_Alignment`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_Inverted):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_nodecoupling):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_Inverted):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_Dummy):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_DoubleTok):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False # temporary
+            self.separate_modality = False
             assert self.hparams.tabular_double_tokenizer, "Double tokenizer is not enabled"
+        elif isinstance(self.encoder, didactic.models.transformer.IRENEModel):  # didactic submodule `IRENEModel`
+            self.nhead = self.hparams.model.encoder.attention_n_heads
+            self.separate_modality = True
+            assert not (self.contrastive_loss or self.inter_sample_loss), "IRENEModel does not support contrastive or inter-sample loss" 
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "

@@ -10,6 +10,8 @@ from torch.nn import init
 
 import didactic.models.transformer
 from didactic.models.layers import _QKVLinearProjection, _QKVMatrixMultiplication
+from IRENE.models.encoder import Encoder as IRENEncoder
+from IRENE.models.configs import get_IRENE_config
 
 import hydra
 from omegaconf import DictConfig
@@ -446,3 +448,43 @@ class TabularMLP(nn.Module):
         for layer in self.layers:
             x = layer(x)
         return self.head(x)
+
+class IRENEModel(nn.Module):
+    """A simple MLP for tabular data.
+
+    The "MLP" module from "Revisiting Deep Learning Models for Tabular Data" by Gorishniy et al. (2021).
+    The module is a simple MLP that can be used for tabular data.
+
+    Notes:
+        - This is a port of the `MLP` class from v0.0.13 of the `rtdl` package using the updated underlying `MLP`
+          from v0.0.2 of the `rtdl_revisiting_models` package.
+
+    References:
+        - Original implementation is here:
+    """ 
+    
+    def __init__(
+        self,
+    ) -> None:
+        """Initializes class instance.
+
+        Args:
+            in_features: the number of input features.
+            n_layers: the number of hidden layers.
+            d_token: the number of hidden units in each layer.
+            dropout: the dropout rate.
+        """
+        super().__init__()
+        self.encoder = IRENEncoder(get_IRENE_config(), vis=False)
+
+    def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
+        """Perform the forward pass.
+
+        Args:
+            x: the tabular input tensor.
+
+        Returns:
+            the embedded output tensor.
+        """
+        output_weights, _ = self.encoder(tab_tokens, ts_tokens)
+        return output_weights.mean(dim=1).unsqueeze(1)
