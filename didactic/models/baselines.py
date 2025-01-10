@@ -264,7 +264,8 @@ class AvgConcatMLP(nn.Module):
         Returns:
             the output tensor.
         """
-        x = torch.cat((tab_tokens.mean(dim=1), ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
+        tab_tokens = tab_tokens[:,:,0] # Select the first dimension as they are all the same
+        x = torch.cat((tab_tokens, ts_tokens.mean(dim=1)), dim=1) # (N, 2*E)
         output = self.mlp(x) # (N, E)
         return output.unsqueeze(1) # (N, 1, E)
 
