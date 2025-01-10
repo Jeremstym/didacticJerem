@@ -312,6 +312,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = 1
             self.separate_modality = True
             assert not self.contrastive_loss, "MMCLEncoder does not support contrastive loss"
+        elif isinstance(self.encoder, didactic.models.baselines.IRENEModel):  # didactic submodule `IRENEModel`
+            self.nhead = self.hparams.model.encoder.attention_n_heads
+            self.separate_modality = True
+            assert not (self.contrastive_loss or self.inter_sample_loss), "IRENEModel does not support contrastive or inter-sample loss" 
         elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved):  # didactic submodule `FT_Interleaved`
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = True
@@ -349,10 +353,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             self.nhead = self.hparams.model.encoder.attention_n_heads
             self.separate_modality = False
             assert self.hparams.tabular_double_tokenizer, "Double tokenizer is not enabled"
-        elif isinstance(self.encoder, didactic.models.transformer.IRENEModel):  # didactic submodule `IRENEModel`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = True
-            assert not (self.contrastive_loss or self.inter_sample_loss), "IRENEModel does not support contrastive or inter-sample loss" 
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
