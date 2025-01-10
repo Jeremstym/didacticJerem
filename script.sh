@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=electronic,hard
+#SBATCH --partition=hard
 #SBATCH --job-name=TEST-CV
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=3-16:00:00
+#SBATCH --time=4-16:00:00
 #SBATCH --output=/home/stympopper/bash/out/%x-%j.out
 #SBATCH --error=/home/stympopper/bash/out/%x-%j.err
 
