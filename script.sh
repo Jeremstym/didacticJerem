@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=hard
-#SBATCH --job-name=TEST-CV
+#SBATCH --job-name=TEST-IRENE
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=4-16:00:00
