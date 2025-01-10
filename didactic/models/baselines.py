@@ -240,6 +240,7 @@ class AvgConcatMLP(nn.Module):
 
     def __init__(
         self,
+        n_tabular_attrs: int,
         n_mlp_layers: int = 2,
         d_token = 192,
         dropout = 0.1
@@ -252,7 +253,7 @@ class AvgConcatMLP(nn.Module):
         """
         super().__init__()
 
-        self.mlp = MLP(2*d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
+        self.mlp = MLP(n_tabular_attrs+d_token, out_features=d_token, n_layers=n_mlp_layers, d_token=d_token, dropout=dropout)
 
     def forward(self, tab_tokens: Tensor, ts_tokens: Tensor) -> Tensor:
         """Performs the forward pass.
