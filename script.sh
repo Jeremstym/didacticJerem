@@ -391,7 +391,7 @@ for seed in {42..51}; do
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-BOB-MMCL/seed${seed}' +experiment=cardinal/baseline-mmcl-bob 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
     
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-irene task.embed_dim=768 
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-irene task.embed_dim=768 
 
     # TEST WITHOUT TRAINING
 
@@ -408,5 +408,9 @@ for seed in {42..51}; do
     # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-interleaved/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold task.contrastive_loss_weight=0.0 task.inter_sample_loss_weight=0.0
     # done
+
+    for lambda in 0.1 0.5 0.75 1 2 4 5 10; do
+        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/lambda${hyperlambda}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss_weight=$lambda task.inter_sample_loss_weight=$lambda +hyperlambda=$lambda
+    done
 
 done
