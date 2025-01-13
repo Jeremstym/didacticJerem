@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --partition=hard
-#SBATCH --job-name=TEST-IRENE
+#SBATCH --partition=electronic,hard
+#SBATCH --job-name=TEST-HP
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=4-16:00:00
