@@ -258,7 +258,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     subset,
                     patient.id,
                     data_type
-                ): patient_prediction[data_type]  # Accessing the prediction based on data type
+                ): patient_prediction[4][data_type]  # Accessing the prediction based on data type
                 .flatten()
                 .cpu()
                 .numpy()
