@@ -414,7 +414,7 @@ for seed in {42..51}; do
     # done
 
     for tau in 0.01 0.1 0.5 0.75 1 2 4 5 10; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/tau${hypertau}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=42 task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss.temperature=$tau task.inter_sample_loss.temperature=$tau +hypertau=$tau
+        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/tau${hypertau}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss.temperature=$tau task.inter_sample_loss.temperature=$tau +hypertau=$tau
     done
 
 done
