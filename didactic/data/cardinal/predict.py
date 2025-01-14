@@ -272,13 +272,10 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
         multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Data Type"])
 
         # Create the DataFrame using the values and the MultiIndex
-        df = pd.DataFrame(
+        df_latent = pd.DataFrame(
             list(feature_latent.values()),  # Convert values to a list
             index=multi_index  # Set the MultiIndex
         )
-
-        print(df.shape)
-        raise Exception
 
         # Plot data w.r.t. all indexing data, except for specific patient
         plots = {
@@ -299,6 +296,26 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             # Save the plots locally
             plt.savefig(self._write_path / f"{plot_filename}.png")
             plt.close()  # Close the figure to avoid contamination between plots
+
+        # Plot data w.r.t. all indexing data, except for specific patient
+        plots_latent = {
+            f"latent_space_wrt_{index_name}": {
+                "hue": index_name,
+                "hue_order": TABULAR_CAT_ATTR_LABELS.get(index_name),  # Use categorical attrs' predefined labels order
+            }
+            for index_name in df_latent.index.names
+            if index_name != "Patient ID"
+        }
+        for plot_filename, _ in zip(
+            plots_latent,
+            embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", **self._embedding_kwargs),
+        ):
+            # Log the plots using the experiment logger
+            log_figure(trainer.logger, figure_name=plot_filename)
+
+            # Save the plots locally
+            plt.savefig(self._write_path / f"{plot_filename}.png")
+            plt.close()
 
     def _write_prediction_scores(
         self,
