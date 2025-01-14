@@ -248,7 +248,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     "subset",
                     "patient",
                     *self._hue_attrs,
-                    *[f"{attr}_continuum_{pred_desc}" for attr in ordinal_attrs for pred_desc in ("param", "tau")],
+                    *[f"{attr}_continuum_{pred_desc}" for attr in ordinal_attrs for pred_desc in ("param", "tau") if ordinal_attrs in pl_module.hparams.predict_losses],
                 ],
             ),
         )
