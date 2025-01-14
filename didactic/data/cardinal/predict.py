@@ -257,17 +257,16 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 (
                     subset,
                     patient.id,
-                    *("time-series","tabular unique", "tabular common")
-                ): patient_prediction[4]
+                    data_type
+                ): patient_prediction[data_type]  # Accessing the prediction based on data type
                 .flatten()
                 .cpu()
                 .numpy()
-                # For each prediction dataloader
                 for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
-                # For each batch of data in a dataloader
                 for patient, patient_prediction in zip(
                     trainer.datamodule.subsets_patients[subset].values(), subset_predictions
                 )
+                for data_type in ("time-series", "tabular unique", "tabular common")  # Iterating over data types
             }
             # Create a MultiIndex from the keys of the feature_latent dictionary
         multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Data Type"])
