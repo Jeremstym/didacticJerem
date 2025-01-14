@@ -765,6 +765,11 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         predictions = {attr: prediction.squeeze(dim=1) for attr, prediction in predictions.items()}
         return predictions
 
+    @auto_move_data
+    def get_latent_vectors(self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor) -> Tensor:
+        """Extracts the latent vectors from the encoder for the given batch."""
+        return self.encode(in_tokens, avail_mask, output_intermediate=True)
+
     def _shared_step(self, batch: PatientData, batch_idx: int) -> Dict[str, Tensor]:
         # Extract tabular and time-series attributes from the batch
         tabular_attrs = {attr: attr_data for attr, attr_data in batch.items() if attr in self.hparams.tabular_attrs}
