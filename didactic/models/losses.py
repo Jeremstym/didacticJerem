@@ -157,7 +157,7 @@ class InfoNCELoss2(nn.Module):
         sim_unique = torch.exp(sim_unique)
 
         # loss_ts_unique = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=1)).mean()
-        loss_nce = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=0) + sim_shared.diag()).mean()
+        loss_nce = -torch.log(sim_shared.diag() / (torch.sum(sim_unique, dim=0) + sim_shared.diag())).mean()
 
         return loss_nce
 
