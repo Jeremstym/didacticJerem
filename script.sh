@@ -393,6 +393,9 @@ for seed in {42..51}; do
     
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-irene task.embed_dim=768 
 
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-InfoNCE-SupConCLIP/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-InfoNCE2-SupConCLIP/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
+
     # TEST WITHOUT TRAINING
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}/cardinal_default.ckpt' +state_dict=True
@@ -413,8 +416,8 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/lambda${hyperlambda}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss_weight=$lambda task.inter_sample_loss_weight=$lambda +hyperlambda=$lambda
     # done
 
-    for tau in 0.01 0.1 0.5 0.75 1 2 4 5 10; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/tauseed${hypertau}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss.temperature=$tau task.inter_sample_loss.temperature=$tau +hypertau=$tau
-    done
+    # for tau in 0.01 0.1 0.5 0.75 1 2 4 5 10; do
+    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/tauseed${hypertau}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss.temperature=$tau task.inter_sample_loss.temperature=$tau +hypertau=$tau
+    # done
 
 done
