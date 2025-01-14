@@ -253,6 +253,34 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             ),
         )
 
+        feature_latent = {
+                (
+                    subset,
+                    patient.id,
+                    *("time-series","tabular unique", "tabular common")
+                ): patient_prediction[4]
+                .flatten()
+                .cpu()
+                .numpy()
+                # For each prediction dataloader
+                for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
+                # For each batch of data in a dataloader
+                for patient, patient_prediction in zip(
+                    trainer.datamodule.subsets_patients[subset].values(), subset_predictions
+                )
+            }
+            # Create a MultiIndex from the keys of the feature_latent dictionary
+        multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Data Type"])
+
+        # Create the DataFrame using the values and the MultiIndex
+        df = pd.DataFrame(
+            list(feature_latent.values()),  # Convert values to a list
+            index=multi_index  # Set the MultiIndex
+        )
+
+        print(df)
+        raise Exception
+
         # Plot data w.r.t. all indexing data, except for specific patient
         plots = {
             f"features_wrt_{index_name}": {

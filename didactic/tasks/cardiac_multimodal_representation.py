@@ -766,8 +766,15 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return predictions
 
     @auto_move_data
-    def get_latent_vectors(self, batch: PatientData, batch_idx: int, in_tokens: Tensor, avail_mask: Tensor) -> Tensor:
+    def get_latent_vectors(
+        self,
+        batch: PatientData,
+        batch_idx: int,
+        tabular_attrs: Dict[TabularAttribute, Tensor],
+        time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
+    ) -> Tensor:
         """Extracts the latent vectors from the encoder for the given batch."""
+        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         return self.encode(in_tokens, avail_mask, output_intermediate=True)
 
     def _shared_step(self, batch: PatientData, batch_idx: int) -> Dict[str, Tensor]:
@@ -973,4 +980,17 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             }
             continuum_taus = {attr: continuum_tau.squeeze(dim=0) for attr, continuum_tau in continuum_taus.items()}
 
-        return out_features, predictions, continuum_params, continuum_taus
+        if self.hparams.latent_representation:
+            latent_ts, latent_unique, latent_shared = self.get_latent_vectors(batch, batch_idx, tabular_attrs, time_series_attrs)
+            latent_ts = latent_ts.squeeze(dim=0)
+            latent_unique = latent_unique.squeeze(dim=0)
+            latent_shared = latent_shared.squeeze(dim=0)
+            latent_dict = {
+                "time-series": latent_ts,
+                "tabular unique": latent_unique,
+                "tabular common": latent_shared,
+            }
+        else:
+            latent_dict = None
+
+        return out_features, predictions, continuum_params, continuum_taus, latent_dict
