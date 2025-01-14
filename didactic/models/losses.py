@@ -122,7 +122,7 @@ class InfoNCELoss(nn.Module):
         # loss_ts_unique = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=1)).mean()
         loss_nce = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=0)).mean()
 
-        return loss
+        return loss_nce
 
 class InfoNCELoss2(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
@@ -159,7 +159,7 @@ class InfoNCELoss2(nn.Module):
         # loss_ts_unique = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=1)).mean()
         loss_nce = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=0) + sim_shared.diag()).mean()
 
-        return loss
+        return loss_nce
 
 class NTXentLossDecoupling2(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
