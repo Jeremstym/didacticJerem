@@ -277,7 +277,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             index=multi_index  # Set the MultiIndex
         )
 
-        print(df)
+        print(df.shape)
         raise Exception
 
         # Plot data w.r.t. all indexing data, except for specific patient
