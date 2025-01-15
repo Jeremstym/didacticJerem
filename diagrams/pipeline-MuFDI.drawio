@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" version="26.0.4">
   <diagram name="Page-1" id="ppDWNuSZf4CIT6eY6HD5">
-    <mxGraphModel dx="1659" dy="2199" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shadow="0">
+    <mxGraphModel dx="1728" dy="2242" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -38,13 +38,13 @@
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-19" value="" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="b5ZvEWZHJdZfXE5YK8wL-13" target="b5ZvEWZHJdZfXE5YK8wL-17" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-13" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;$$g_t$$&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-13" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;linear projection&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
           <mxGeometry x="549" y="140" width="80" height="40" as="geometry" />
         </mxCell>
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="b5ZvEWZHJdZfXE5YK8wL-14" target="b5ZvEWZHJdZfXE5YK8wL-18" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-14" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;$$g_s$$&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+        <mxCell id="b5ZvEWZHJdZfXE5YK8wL-14" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;linear projection&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="549" y="280" width="80" height="40" as="geometry" />
         </mxCell>
         <mxCell id="b5ZvEWZHJdZfXE5YK8wL-16" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;$$z_t^c$$&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
