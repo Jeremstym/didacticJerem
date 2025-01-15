@@ -78,6 +78,9 @@ def embedding_scatterplot(
         # Remove axis labels
         scatterplot.set(xlabel=None)
         scatterplot.set(ylabel=None)
+        # Remove axis
+        scatterplot.set(xticks=[])
+        scatterplot.set(yticks=[])
 
         yield scatterplot
 
