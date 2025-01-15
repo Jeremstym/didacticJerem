@@ -257,6 +257,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 (
                     subset,
                     patient.id,
+                    patient.attrs.get(attr),
                     data_type
                 ): patient_prediction[4][data_type]  # Accessing the prediction based on data type
                 .flatten()
@@ -266,10 +267,11 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 for patient, patient_prediction in zip(
                     trainer.datamodule.subsets_patients[subset].values(), subset_predictions
                 )
+                for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
                 for data_type in ("tabular common", "tabular unique", "time-series")  # Iterating over data types
             }
             # Create a MultiIndex from the keys of the feature_latent dictionary
-        multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Modality Type"])
+        multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Label", "Modality Type"])
 
         # Create the DataFrame using the values and the MultiIndex
         df_latent = pd.DataFrame(
