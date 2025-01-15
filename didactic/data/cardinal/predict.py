@@ -269,7 +269,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 for data_type in ("time-series", "tabular unique", "tabular common")  # Iterating over data types
             }
             # Create a MultiIndex from the keys of the feature_latent dictionary
-        multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Data Type"])
+        multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Modality Type"])
 
         # Create the DataFrame using the values and the MultiIndex
         df_latent = pd.DataFrame(
