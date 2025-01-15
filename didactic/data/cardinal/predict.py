@@ -253,32 +253,6 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             ),
         )
 
-        feature_latent = {
-                (
-                    subset,
-                    patient.id,
-                    patient.attrs.get(attr),
-                    data_type
-                ): patient_prediction[4][data_type]  # Accessing the prediction based on data type
-                .flatten()
-                .cpu()
-                .numpy()
-                for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
-                for patient, patient_prediction in zip(
-                    trainer.datamodule.subsets_patients[subset].values(), subset_predictions
-                )
-                for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
-                for data_type in ("tabular common", "tabular unique", "time-series")  # Iterating over data types
-            }
-            # Create a MultiIndex from the keys of the feature_latent dictionary
-        multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Label", "Modality Type"])
-
-        # Create the DataFrame using the values and the MultiIndex
-        df_latent = pd.DataFrame(
-            list(feature_latent.values()),  # Convert values to a list
-            index=multi_index  # Set the MultiIndex
-        )
-
         # Plot data w.r.t. all indexing data, except for specific patient
         plots = {
             f"features_wrt_{index_name}": {
@@ -299,26 +273,54 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             plt.savefig(self._write_path / f"{plot_filename}.png")
             plt.close()  # Close the figure to avoid contamination between plots
 
-        # Plot data w.r.t. all indexing data, except for specific patient
-        plots_latent = {
-            f"latent_space_wrt_{index_name}": {
-                "hue": index_name,
-                "hue_order": TABULAR_CAT_ATTR_LABELS.get(index_name),  # Use categorical attrs' predefined labels order
+        
+        if pl_module.hparams.latent_representation:
+            feature_latent = {
+                    (
+                        subset,
+                        patient.id,
+                        patient.attrs.get(attr),
+                        data_type
+                    ): patient_prediction[4][data_type]  # Accessing the prediction based on data type
+                    .flatten()
+                    .cpu()
+                    .numpy()
+                    for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
+                    for patient, patient_prediction in zip(
+                        trainer.datamodule.subsets_patients[subset].values(), subset_predictions
+                    )
+                    for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
+                    for data_type in ("tabular common", "tabular unique", "time-series")  # Iterating over data types
+                }
+                # Create a MultiIndex from the keys of the feature_latent dictionary
+            multi_index = pd.MultiIndex.from_tuples(feature_latent.keys(), names=["Subset", "Patient ID", "Label", "Modality Type"])
+
+            # Create the DataFrame using the values and the MultiIndex
+            df_latent = pd.DataFrame(
+                list(feature_latent.values()),  # Convert values to a list
+                index=multi_index  # Set the MultiIndex
+            )
+
+            # Plot data w.r.t. all indexing data, except for specific patient
+            plots_latent = {
+                f"latent_space_wrt_{index_name}": {
+                    "hue": index_name,
+                    "hue_order": TABULAR_CAT_ATTR_LABELS.get(index_name),  # Use categorical attrs' predefined labels order
+                }
+                for index_name in df_latent.index.names
+                if index_name != "Patient ID"
             }
-            for index_name in df_latent.index.names
-            if index_name != "Patient ID"
-        }
-        for plot_filename, _ in zip(
-            plots_latent,
-            embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", **self._embedding_kwargs),
-        ):
-            # Log the plots using the experiment logger
-            log_figure(trainer.logger, figure_name=plot_filename)
-            # Increase legend font size
-            plt.legend(fontsize='large', title_fontsize='x-large')
-            # Save the plots locally
-            plt.savefig(self._write_path / f"{plot_filename}.png")
-            plt.close()
+            for plot_filename, _ in zip(
+                plots_latent,
+                embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", **self._embedding_kwargs),
+            ):
+                # Log the plots using the experiment logger
+                log_figure(trainer.logger, figure_name=plot_filename)
+                # Increase legend font size
+                plt.legend(fontsize='large', title_fontsize='x-large')
+                # Save the plots locally
+                plt.savefig(self._write_path / f"{plot_filename}.png")
+                plt.close()
 
     def _write_prediction_scores(
         self,
