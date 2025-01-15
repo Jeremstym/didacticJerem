@@ -314,7 +314,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             }
             for plot_filename, _ in zip(
                 plots_latent,
-                embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", method=method **self._embedding_kwargs),
+                embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", method=method, **self._embedding_kwargs),
             ):
                 # Log the plots using the experiment logger
                 log_figure(trainer.logger, figure_name=plot_filename)
