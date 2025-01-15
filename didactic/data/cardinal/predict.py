@@ -275,6 +275,8 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
 
         
         if pl_module.hparams.latent_representation:
+            assert pl_modele.hparams.rpr_method in ["tsne", "umap", "pacmap"], f"Unknown embedding method '{pl_module.hparams.rpr_method}'. Must be one of: ['tsne', 'umap', 'pacmap']."
+            method = pl_module.hparams.rpr_method
             feature_latent = {
                     (
                         subset,
@@ -312,7 +314,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             }
             for plot_filename, _ in zip(
                 plots_latent,
-                embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", **self._embedding_kwargs),
+                embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", method=method **self._embedding_kwargs),
             ):
                 # Log the plots using the experiment logger
                 log_figure(trainer.logger, figure_name=plot_filename)
