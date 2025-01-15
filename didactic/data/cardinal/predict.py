@@ -275,7 +275,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
 
         
         if pl_module.hparams.latent_representation:
-            assert pl_modele.hparams.rpr_method in ["tsne", "umap", "pacmap"], f"Unknown embedding method '{pl_module.hparams.rpr_method}'. Must be one of: ['tsne', 'umap', 'pacmap']."
+            assert pl_module.hparams.rpr_method in ["tsne", "umap", "pacmap"], f"Unknown embedding method '{pl_module.hparams.rpr_method}'. Must be one of: ['tsne', 'umap', 'pacmap']."
             method = pl_module.hparams.rpr_method
             feature_latent = {
                     (
