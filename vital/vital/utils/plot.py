@@ -81,8 +81,8 @@ def embedding_scatterplot(
         # Remove axis
         scatterplot.set(xticks=[])
         scatterplot.set(yticks=[])
-        # Increase legend font size
-        scatterplot.legend(fontsize='large', title_fontsize='xx-large')
+        # Customize legend
+        plt.legend(fontsize='large', title_fontsize='large', loc='upper left', markerscale=2)
         yield scatterplot
 
 
