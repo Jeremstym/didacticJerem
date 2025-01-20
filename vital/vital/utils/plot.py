@@ -74,7 +74,7 @@ def embedding_scatterplot(
     for plot_kwargs in plots_kwargs:
         with sns.axes_style("darkgrid"):
             scatterplot = sns.scatterplot(data=data, x=0, y=1, **plot_kwargs)
-        scatterplot.set(title=plot_title, fontsize="x-large")
+        scatterplot.set(title=plot_title)
         # Remove axis labels
         scatterplot.set(xlabel=None)
         scatterplot.set(ylabel=None)
@@ -83,6 +83,7 @@ def embedding_scatterplot(
         scatterplot.set(yticks=[])
         # Customize legend
         plt.legend(fontsize='x-large', title_fontsize='x-large', loc='upper right', markerscale=2)
+        plt.title(fontsize='x-large')
         yield scatterplot
 
 
