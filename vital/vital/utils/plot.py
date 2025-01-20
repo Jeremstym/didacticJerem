@@ -82,9 +82,7 @@ def embedding_scatterplot(
         scatterplot.set(xticks=[])
         scatterplot.set(yticks=[])
         # Increase legend font size
-        scatterplot.legend(fontsize="large")
-        plt.legend(fontsize='10', title_fontsize='14')
-
+        scatterplot.legend(fontsize='large', title_fontsize='xx-large')
         yield scatterplot
 
 

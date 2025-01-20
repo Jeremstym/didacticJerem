@@ -424,4 +424,8 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-hyperparam/tauseed${hypertau}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.contrastive_loss.temperature=$tau task.inter_sample_loss.temperature=$tau +hypertau=$tau
     # done
 
+    # PLOTTING COMMANDq
+
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/PLOT-Decoupling-tsne/seed${seed}' +experiment=cardinal/xtab-alignment-plot exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-CONSISTENCY/seed${seed}/cardinal_default.ckpt'
+
 done
