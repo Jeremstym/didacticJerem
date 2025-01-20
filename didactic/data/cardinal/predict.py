@@ -319,7 +319,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 # Log the plots using the experiment logger
                 log_figure(trainer.logger, figure_name=plot_filename)
                 # Increase legend font size
-                plt.legend(fontsize='large', title_fontsize='x-large')
+                plt.legend(fontsize='large', title_fontsize='xx-large')
                 # Save the plots locally
                 plt.savefig(self._write_path / f"{plot_filename}.png")
                 plt.close()
