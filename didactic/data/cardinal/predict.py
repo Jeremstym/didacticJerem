@@ -312,6 +312,8 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 for index_name in df_latent.index.names
                 if index_name != "Patient ID"
             }
+            if self.hparams.rpr_method == "tsne":
+                self._embedding_kwargs["perplexity"] = 10
             for plot_filename, _ in zip(
                 plots_latent,
                 embedding_scatterplot(df_latent, plots_latent.values(), data_tag="latent space", method=method, **self._embedding_kwargs),
