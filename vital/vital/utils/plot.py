@@ -50,7 +50,7 @@ def embedding_scatterplot(
             case "tsne":
                 from sklearn.manifold import TSNE
 
-                embedding_cls = TSNE
+                embedding_cls = TSNE(perplexity=10)
             case "umap":
                 import umap
 
