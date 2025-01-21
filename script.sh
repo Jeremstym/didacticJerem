@@ -396,6 +396,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-InfoNCE-SupConCLIP/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-InfoNCE2-SupConCLIP/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert
 
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-TSTAB-invert/seed${seed}' +experiment=cardinal/xtab-interpatient-placeholder2 exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-TSinvert
+
     # TEST WITHOUT TRAINING
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}/cardinal_default.ckpt' +state_dict=True
@@ -408,9 +410,9 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}/cardinal_default.ckpt' strict=True
     # done
 
-    for fold in {0..4}; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold
-    done
+    # for fold in {0..4}; do
+    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold
+    # done
 
     # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-FT-Transformer-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-FT-Transformer-crossval/fold${fold}/seed${seed}/cardinal_default.ckpt' strict=True
