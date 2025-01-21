@@ -124,7 +124,7 @@ task:
   ts_pooling_factor: 0
   perform_lora: False
   latent_representation: True
-  rpr_method: umap
+  rpr_method: tsne
 
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
