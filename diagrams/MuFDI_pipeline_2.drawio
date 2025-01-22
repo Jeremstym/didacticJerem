@@ -174,11 +174,11 @@
         </mxCell>
         <mxCell id="mf7Gsi3OOFFNv_YBJEHM-88" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Tabular&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;embedding&lt;/font&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=light-dark(#f5f5f5, #ededed);" parent="mf7Gsi3OOFFNv_YBJEHM-84" vertex="1" connectable="0">
           <mxGeometry x="-0.4592" relative="1" as="geometry">
-            <mxPoint x="31" y="23" as="offset" />
+            <mxPoint x="20" y="23" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="mf7Gsi3OOFFNv_YBJEHM-89" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Time-series&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;embedding&lt;/font&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=light-dark(#f5f5f5, #ededed);" parent="1" vertex="1" connectable="0">
-          <mxGeometry x="343.99666666666695" y="276.00000000000045" as="geometry" />
+          <mxGeometry x="332.99666666666695" y="274.00000000000045" as="geometry" />
         </mxCell>
         <mxCell id="mf7Gsi3OOFFNv_YBJEHM-97" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endSize=3;dashed=1;" parent="1" source="mf7Gsi3OOFFNv_YBJEHM-46" target="mf7Gsi3OOFFNv_YBJEHM-92" edge="1">
           <mxGeometry relative="1" as="geometry">
