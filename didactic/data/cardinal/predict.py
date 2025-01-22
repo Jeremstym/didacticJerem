@@ -302,8 +302,11 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 list(feature_latent.values()),  # Convert values to a list
                 index=multi_index  # Set the MultiIndex
             )
+            def row_norm(row):
+                return np.linalg.norm(row, ord=2, axis=1)
 
-            print(f'df latent: {df_latent}')
+            df_latent["norm"] = df.groupby('Patient ID').apply(row_norm).reset_index(level=0, drop=True)
+            print(f'df latent: {df_latent["norm"]}')
             raise Exception('stop')
 
             # Plot data w.r.t. all indexing data, except for specific patient
