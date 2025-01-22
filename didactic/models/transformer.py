@@ -4563,6 +4563,9 @@ class FT_Interleaved_2UniFTs_nodecoupling(nn.Module):
         self.n_cross_blocks = n_cross_blocks
         self.n_bidirectional_blocks = n_bidirectional_blocks
 
+        self.time_series_lin_proj = nn.Linear(d_token, 2*d_token)
+        self.tabular_lin_proj = nn.Linear(d_token, d_token)
+
         self.n_tabular_attrs = n_tabular_attrs
         self.n_time_series_attrs = n_time_series_attrs
 
