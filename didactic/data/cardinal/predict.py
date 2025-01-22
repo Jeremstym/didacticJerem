@@ -303,6 +303,9 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 index=multi_index  # Set the MultiIndex
             )
 
+            print(f'df latent: {df_latent}')
+            raise Exception('stop')
+
             # Plot data w.r.t. all indexing data, except for specific patient
             plots_latent = {
                 f"latent_space_wrt_{index_name}": {
