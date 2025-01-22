@@ -288,10 +288,10 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     .cpu()
                     .numpy()
                     for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
-                    for data_type in list(patient_prediction[4].keys())  # Iterating over data types
                     for patient, patient_prediction in zip(
                         trainer.datamodule.subsets_patients[subset].values(), subset_predictions
                     )
+                    for data_type in list(patient_prediction[4].keys())  # Iterating over data types
                     for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
                 }
                 # Create a MultiIndex from the keys of the feature_latent dictionary
