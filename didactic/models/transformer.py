@@ -4563,9 +4563,6 @@ class FT_Interleaved_2UniFTs_nodecoupling(nn.Module):
         self.n_cross_blocks = n_cross_blocks
         self.n_bidirectional_blocks = n_bidirectional_blocks
 
-        self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
-        self.time_series_lin_proj = nn.Linear(d_token, d_token)
-
         self.n_tabular_attrs = n_tabular_attrs
         self.n_time_series_attrs = n_time_series_attrs
 
@@ -4734,6 +4731,10 @@ class FT_Interleaved_2UniFTs_nodecoupling(nn.Module):
         # Unimodal encoding for both modalities
         ts_tokens = self.ts_unimodal_encoder(x[:, : self.n_time_series_attrs])
         tab_tokens = self.tabular_unimodal_encoder(x[:, self.n_time_series_attrs :-1])
+
+        if output_intermediate:
+            # return aggregate_tokens(ts_tokens, tab_tokens_unique, tab_tokens_shared, mode=self.intermediate_mode)
+            return  ts_tokens.mean(dim=1), tab_tokens.mean(dim=1), None
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
         x = torch.cat([tab_tokens, cls_tokens.unsqueeze(1)], dim=1)
