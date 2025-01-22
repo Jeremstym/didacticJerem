@@ -987,12 +987,18 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             latent_ts, latent_unique, latent_shared = self.get_latent_vectors(batch, batch_idx, tabular_attrs, time_series_attrs)
             latent_ts = latent_ts.squeeze(dim=0)
             latent_unique = latent_unique.squeeze(dim=0)
-            latent_shared = latent_shared.squeeze(dim=0)
-            latent_dict = {
-                "time-series": latent_ts,
-                "tabular unique": latent_unique,
-                "tabular common": latent_shared,
-            }
+            if latent_shared is not None:
+                latent_shared = latent_shared.squeeze(dim=0)
+                latent_dict = {
+                    "time-series": latent_ts,
+                    "tabular unique": latent_unique,
+                    "tabular common": latent_shared,
+                }
+            else:
+                latent_dict = {
+                    "time-series": latent_ts,
+                    "tabular": latent_unique,
+                }
         else:
             latent_dict = None
 
