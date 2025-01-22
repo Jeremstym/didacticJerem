@@ -305,7 +305,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             def row_norm(row):
                 return np.linalg.norm(row, ord=2, axis=1)
 
-            df_latent["norm"] = df.groupby('Patient ID').apply(row_norm).reset_index(level=0, drop=True)
+            df_latent["norm"] = df_latent.groupby('Patient ID').apply(row_norm).reset_index(level=0, drop=True)
             print(f'df latent: {df_latent["norm"]}')
             raise Exception('stop')
 
