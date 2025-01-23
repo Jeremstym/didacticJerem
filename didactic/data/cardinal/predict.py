@@ -351,6 +351,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 self._embedding_kwargs["n_neighbors"] = 5
                 self._embedding_kwargs["MN_ratio"] = 1.5
                 self._embedding_kwargs["num_iters"] = 50
+                self._embedding_kwargs["apply_pca"] = False
 
             for plot_filename, _ in zip(
                 plots_latent,
