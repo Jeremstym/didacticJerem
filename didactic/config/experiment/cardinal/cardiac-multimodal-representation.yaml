@@ -123,6 +123,7 @@ task:
   ts_pooling_factor: 0
   perform_lora: False
   latent_representation: False
+  dummy_mode: False
 
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
