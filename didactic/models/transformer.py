@@ -3937,8 +3937,10 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
         ts_tokens = self.time_series_lin_proj(ts_tokens)
         tab_tokens = self.tabular_lin_proj(tab_tokens)
         
-        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
-        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
+        # tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
+        # tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,:self.n_tabular_attrs,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,self.n_tabular_attrs:,:]
 
         if output_intermediate:
             # return aggregate_tokens(ts_tokens, tab_tokens_unique, tab_tokens_shared, mode=self.intermediate_mode)
