@@ -302,12 +302,36 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 list(feature_latent.values()),  # Convert values to a list
                 index=multi_index  # Set the MultiIndex
             )
-            def row_norm(row):
-                return np.linalg.norm(row, ord=2, axis=1)
 
-            df_latent["norm"] = df_latent.groupby('Patient ID').apply(row_norm).reset_index(level=0, drop=True)
-            print(f'df latent: {df_latent["norm"]}')
-            raise Exception('stop')
+            feature_latent_norm = {
+                    (
+                        subset,
+                        patient.id,
+                        patient.attrs.get(attr),
+                        data_type
+                    ): np.linalg.norm(patient_prediction[4][data_type])  # Accessing the prediction based on data type
+                    .flatten()
+                    .cpu()
+                    .numpy()
+                    for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
+                    for patient, patient_prediction in zip(
+                        trainer.datamodule.subsets_patients[subset].values(), subset_predictions
+                    )
+                    for data_type in list(patient_prediction[4].keys())  # Iterating over data types
+                    for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
+                }
+                # Create a MultiIndex from the keys of the feature_latent dictionary
+            multi_index = pd.MultiIndex.from_tuples(feature_latent_norm.keys(), names=["Subset", "Patient ID", "Label", "Modality Type"])
+
+            # Create the DataFrame using the values and the MultiIndex
+            df_latent_norm = pd.DataFrame(
+                list(feature_latent_norm.values()),  # Convert values to a list
+                index=multi_index  # Set the MultiIndex
+            )
+
+            # print("df_latent_norm {}".format(df_latent_norm))
+            # raise Exception("Stop here")
+
 
             # Plot data w.r.t. all indexing data, except for specific patient
             plots_latent = {
