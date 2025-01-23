@@ -350,7 +350,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             elif pl_module.hparams.rpr_method == "pacmap":
                 self._embedding_kwargs["n_neighbors"] = 5
                 self._embedding_kwargs["MN_ratio"] = 2.0
-                self._embedding_kwargs["num_iters"] = 25
+                self._embedding_kwargs["num_iters"] = 50
 
             for plot_filename, _ in zip(
                 plots_latent,
