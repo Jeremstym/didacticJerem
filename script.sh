@@ -441,7 +441,7 @@ for seed in {42..51}; do
     # PLOTTING COMMAND
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/PLOT-Decoupling-tsne-newdispatch/seed${seed}' +experiment=cardinal/xtab-alignment-plot exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-CONSISTENCY/seed${seed}/cardinal_default.ckpt' strict=True
-    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/PLOT-Decoupling-dummynounift-tsne/seed${seed}' +experiment=cardinal/xtab-alignment-plot exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs train=False 'ckpt=/data/stympopper/didacticWORKSHOP/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-nodecoupling/seed${seed}' strict=True
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/PLOT-Decoupling-dummynounift-tsne/seed${seed}' +experiment=cardinal/xtab-alignment-plot exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-alignment-2UniFTs train=False 'ckpt=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-2UniFTs-nodecoupling/seed${seed}' strict=True
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/PLOT-Decoupling-InfoNCE-SupCLIP/seed${seed}' +experiment=cardinal/xtab-alignment-plot exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-InfoNCE-SupConCLIP/seed${seed}' strict=True
 
     # FINAL TEST
