@@ -312,7 +312,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                         data_type
                     ): np.linalg.norm(patient_prediction[4][data_type])  # Accessing the prediction based on data type
                     .flatten()
-                    .cpu()
+                    # .cpu()
                     .numpy()
                     for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
                     for patient, patient_prediction in zip(
