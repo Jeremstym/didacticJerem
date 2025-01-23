@@ -310,9 +310,9 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                         patient.id,
                         patient.attrs.get(attr),
                         data_type
-                    ): np.linalg.norm(patient_prediction[4][data_type])  # Accessing the prediction based on data type
+                    ): torch.norm(patient_prediction[4][data_type])  # Accessing the prediction based on data type
                     .flatten()
-                    # .cpu()
+                    .cpu()
                     .numpy()
                     for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
                     for patient, patient_prediction in zip(
