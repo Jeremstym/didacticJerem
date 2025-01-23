@@ -844,7 +844,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 metrics[f"{metric_tag}/{attr}"] = metric(y_hat[notna_mask], target[notna_mask])
 
         # Reduce loss across the multiple targets
-        losses["s_loss"] = torch.stack(list(losses.values())).mean()
+        if self.hparams.dummy_mode:
+            losses["s_loss"] = 0.0
+        else:
+            losses["s_loss"] = torch.stack(list(losses.values())).mean()
         metrics.update(losses)
 
         return metrics

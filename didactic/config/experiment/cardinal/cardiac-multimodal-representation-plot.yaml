@@ -125,6 +125,7 @@ task:
   perform_lora: False
   latent_representation: True
   rpr_method: tsne
+  dummy_mode: False
 
   positional_encoding:
     _target_: didactic.models.layers.PositionalEncoding
