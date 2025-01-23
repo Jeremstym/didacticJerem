@@ -345,7 +345,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
             }
             if pl_module.hparams.rpr_method == "tsne":
                 self._embedding_kwargs["perplexity"] = 30
-                self._embedding_kwargs["learning_rate"] = 200
+                # self._embedding_kwargs["learning_rate"] = 200
                 self._embedding_kwargs["random_state"] = 42
             elif pl_module.hparams.rpr_method == "pacmap":
                 self._embedding_kwargs["n_neighbors"] = 10
