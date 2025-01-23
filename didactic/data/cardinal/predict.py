@@ -493,7 +493,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                             patient.id,
                             patient.attrs.get(attr),
                             latent_token
-                        ): torch.norm(patient_prediction[4][latent_token])  # Accessing the prediction based on data type
+                        ): torch.norm(patient_prediction[5][latent_token])  # Accessing the prediction based on data type
                         .flatten()
                         .cpu()
                         .numpy()
