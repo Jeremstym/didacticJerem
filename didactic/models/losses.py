@@ -80,10 +80,10 @@ class DecouplingLoss(nn.Module):
         sim_shared = torch.exp(sim_shared)
         sim_unique = torch.exp(sim_unique)
 
-        loss_ts_unique = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=1)).mean()
-        loss_ts_shared = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=0)).mean()
+        loss_unique_ts = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=1)).mean()
+        loss_ts_unique = -torch.log(sim_shared.diag() / torch.sum(sim_unique, dim=0)).mean()
 
-        loss = (loss_ts_unique + loss_ts_shared) / 2
+        loss = (loss_unique_ts + loss_ts_unique) / 2
 
         return loss
 
