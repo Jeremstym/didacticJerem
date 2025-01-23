@@ -1020,9 +1020,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             latent_dict = None
         if self.hparams.explainability:
             all_tokens = self(tabular_attrs, time_series_attrs, output_all=True)
-            vectors_dict = {f"tab_specific_{i}": all_tokens[:, i, :] for i in range(all_tokens.shape[1])}
-            vectors_dict.update({f"ts_{i}": all_tokens[:, i + all_tokens.shape[1], :] for i in range(all_tokens.shape[1])})
-            vectors_dict.update({f"tab_shared_{i}": all_tokens[:, i + all_tokens.shape[1] + all_tokens.shape[1], :] for i in range(all_tokens.shape[1])})
+            vectors_dict = {f"tab_shared_{i}": all_tokens[:, i, :] for i in range(13)}
+            vectors_dict.update({f"ts_{i}": all_tokens[:, i + 13, :] for i in range(14)})
+            vectors_dict.update({f"tab_specific_{i}": all_tokens[:, i + 13 + 14, :] for i in range(13)})
         else:
             vectors_dict = None
 
