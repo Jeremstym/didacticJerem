@@ -505,13 +505,13 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                         for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
                     }
                     # Create a MultiIndex from the keys of the feature_latent dictionary
-                multi_index = pd.MultiIndex.from_tuples(feature_explainable.keys(), names=["Subset", "Patient ID", "Token", "Modality Type"])
+                multi_index = pd.MultiIndex.from_tuples(feature_explainable.keys(), names=["Subset", "Patient ID", "Label", "Token"])
 
                 # Create the DataFrame using the values and the MultiIndex
                 df_latent_norm = pd.DataFrame(
                     list(feature_explainable.values()),  # Convert values to a list
                     index=multi_index  # Set the MultiIndex
-                )
+                ).groupby(level=["Subset", "Label", "Token"]).mean()
 
 
             # Log the prediction scores and statistics using the experiment logger
