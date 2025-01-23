@@ -73,7 +73,9 @@ def embedding_scatterplot(
     # Generate a plot of the embedding for each set of plot kwargs provided
     for plot_kwargs in plots_kwargs:
         with sns.axes_style("darkgrid"):
-            scatterplot = sns.scatterplot(data=data, x=0, y=1, **plot_kwargs)
+            custom_palette = sns.color_palette()
+            custom_palette[0], custom_palette[2] = custom_palette[2], custom_palette[0]
+            scatterplot = sns.scatterplot(data=data, x=0, y=1, palette=custom_palette, **plot_kwargs)
             scatterplot.set_title(plot_title, fontdict={'fontsize': 17})
         # scatterplot.set(title=plot_title)
         # Remove axis labels
