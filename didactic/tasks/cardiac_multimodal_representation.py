@@ -623,7 +623,15 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         return tokens
 
     @auto_move_data
-    def encode(self, tokens: Tensor, avail_mask: Tensor, enable_augments: bool = False, output_intermediate: bool = False, output_unique: bool = False) -> Tensor:
+    def encode(
+        self,
+        tokens: Tensor,
+        avail_mask: Tensor,
+        enable_augments: bool = False,
+        output_intermediate: bool = False,
+        output_unique: bool = False,
+        output_all: bool = False
+    ) -> Tensor:
         """Embeds input sequences using the encoder model, optionally selecting/pooling output tokens for the embedding.
 
         Args:
@@ -684,6 +692,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         if output_unique:
             return out_tokens[:, :self.n_tabular_attrs, :]
 
+        if output_all:
+            return out_tokens
+
         if self.hparams.cls_token:
             # Only keep the CLS token (i.e. the last token) from the tokens outputted by the encoder
             out_features = out_tokens[:, -1, :]  # (N, S, E) -> (N, E)
@@ -705,6 +716,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         tabular_attrs: Dict[TabularAttribute, Tensor],
         time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
         task: Literal["encode", "predict", "continuum_param", "continuum_tau"] = "encode",
+        output_all: bool = False,
     ) -> Tensor | Dict[TabularAttribute, Tensor]:
         """Performs a forward pass through i) the tokenizer, ii) the transformer encoder and iii) the prediction head.
 
@@ -740,7 +752,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         # if self.contrastive_loss and self.hparams.contrastive_loss_weight:
         #     enable_proj = True
-        out_features = self.encode(in_tokens, avail_mask)  # (N, S, E) -> (N, E)
+        out_features = self.encode(in_tokens, avail_mask, output_all=output_all)  # (N, S, E) -> (N, E)
+        if output_all:
+            return out_features
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
@@ -1004,5 +1018,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 }
         else:
             latent_dict = None
+        if self.hparams.explainability:
+            all_tokens = self(tabular_attrs, time_series_attrs, output_all=True)
+            vectors_dict = {f"tab_specific_{i}": all_tokens[:, i, :] for i in range(all_tokens.shape[1])}
+            vectors_dict.update({f"ts_{i}": all_tokens[:, i + all_tokens.shape[1], :] for i in range(all_tokens.shape[1])})
+            vectors_dict.update({f"tab_shared_{i}": all_tokens[:, i + all_tokens.shape[1] + all_tokens.shape[1], :] for i in range(all_tokens.shape[1])})
+        else:
+            vectors_dict = None
 
-        return out_features, predictions, continuum_params, continuum_taus, latent_dict
+        return out_features, predictions, continuum_params, continuum_taus, latent_dict, vectors_dict

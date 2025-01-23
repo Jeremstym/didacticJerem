@@ -305,34 +305,31 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 index=multi_index  # Set the MultiIndex
             )
 
-            feature_latent_norm = {
-                    (
-                        subset,
-                        patient.id,
-                        patient.attrs.get(attr),
-                        data_type
-                    ): torch.norm(patient_prediction[4][data_type])  # Accessing the prediction based on data type
-                    .flatten()
-                    .cpu()
-                    .numpy()
-                    for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
-                    for patient, patient_prediction in zip(
-                        trainer.datamodule.subsets_patients[subset].values(), subset_predictions
-                    )
-                    for data_type in list(patient_prediction[4].keys())  # Iterating over data types
-                    for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
-                }
-                # Create a MultiIndex from the keys of the feature_latent dictionary
-            multi_index = pd.MultiIndex.from_tuples(feature_latent_norm.keys(), names=["Subset", "Patient ID", "Label", "Modality Type"])
+            # feature_latent_norm = {
+            #         (
+            #             subset,
+            #             patient.id,
+            #             patient.attrs.get(attr),
+            #             data_type
+            #         ): torch.norm(patient_prediction[4][data_type])  # Accessing the prediction based on data type
+            #         .flatten()
+            #         .cpu()
+            #         .numpy()
+            #         for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
+            #         for patient, patient_prediction in zip(
+            #             trainer.datamodule.subsets_patients[subset].values(), subset_predictions
+            #         )
+            #         for data_type in list(patient_prediction[4].keys())  # Iterating over data types
+            #         for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
+            #     }
+            #     # Create a MultiIndex from the keys of the feature_latent dictionary
+            # multi_index = pd.MultiIndex.from_tuples(feature_latent_norm.keys(), names=["Subset", "Patient ID", "Label", "Modality Type"])
 
-            # Create the DataFrame using the values and the MultiIndex
-            df_latent_norm = pd.DataFrame(
-                list(feature_latent_norm.values()),  # Convert values to a list
-                index=multi_index  # Set the MultiIndex
-            )
-
-            print("df_latent_norm mean {}".format(df_latent_norm.groupby("Modality Type").mean()))
-            raise Exception("Stop here")
+            # # Create the DataFrame using the values and the MultiIndex
+            # df_latent_norm = pd.DataFrame(
+            #     list(feature_latent_norm.values()),  # Convert values to a list
+            #     index=multi_index  # Set the MultiIndex
+            # )
 
 
             # Plot data w.r.t. all indexing data, except for specific patient
@@ -489,12 +486,42 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 # Concatenate the element-wise results + statistics in one dataframe
                 subset_numerical_scores = pd.concat([subset_numerical_stats, subset_numerical_df])
 
+            if pl_module.hparams.explainability:
+                feature_explainable = {
+                        (
+                            subset,
+                            patient.id,
+                            patient.attrs.get(attr),
+                            latent_token
+                        ): torch.norm(patient_prediction[4][latent_token])  # Accessing the prediction based on data type
+                        .flatten()
+                        .cpu()
+                        .numpy()
+                        for subset, subset_predictions in zip(PREDICT_DATALOADERS_SUBSETS, predictions)
+                        for patient, patient_prediction in zip(
+                            trainer.datamodule.subsets_patients[subset].values(), subset_predictions
+                        )
+                        for latent_token in list(patient_prediction[5].keys())  # Iterating over data types
+                        for attr in pl_module.hparams.predict_losses  # Iterating over target attributes
+                    }
+                    # Create a MultiIndex from the keys of the feature_latent dictionary
+                multi_index = pd.MultiIndex.from_tuples(feature_explainable.keys(), names=["Subset", "Patient ID", "Token", "Modality Type"])
+
+                # Create the DataFrame using the values and the MultiIndex
+                df_latent_norm = pd.DataFrame(
+                    list(feature_explainable.values()),  # Convert values to a list
+                    index=multi_index  # Set the MultiIndex
+                )
+
+
             # Log the prediction scores and statistics using the experiment logger
             prediction_scores_to_log = {}
             if subset_categorical_data:
                 prediction_scores_to_log["categorical"] = subset_categorical_scores
             if subset_numerical_data:
                 prediction_scores_to_log["numerical"] = subset_numerical_scores
+            if pl_module.hparams.explainability:
+                prediction_scores_to_log["explainable"] = df_latent_norm
             for tag, prediction_scores in prediction_scores_to_log.items():
                 # Log the prediction scores to the (online) experiment logger
                 data_filepath = self._write_path / f"{subset}_{tag}_scores.csv"
