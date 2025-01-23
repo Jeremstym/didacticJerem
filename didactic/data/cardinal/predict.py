@@ -511,7 +511,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 df_latent_norm = pd.DataFrame(
                     list(feature_explainable.values()),  # Convert values to a list
                     index=multi_index  # Set the MultiIndex
-                ).groupby(level=["Subset", "Label", "Token"]).mean()
+                ).groupby("Token").mean()
 
 
             # Log the prediction scores and statistics using the experiment logger
