@@ -14,6 +14,7 @@ from scipy.special import softmax
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, f1_score
 from torch import Tensor
+import torch
 from vital.data.cardinal.config import TabularAttribute, TimeSeriesAttribute
 from vital.data.cardinal.config import View as ViewEnum
 from vital.data.cardinal.data_module import PREDICT_DATALOADERS_SUBSETS
