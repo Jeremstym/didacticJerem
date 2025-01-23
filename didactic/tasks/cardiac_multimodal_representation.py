@@ -994,8 +994,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 latent_shared = latent_shared.squeeze(dim=0)
                 latent_dict = {
                     "time-series": latent_ts,
-                    "tabular unique": latent_unique,
-                    "tabular common": latent_shared,
+                    "tabular specific": latent_unique,
+                    "tabular shared": latent_shared,
                 }
             else:
                 latent_dict = {
