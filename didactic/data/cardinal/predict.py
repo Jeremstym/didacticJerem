@@ -331,7 +331,7 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                 index=multi_index  # Set the MultiIndex
             )
 
-            print("df_latent_norm {}".format(df_latent_norm))
+            print("df_latent_norm mean {}".format(df_latent_norm.groupby("Modality Type").mean()))
             raise Exception("Stop here")
 
 
