@@ -31,3 +31,6 @@ def ttests(model_name: str, model_name2: str) -> pd.DataFrame:
     ttest = stats.ttest_ind(results1, results2)
     print(f'T-test between {model_name} and {model_name2}')
     return ttest
+
+if __name__ == "__main__":
+    ttests()
