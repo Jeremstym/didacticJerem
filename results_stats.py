@@ -38,6 +38,7 @@ def ttests(model_name: str, model_name2: str) -> pd.DataFrame:
     print(f'T-test between {model_name} and {model_name2}')
     print(f'T-statistic: {ttest.statistic}')
     print(f"P-value: {ttest.pvalue}")
+    print(f"Mean difference: {results1.mean() - results2.mean()}")
     print(f"ttest: {ttest}")
     return None
 
