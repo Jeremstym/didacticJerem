@@ -29,6 +29,8 @@ def ttests(model_name: str, model_name2: str) -> pd.DataFrame:
     results1 = load_results(model_name).drop(columns=["Metric"]).values.squeeze(axis=1)
     results2 = load_results(model_name2).drop(columns=["Metric"]).values.squeeze(axis=1)
     ttest = stats.ttest_ind(results1, results2)
+    print('------------------------------------------------')
+    print('----------------- T-TEST RESULTS ---------------')
     print(f'T-test between {model_name} and {model_name2}')
     print(f'T-statistic: {ttest.statistic}')
     print(f"P-value: {ttest.pvalue}")
