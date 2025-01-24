@@ -27,9 +27,7 @@ def load_results(model_name: str) -> pd.DataFrame:
 @click.option("--model_name2", help="Name of the model to load results from")
 def ttests(model_name: str, model_name2: str) -> pd.DataFrame:
     results1 = load_results(model_name).drop(columns=["Metric"]).values.squeeze(axis=1)
-    print(f"Results1: {results1}")
     results2 = load_results(model_name2).drop(columns=["Metric"]).values.squeeze(axis=1)
-    print(f"Results2: {results2}")
     ttest = stats.ttest_ind(results1, results2)
     print(f'T-test between {model_name} and {model_name2}')
     print(f'T-statistic: {ttest.statistic}')
