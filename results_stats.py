@@ -20,7 +20,7 @@ def load_results(model_name: str) -> pd.DataFrame:
     print(results.groupby("Metric").mean())
     print("Std")
     print(results.groupby("Metric").std())
-    return results.values.to_list()
+    return results.values.tolist()
 
 @click.command()
 @click.option("--model_name", help="Name of the model to load results from")
