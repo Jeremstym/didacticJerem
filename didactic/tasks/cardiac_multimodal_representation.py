@@ -308,6 +308,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         elif isinstance(self.encoder, didactic.models.baselines.AvgConcatMLP):  # didactic submodule `AvgConcatMLP`
             self.nhead = 1
             self.separate_modality = True
+        elif isinstance(self.encoder, didactic.models.baselines.ConcatMLP):  # didactic submodule `ConcatMLP`
+            self.nhead = 1
+            self.separate_modality = True
         elif isinstance(self.encoder, didactic.models.baselines.MMCLEncoder):  # didactic submodule `MMCLEncoder (BoB)`
             self.nhead = 1
             self.separate_modality = True
