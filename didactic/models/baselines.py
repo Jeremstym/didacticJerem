@@ -196,6 +196,8 @@ class MMCLEncoder(nn.Module):
         self,
         n_tabular_attrs: int,
         ts_encoder: str,
+        n_tab_mlp_layers: int = 2,
+        tab_mlp_hidden: int = 192,
         n_mlp_layers: int = 2,
         d_token = 192,
         dropout = 0.1
@@ -211,8 +213,8 @@ class MMCLEncoder(nn.Module):
         self.tabular_encoder = MLP(
             in_features=n_tabular_attrs,
             out_features=d_token,
-            n_layers=n_mlp_layers,
-            d_token=d_token,
+            n_layers=n_tab_mlp_layers,
+            d_token=tab_mlp_hidden,
             dropout=dropout
         )
         self.ts_encoder = get_nn_module(ts_encoder)
