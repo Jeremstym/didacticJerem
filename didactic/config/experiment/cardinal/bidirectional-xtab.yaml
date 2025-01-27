@@ -2,7 +2,7 @@
 
 defaults:
   - cardinal/cardiac-multimodal-representation
-  - override /task/model/encoder: bidirectional-xtab
+  - override /task/model/encoder: xtab-alignment-2UniFTs-BiDirectional
 
 trainer:
   max_steps: 2000
