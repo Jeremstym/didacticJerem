@@ -2559,8 +2559,6 @@ class FT_Alignment_2UniFTs_BiDirectional(nn.Module):
         
         assert not(n_cross_blocks and n_bidirectional_blocks), "Cannot use both cross-attention and bidirectional attention blocks"
 
-        assert n_cross_blocks, "Cross attention blocks must be present in the Alignemtn CrossAttention model"
-
         self.d_token = d_token
         self.attention_n_heads = attention_n_heads
         self.attention_dropout = attention_dropout
