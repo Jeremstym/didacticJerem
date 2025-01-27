@@ -1,4 +1,5 @@
 defaults:
-  - xtab
+  - xtab-alignment-2UniFTs-CrossAtt
 
+n_cross_blocks: 0
 n_bidirectional_blocks: 2
