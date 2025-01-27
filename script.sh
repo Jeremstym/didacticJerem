@@ -393,6 +393,7 @@ for seed in {42..51}; do
     # ABLATION poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/Test-Decoupling-FT-interleaved-noUniFT/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-invert 
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-BOB-MMCL/seed${seed}' +experiment=cardinal/baseline-mmcl-bob 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
+    #? poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-BOB-MMCL_v2/seed${seed}' +experiment=cardinal/baseline-mmcl-bob 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series
     
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=baseline-irene task.embed_dim=768 
 
