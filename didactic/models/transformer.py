@@ -2599,6 +2599,12 @@ class FT_Alignment_2UniFTs_BiDirectional(nn.Module):
                 for layer_idx in range(self.n_self_blocks, self.n_self_blocks + self.n_cross_blocks)
             ]
 
+        elif self.n_bidirectional_blocks:
+            layers += [
+                self._init_bidirectional_attention_block(layer_idx)
+                for layer_idx in range(self.n_self_blocks, self.n_self_blocks + self.n_bidirectional_blocks)
+            ]
+
         self.blocks = nn.ModuleList(layers)
 
     def _init_attention_block(self, layer_idx: int) -> nn.ModuleDict:
