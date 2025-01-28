@@ -2837,7 +2837,7 @@ class FT_Alignment_2UniFTs_BiDirectional(nn.Module):
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
         x = torch.cat([tab_tokens_unique, cls_tokens.unsqueeze(1)], dim=1)
-        x_context = torch.cat([tab_tokens_shared, ts_tokens, cls_tokens.unsqueeze(1)], dim=1)
+        x_context = torch.cat([tab_tokens_shared, ts_tokens], dim=1)
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
