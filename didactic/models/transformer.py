@@ -1002,8 +1002,12 @@ class FT_Transformer_2UniFTs(nn.Module):
         self.batch_size = x.shape[0] # Save the batch size for later use in explainability
 
         self_attention_blocks = self.blocks[: self.n_self_blocks]
-        # cross_attention_blocks = self.blocks[self.n_self_blocks :]
-        bidirectional_attention_blocks = self.blocks[self.n_self_blocks :]
+        if self.n_cross_blocks:
+            cross_attention_blocks = self.blocks[self.n_self_blocks :]
+            bidirectional_attention_blocks = []
+        elif self.n_bidirectional_blocks:
+            cross_attention_blocks = []
+            bidirectional_attention_blocks = self.blocks[self.n_self_blocks :]
 
         # Extract the CLS token
         cls_token = x[:, -1, :]
