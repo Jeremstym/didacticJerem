@@ -738,6 +738,12 @@ class FT_Transformer_2UniFTs(nn.Module):
                 for layer_idx in range(self.n_self_blocks, self.n_self_blocks + self.n_cross_blocks)
             ]
 
+        elif self.n_bidirectional_blocks:
+            layers += [
+                self._init_bidirectional_block(layer_idx)
+                for layer_idx in range(self.n_self_blocks + self.n_cross_blocks, self.n_self_blocks + self.n_cross_blocks + self.n_bidirectional_blocks)
+            ]
+
         self.blocks = nn.ModuleList(layers)
 
     def _init_attention_block(self, layer_idx: int) -> nn.ModuleDict:
@@ -980,11 +986,11 @@ class FT_Transformer_2UniFTs(nn.Module):
             (N, S, E) / (N, S+S', E), The output sequence of the transformer.
         """
 
-        if (self.n_cross_blocks or self.n_bidirectional_blocks) and x_context is None:
-            raise ValueError(
-                "x_context from which K and V are extracted, must be "
-                "provided since the model includes cross-attention blocks."
-            )
+        # if (self.n_cross_blocks or self.n_bidirectional_blocks) and x_context is None:
+        #     raise ValueError(
+        #         "x_context from which K and V are extracted, must be "
+        #         "provided since the model includes cross-attention blocks."
+        #     )
         
         if x.ndim != 3:
             raise ValueError("The input tensor must have 3 dimensions: (n_objects, n_tokens, d_token)")
