@@ -2601,7 +2601,7 @@ class FT_Alignment_2UniFTs_BiDirectional(nn.Module):
 
         elif self.n_bidirectional_blocks:
             layers += [
-                self._init_bidirectional_attention_block(layer_idx)
+                self._init_bidirectional_block(layer_idx)
                 for layer_idx in range(self.n_self_blocks, self.n_self_blocks + self.n_bidirectional_blocks)
             ]
 
