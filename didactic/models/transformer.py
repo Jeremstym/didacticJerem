@@ -1016,7 +1016,11 @@ class FT_Transformer_2UniFTs(nn.Module):
         ts_tokens = self.ts_unimodal_encoder(x[:, : self.n_time_series_attrs])
         tab_tokens = self.tabular_unimodal_encoder(x[:, self.n_time_series_attrs :-1])
 
-        x = torch.cat([tab_tokens, ts_tokens, cls_token.unsqueeze(1)], dim=1)
+        if not self.n_cross_blocks and not self.n_bidirectional_blocks:
+            x = torch.cat([tab_tokens, ts_tokens, cls_token.unsqueeze(1)], dim=1)
+        else:
+            x = torch.cat([tab_tokens, cls_token.unsqueeze(1)], dim=1)
+            x_context = ts_tokens
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
