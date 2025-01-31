@@ -414,9 +414,9 @@ for seed in {42..51}; do
 
     # ! TEST CROSS VALIDATION
 
-    # for fold in {0..4}; do
-    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}/cardinal_default.ckpt' strict=True
-    # done
+    for fold in {0..4}; do
+        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
+    done
 
     # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/data/train_cv${fold}.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/data/val_cv${fold}.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/data/test_cv${fold}.txt' +fold=$fold
