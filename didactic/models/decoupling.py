@@ -50,7 +50,7 @@ class DecouplingModule(nn.Module):
 class LinearDecoupling(nn.Module):
     def __init__(
         self,
-        decouplin_method: str,
+        decoupling_method: str,
         tab_input_size: int,
         tab_proj_size: int,
         ts_input_size: int,
@@ -71,7 +71,7 @@ class LinearDecoupling(nn.Module):
 class MLPDecoupling(nn.Module):
     def __init__(
         self,
-        decouplin_method: str,
+        decoupling_method: str,
         tab_input_size: int,
         tab_proj_size: int,
         ts_input_size: int,
