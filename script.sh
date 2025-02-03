@@ -456,7 +456,8 @@ for seed in {42..51}; do
     # FINAL TEST
 
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTXonly/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.inter_sample_loss_weight=0.0
-
+   
+    echo "Current seed: $seed"
 done
 
 
