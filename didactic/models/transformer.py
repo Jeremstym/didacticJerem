@@ -11,7 +11,7 @@ from torch import Tensor, nn
 from .layers import get_nn_module, MultiheadAttention, MultiheadCrossAttention
 from .baselines import BidirectionalMultimodalAttention
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
-from didactic.models.decoulping import DecouplingModule
+from didactic.models.decoupling import DecouplingModule
 
 ModuleType = Union[str, Callable[..., nn.Module]]
 _INTERNAL_ERROR_MESSAGE = "Internal error. Please, open an issue."
