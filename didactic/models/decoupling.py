@@ -25,7 +25,7 @@ class DecouplingModule(nn.Module):
         tab_proj_size: int,
         ts_input_size: int,
         ts_proj_size: int,
-        decouplin_method: str = "linear",
+        decoupling_method: str = "linear",
         **kwargs,
     ):
         super().__init__()
