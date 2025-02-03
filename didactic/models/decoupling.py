@@ -57,12 +57,12 @@ class LinearDecoupling(nn.Module):
     ):
         super().__init__()
 
-        self.linear_tab = nn.Linear(tab_proj_size, ts_proj_size)
-        self.linear_ts = nn.Linear(ts_proj_size, tab_proj_size)
+        self.linear_tab = nn.Linear(tab_input_size, ts_proj_size)
+        self.linear_ts = nn.Linear(ts_input_size, tab_proj_size)
 
     def forward(self, ts_tokens: Tensor, tab_tokens: Tensor) -> Tensor:
-        ts_tokens = self.linear_tab(ts_tokens)
-        tab_tokens = self.linear_ts(tab_tokens)
+        ts_tokens = self.linear_ts(ts_tokens)
+        tab_tokens = self.linear_tab(tab_tokens)
         tab_tokens_specific = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
         tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
         return ts_tokens, tab_tokens_specific, tab_tokens_shared
@@ -78,19 +78,19 @@ class MLPDecoupling(nn.Module):
         super().__init__()
 
         self.mlp_tab = nn.Sequential(
-            nn.Linear(tab_proj_size, ts_proj_size),
-            nn.ReLU(),
-            nn.Linear(ts_proj_size, ts_proj_size),
-        )
-        self.mlp_ts = nn.Sequential(
-            nn.Linear(ts_proj_size, tab_proj_size),
+            nn.Linear(tab_input_size, tab_proj_size),
             nn.ReLU(),
             nn.Linear(tab_proj_size, tab_proj_size),
         )
+        self.mlp_ts = nn.Sequential(
+            nn.Linear(ts_input_size, ts_proj_size),
+            nn.ReLU(),
+            nn.Linear(ts_proj_size, ts_proj_size),
+        )
 
     def forward(self, ts_tokens: Tensor, tab_tokens: Tensor) -> Tensor:
-        ts_tokens = self.mlp_tab(ts_tokens)
-        tab_tokens = self.mlp_ts(tab_tokens)
+        ts_tokens = self.mlp_ts(ts_tokens)
+        tab_tokens = self.mlp_tab(tab_tokens)
         tab_tokens_specific = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
         tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
         return ts_tokens, tab_tokens_specific, tab_tokens_shared
