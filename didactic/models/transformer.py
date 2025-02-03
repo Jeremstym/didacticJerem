@@ -4276,10 +4276,10 @@ class FT_Interleaved_2UniFTs_Inverted(nn.Module):
         self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
 
         self.decoupling_module = DecouplingModule(
-            tab_input_size=d_token,
-            tab_proj_size=2*d_token,
             ts_input_size=d_token,
             ts_proj_size=d_token,
+            tab_input_size=d_token,
+            tab_proj_size=2*d_token,
             decoupling_method=decoupling_method
         )
         

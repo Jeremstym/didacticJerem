@@ -21,10 +21,10 @@ ModuleType = Union[str, Callable[..., nn.Module]]
 class DecouplingModule(nn.Module):
     def __init__(
         self,
-        tab_input_size: int,
-        tab_proj_size: int,
         ts_input_size: int,
         ts_proj_size: int,
+        tab_input_size: int,
+        tab_proj_size: int,
         decoupling_method: str = "linear",
         **kwargs,
     ):
@@ -50,15 +50,15 @@ class DecouplingModule(nn.Module):
 class LinearDecoupling(nn.Module):
     def __init__(
         self,
-        tab_input_size: int,
-        tab_proj_size: int,
         ts_input_size: int,
         ts_proj_size: int,
+        tab_input_size: int,
+        tab_proj_size: int,
     ):
         super().__init__()
 
-        self.linear_tab = nn.Linear(tab_input_size, ts_proj_size)
-        self.linear_ts = nn.Linear(ts_input_size, tab_proj_size)
+        self.linear_ts = nn.Linear(ts_input_size, ts_proj_size)
+        self.linear_tab = nn.Linear(tab_input_size, tab_proj_size)
 
     def forward(self, ts_tokens: Tensor, tab_tokens: Tensor) -> Tensor:
         ts_tokens = self.linear_ts(ts_tokens)
@@ -77,15 +77,15 @@ class MLPDecoupling(nn.Module):
     ):
         super().__init__()
 
-        self.mlp_tab = nn.Sequential(
-            nn.Linear(tab_input_size, tab_proj_size),
-            nn.ReLU(),
-            nn.Linear(tab_proj_size, tab_proj_size),
-        )
         self.mlp_ts = nn.Sequential(
             nn.Linear(ts_input_size, ts_proj_size),
             nn.ReLU(),
             nn.Linear(ts_proj_size, ts_proj_size),
+        )
+        self.mlp_tab = nn.Sequential(
+            nn.Linear(tab_input_size, tab_proj_size),
+            nn.ReLU(),
+            nn.Linear(tab_proj_size, tab_proj_size),
         )
 
     def forward(self, ts_tokens: Tensor, tab_tokens: Tensor) -> Tensor:
