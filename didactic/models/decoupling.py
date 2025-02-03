@@ -79,12 +79,12 @@ class MLPDecoupling(nn.Module):
         self.tab_split = int(tab_proj_size/2)
         self.mlp_ts = nn.Sequential(
             nn.Linear(ts_input_size, ts_proj_size),
-            nn.ReLU(),
+            nn.GEGLU(),
             nn.Linear(ts_proj_size, ts_proj_size),
         )
         self.mlp_tab = nn.Sequential(
             nn.Linear(tab_input_size, tab_proj_size),
-            nn.ReLU(),
+            nn.GEGLU(),
             nn.Linear(tab_proj_size, tab_proj_size),
         )
 
