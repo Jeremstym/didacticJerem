@@ -56,15 +56,15 @@ class LinearDecoupling(nn.Module):
         tab_proj_size: int,
     ):
         super().__init__()
-
+        self.tab_split = int(tab_proj_size/2)
         self.linear_ts = nn.Linear(ts_input_size, ts_proj_size)
         self.linear_tab = nn.Linear(tab_input_size, tab_proj_size)
 
     def forward(self, ts_tokens: Tensor, tab_tokens: Tensor) -> Tensor:
         ts_tokens = self.linear_ts(ts_tokens)
         tab_tokens = self.linear_tab(tab_tokens)
-        tab_tokens_specific = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
-        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
+        tab_tokens_specific = tab_tokens.reshape(tab_tokens.shape[0], -1, self.tab_split)[:,::2,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.tab_split)[:,1::2,:]
         return ts_tokens, tab_tokens_specific, tab_tokens_shared
 
 class MLPDecoupling(nn.Module):
@@ -76,7 +76,7 @@ class MLPDecoupling(nn.Module):
         ts_proj_size: int,
     ):
         super().__init__()
-
+        self.tab_split = int(tab_proj_size/2)
         self.mlp_ts = nn.Sequential(
             nn.Linear(ts_input_size, ts_proj_size),
             nn.ReLU(),
@@ -91,6 +91,6 @@ class MLPDecoupling(nn.Module):
     def forward(self, ts_tokens: Tensor, tab_tokens: Tensor) -> Tensor:
         ts_tokens = self.mlp_ts(ts_tokens)
         tab_tokens = self.mlp_tab(tab_tokens)
-        tab_tokens_specific = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
-        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
+        tab_tokens_specific = tab_tokens.reshape(tab_tokens.shape[0], -1, self.tab_split)[:,::2,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.tab_split)[:,1::2,:]
         return ts_tokens, tab_tokens_specific, tab_tokens_shared
