@@ -183,7 +183,6 @@ class SupConInfoNCELoss(nn.Module):
         Returns:
             Scalar loss value.
         """
-        batch_size = tab_unique.shape[0]
         labels = labels.view(-1, 1)
         mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
 
@@ -224,7 +223,6 @@ class SupConInfoNCELoss2(nn.Module):
         Returns:
             Scalar loss value.
         """
-        batch_size = tab_unique.shape[0]
         labels = labels.view(-1, 1)
         mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
 
