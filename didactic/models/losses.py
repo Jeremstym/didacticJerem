@@ -32,19 +32,19 @@ class OrthogonalLoss(nn.Module):
         """
         super().__init__()
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Tokens.
-            x_shared: (N, E), Tokens.
+            tab_unique: (N, E), Tokens.
+            tab_shared: (N, E), Tokens.
 
         Returns:
             Scalar loss value.
         """
-        assert x_unique.shape[1] == x_shared.shape[1], "Input tensors must have the same embedding dimension."
-        assert x_shared.ndim == 2, "Input tensor must have 2 dimensions, (N, E)."
-        x = torch.mm(x_shared, x_unique.t())
+        assert tab_unique.shape[1] == tab_shared.shape[1], "Input tensors must have the same embedding dimension."
+        assert tab_shared.ndim == 2, "Input tensor must have 2 dimensions, (N, E)."
+        x = torch.mm(tab_shared, tab_unique.t())
         return torch.norm(x, p="fro") ** 2
 
 
@@ -60,21 +60,21 @@ class DecouplingLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
@@ -99,21 +99,21 @@ class InfoNCELoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
@@ -136,21 +136,21 @@ class InfoNCELoss2(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
@@ -173,12 +173,12 @@ class SupConInfoNCELoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, labels: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, labels: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
@@ -186,11 +186,11 @@ class SupConInfoNCELoss(nn.Module):
         labels = labels.view(-1, 1)
         mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
 
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         expsim_shared = torch.exp(sim_shared)
@@ -213,12 +213,12 @@ class SupConInfoNCELoss2(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, labels: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, labels: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
@@ -226,11 +226,11 @@ class SupConInfoNCELoss2(nn.Module):
         labels = labels.view(-1, 1)
         mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
 
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         expsim_shared = torch.exp(sim_shared)
@@ -253,21 +253,21 @@ class NTXentLossDecoupling2(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, x_shared.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, tab_shared.t())
         sim_shared /= self.temperature
         sim_unique /= self.temperature
         sim_shared = torch.exp(sim_shared)
@@ -293,21 +293,21 @@ class MarginInfoNCELossDecoupling(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared -= self.margin * torch.eye(sim_shared.shape[0]).to(sim_shared.device)
         sim_shared /= self.temperature
         sim_unique /= self.temperature
@@ -334,21 +334,21 @@ class LearnMarginInfoNCELossDecoupling(nn.Module):
         self.temperature = temperature
         self.margin = nn.Parameter(torch.tensor(0.0))
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, ts.t())
         sim_shared -= self.margin.to(sim_shared.device) * torch.eye(sim_shared.shape[0]).to(sim_shared.device)
         sim_shared /= self.temperature
         sim_unique /= self.temperature
@@ -375,21 +375,21 @@ class SupInfoNCELossDecoupling2(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
-            x_unique: (N, E), Embeddings.
-            x_shared: (N, E), Embeddings.
+            tab_unique: (N, E), Embeddings.
+            tab_shared: (N, E), Embeddings.
 
         Returns:
             Scalar loss value.
         """
-        x_unique = F.normalize(x_unique, p=2, dim=1)
-        x_shared = F.normalize(x_shared, p=2, dim=1)
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        tab_shared = F.normalize(tab_shared, p=2, dim=1)
         ts = F.normalize(ts, p=2, dim=1)
-        sim_shared = torch.mm(x_shared, ts.t())
-        sim_unique = torch.mm(x_unique, x_shared.t())
+        sim_shared = torch.mm(tab_shared, ts.t())
+        sim_unique = torch.mm(tab_unique, tab_shared.t())
         sim_shared -= self.margin
         sim_shared /= self.temperature
         sim_unique /= self.temperature
@@ -516,16 +516,16 @@ class TabularPredictor(nn.Module):
         if isinstance(m, nn.Linear) and m.bias is not None:
             m.bias.data.zero_()
         
-    def forward(self, x_unique: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor) -> Tensor:
         # remove clstokens
-        # x_shared = x_shared[:, :-1,]
-        # x_unique = x_unique[:, :-1,]
+        # tab_shared = tab_shared[:, :-1,]
+        # tab_unique = tab_unique[:, :-1,]
 
-        # x = torch.cat((x_shared, x_unique), dim=1)
+        # x = torch.cat((tab_shared, tab_unique), dim=1)
         # continuous regessor
-        con_x = self.con_regressor(x_unique[:, :self.num_con])
+        con_x = self.con_regressor(tab_unique[:, :self.num_con])
         # categorical classifier
-        cat_x = self.cat_classifier(x_unique[:, self.num_con:])
+        cat_x = self.cat_classifier(tab_unique[:, self.num_con:])
         return (con_x, cat_x)
 
 class ReconstructionLoss(nn.Module):
