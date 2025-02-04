@@ -60,7 +60,7 @@ class DecouplingLoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, *args, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -99,7 +99,7 @@ class InfoNCELoss(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, *args, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -136,7 +136,7 @@ class InfoNCELoss2(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, *args, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -253,7 +253,7 @@ class NTXentLossDecoupling2(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, *args, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -293,7 +293,7 @@ class MarginInfoNCELossDecoupling(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, *args, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -375,7 +375,7 @@ class SupInfoNCELossDecoupling2(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, **kwargs) -> Tensor:
+    def forward(self, tab_unique: Tensor, tab_shared: Tensor, ts: Tensor, *args, **kwargs) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
