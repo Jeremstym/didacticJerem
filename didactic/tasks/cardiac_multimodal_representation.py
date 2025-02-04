@@ -943,11 +943,22 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # ts_avg = torch.mean(ts_tokens, dim=1) # (N, E)
         # tab_tokens = self.tabular_lin_proj(tab_tokens)
         # tab_avg = torch.mean(tab_tokens, dim=1, keepdim=True).reshape(-1, 2, self.hparams.embed_dim) # (N, 2, E)
+        
+        # Iterate on the attributes to get labels (there is one attribute, hence the loop is only once)
+        for attr, _ in self.predict_losses.items():
+            target = batch[attr]
 
+            if attr in TabularAttribute.categorical_attrs():
+                notna_mask = target != MISSING_CAT_ATTR
+            else:  # attr in TabularAttribute.numerical_attrs():
+                notna_mask = ~target.isnan() 
         # Compute the contrastive loss/metrics
         metrics = {
             "cont_loss": self.contrastive_loss(
-                self.contrastive_head(tab_unique_avg), self.contrastive_head(tab_shared_avg), self.contrastive_head(ts_avg)
+                self.contrastive_head(tab_unique_avg),
+                self.contrastive_head(tab_shared_avg),
+                self.contrastive_head(ts_avg),
+                target[notna_mask]
             )
         }
         if self.orthogonal_loss:
