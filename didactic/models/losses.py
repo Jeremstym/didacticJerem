@@ -161,7 +161,7 @@ class InfoNCELoss2(nn.Module):
 
         return loss_nce
 
-class SupConInfoNCELoss2(nn.Module):
+class SupConInfoNCELoss(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
 
     def __init__(self, temperature: float = 0.1):
@@ -199,6 +199,47 @@ class SupConInfoNCELoss2(nn.Module):
 
         contrastive = sim_shared - torch.log(expsim_unique.sum(dim=0, keepdim=True))
         loss = - (contrastive * mask).sum(dim=0) / mask.sum(dim=0)
+
+        return loss.mean()
+
+class SupConInfoNCELoss2(nn.Module):
+    """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
+
+    def __init__(self, temperature: float = 0.1):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+
+    def forward(self, x_unique: Tensor, x_shared: Tensor, ts: Tensor, labels: Tensor) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            x_unique: (N, E), Embeddings.
+            x_shared: (N, E), Embeddings.
+
+        Returns:
+            Scalar loss value.
+        """
+        batch_size = tab_unique.shape[0]
+        labels = labels.view(-1, 1)
+        mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
+
+        x_unique = F.normalize(x_unique, p=2, dim=1)
+        x_shared = F.normalize(x_shared, p=2, dim=1)
+        ts = F.normalize(ts, p=2, dim=1)
+        sim_shared = torch.mm(x_shared, ts.t())
+        sim_unique = torch.mm(x_unique, ts.t())
+        sim_shared /= self.temperature
+        sim_unique /= self.temperature
+        expsim_shared = torch.exp(sim_shared)
+        expsim_unique = torch.exp(sim_unique)
+
+        contrastive = sim_shared - torch.log(expsim_unique.sum(dim=0, keepdim=True))
+        loss = - (contrastive * mask).sum(dim=1) / mask.sum(dim=1)
 
         return loss.mean()
 
