@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=electronic
+#SBATCH --partition=electronic,hard
 #SBATCH --job-name=TEST-CV
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
@@ -427,9 +427,9 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-InfoNCE-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
     # done
 
-    for fold in {0..4}; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLPDecoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
-    done
+    #? for fold in {0..4}; do
+    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLPDecoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
+    # done
 
     # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-FT-Transformer-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
@@ -475,8 +475,8 @@ done
 #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline-all-data/fold${fold}/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=42 task.ordinal_mode=True task/data=tabular+time-series task/model/encoder=baseline-irene task.embed_dim=768 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
 # done
 
-# for fold in {0..4}; do
-#     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline-no-echo-data/fold${fold}/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=42 task.ordinal_mode=True task/data=tabular-no-echo task/model/encoder=baseline-irene task.embed_dim=768 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
-# done
+for fold in {0..4}; do
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/IRENE-baseline-no-echo-data/fold${fold}/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=42 task.ordinal_mode=True task/data=tabular-no-echo task/model/encoder=baseline-irene task.embed_dim=768 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
+done
 
 #! TODO: test IRENE with CLS token (now it is average pooling) but not necessary since it is note done in the paper
