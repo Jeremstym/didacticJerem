@@ -196,10 +196,12 @@ class SupConInfoNCELoss(nn.Module):
         expsim_shared = torch.exp(sim_shared)
         expsim_unique = torch.exp(sim_unique)
 
-        contrastive = sim_shared - torch.log(expsim_unique.sum(dim=0, keepdim=True))
-        loss = - (contrastive * mask).sum(dim=0) / mask.sum(dim=0)
+        contrastive1 = sim_shared - torch.log(expsim_unique.sum(dim=0, keepdim=True))
+        loss1 = - (contrastive1 * mask).sum(dim=0) / mask.sum(dim=0)
+        contrastive2 = sim_shared - torch.log(expsim_unique.sum(dim=1, keepdim=True))
+        loss2 = - (contrastive2 * mask).sum(dim=1) / mask.sum(dim=1)
 
-        return loss.mean()
+        return (loss1.mean() + loss2.mean()) / 2
 
 class SupConInfoNCELoss2(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
@@ -236,10 +238,12 @@ class SupConInfoNCELoss2(nn.Module):
         expsim_shared = torch.exp(sim_shared)
         expsim_unique = torch.exp(sim_unique)
 
-        contrastive = sim_shared - torch.log(expsim_unique.sum(dim=0, keepdim=True))
-        loss = - (contrastive * mask).sum(dim=1) / mask.sum(dim=1)
+        contrastive1 = sim_shared - torch.log(expsim_unique.sum(dim=0, keepdim=True))
+        loss1 = - (contrastive1 * mask).sum(dim=1) / mask.sum(dim=1)
+        contrastive2 = sim_shared - torch.log(expsim_unique.sum(dim=1, keepdim=True))
+        loss2 = - (contrastive2 * mask).sum(dim=0) / mask.sum(dim=0)
 
-        return loss.mean()
+        return (loss1.mean() + loss2.mean()) / 2
 
 class NTXentLossDecoupling2(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy Loss with Decoupling."""
