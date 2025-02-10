@@ -32,7 +32,7 @@ def main():
     parser.add_argument(
         "--bins",
         type=int,
-        default=5,
+        default=3,
         help="If `stratify_attr` is a continuous attribute, number of bins into which to categorize the values, to "
         "ensure each bin is distributed representatively in the split.",
     )
@@ -72,17 +72,17 @@ def main():
             Patients(**kwargs), stratify_attr, n_splits=bins, seed=seed, progress_bar=True
         )
         for i, (patient_ids_train, patient_ids_test) in enumerate(patient_ids_splits.values()):
-            (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patient_ids_train))
-            (output_dir / f"{test_name}_cv{i}.txt").write_text("\n".join(patient_ids_test))
+            (output_dir /"split_to_3"/{i}/ f"{train_name}.txt").write_text("\n".join(patient_ids_train))
+            (output_dir /"split_to_3"/{i}/f"{test_name}.txt").write_text("\n".join(patient_ids_test))
 
-            exclude_patients = (output_dir / f"{test_name}_cv{i}.txt").read_text().split("\n")
+            exclude_patients = (output_dir/"split_to_3"/{i}/f"{test_name}.txt").read_text().split("\n")
             kwargs["exclude_patients"] = exclude_patients
 
             patients_ids_train, patients_ids_val = generate_patients_splits(
                 Patients(**kwargs), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
             )
-            (output_dir / f"{train_name}_cv{i}.txt").write_text("\n".join(patients_ids_train))
-            (output_dir / f"val_cv{i}.txt").write_text("\n".join(patients_ids_val))
+            (output_dir /"split_to_3"/{i}/ f"{train_name}.txt").write_text("\n".join(patients_ids_train))
+            (output_dir /"split_to_3"/{i}/ f"val.txt").write_text("\n".join(patients_ids_val))
 
             kwargs.pop("exclude_patients")
 
@@ -91,10 +91,10 @@ def main():
             Patients(**kwargs), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
         )
 
-    # Save the generated split
-    output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / f"{train_name}.txt").write_text("\n".join(patient_ids_train))
-    (output_dir / f"{test_name}.txt").write_text("\n".join(patient_ids_test))
+        # Save the generated split
+        output_dir.mkdir(parents=True, exist_ok=True)
+        (output_dir / f"{train_name}.txt").write_text("\n".join(patient_ids_train))
+        (output_dir / f"{test_name}.txt").write_text("\n".join(patient_ids_test))
 
 
 if __name__ == "__main__":
