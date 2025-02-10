@@ -77,7 +77,7 @@ def main():
             (path_file / f"{train_name}.txt").write_text("\n".join(patient_ids_train))
             (path_file / f"{test_name}.txt").write_text("\n".join(patient_ids_test))
 
-            exclude_patients = (output_dir/"split_to_3"/{i}/f"{test_name}.txt").read_text().split("\n")
+            exclude_patients = (path_file / f"{test_name}.txt").read_text().split("\n")
             kwargs["exclude_patients"] = exclude_patients
 
             patients_ids_train, patients_ids_val = generate_patients_splits(
