@@ -72,8 +72,10 @@ def main():
             Patients(**kwargs), stratify_attr, n_splits=bins, seed=seed, progress_bar=True
         )
         for i, (patient_ids_train, patient_ids_test) in enumerate(patient_ids_splits.values()):
-            (output_dir / "split_to_3" / f"{i}" / f"{train_name}.txt").write_text("\n".join(patient_ids_train))
-            (output_dir / "split_to_3" / f"{i}" / f"{test_name}.txt").write_text("\n".join(patient_ids_test))
+            path_file = output_dir / "split_to_3" / f"{i}"
+            path_file.mkdir(parents=True, exist_ok=True)
+            (path_file / f"{train_name}.txt").write_text("\n".join(patient_ids_train))
+            (path_file / f"{test_name}.txt").write_text("\n".join(patient_ids_test))
 
             exclude_patients = (output_dir/"split_to_3"/{i}/f"{test_name}.txt").read_text().split("\n")
             kwargs["exclude_patients"] = exclude_patients
@@ -81,8 +83,8 @@ def main():
             patients_ids_train, patients_ids_val = generate_patients_splits(
                 Patients(**kwargs), stratify_attr, bins=bins, test_size=test_size, seed=seed, progress_bar=True
             )
-            (output_dir / "split_to_3" / f"{i}" / f"{train_name}.txt").write_text("\n".join(patients_ids_train))
-            (output_dir / "split_to_3" / f"{i}" / f"val.txt").write_text("\n".join(patients_ids_val))
+            (path_file / f"{train_name}.txt").write_text("\n".join(patients_ids_train))
+            (path_file / f"val.txt").write_text("\n".join(patients_ids_val))
 
             kwargs.pop("exclude_patients")
 
