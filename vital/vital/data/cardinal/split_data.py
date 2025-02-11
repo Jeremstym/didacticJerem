@@ -72,7 +72,7 @@ def main():
             Patients(**kwargs), stratify_attr, n_splits=bins, seed=seed, progress_bar=True
         )
         for i, (patient_ids_train, patient_ids_test) in enumerate(patient_ids_splits.values()):
-            path_file = output_dir / "split_to_3" / f"{i}"
+            path_file = output_dir / f"split_to_{bins}" / f"{i}"
             path_file.mkdir(parents=True, exist_ok=True)
             (path_file / f"{train_name}.txt").write_text("\n".join(patient_ids_train))
             (path_file / f"{test_name}.txt").write_text("\n".join(patient_ids_test))
