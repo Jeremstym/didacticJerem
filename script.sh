@@ -430,9 +430,9 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
     # done
 
-    for fold in {0..2}; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-3folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_3/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_3/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_3/${fold}/test.txt' +fold=$fold
-    done
+    # for fold in {0..2}; do
+    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-3folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_3/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_3/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_3/${fold}/test.txt' +fold=$fold
+    # done
 
     # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-5folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt' +fold=$fold

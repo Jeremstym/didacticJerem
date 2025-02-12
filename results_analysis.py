@@ -27,6 +27,31 @@ def load_results(model_name: str) -> pd.DataFrame:
     print(results.groupby("Metric").std())
     return results.groupby("Metric").mean(), results.groupby("Metric").std()
 
+@click.command()
+@click.option("--model_name", help="Name of the model to load results from")
+def load_fold_results(model_name: str) -> pd.DataFrame:
+    path = '/data/stympopper/didacticWORKSHOP/' + model_name + 'fold[0-9]/seed[0-9][0-9]/predictions/test_categorical_scores.csv'
+    files = glob(path)
+    if not files:
+        raise ValueError("No files found")
+    results = pd.DataFrame()
+    for file in files:
+        df = pd.read_csv(file, index_col=0) 
+        # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
+        df = df.loc[["acc", "auroc", "auroc_wht", "auroc_controlled", "auroc_uncontrolled"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
+        results = pd.concat([results, df], axis=0)
+    results = results.reset_index(drop=True)
+    print(results)
+    results["ht_severity_prediction"] = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
+    print("Mean")
+    print(results.groupby("Metric").mean())
+    print("Std")
+    print(results.groupby("Metric").std())
+    return results.groupby("Metric").mean(), results.groupby("Metric").std()
+
+
 if __name__ == "__main__":
-    results = load_results()
+    # results = load_results()
+    # print(results)
+    results = load_fold_results()
     print(results)
