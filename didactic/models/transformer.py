@@ -6176,6 +6176,7 @@ class FT_Interleaved_2UniFTs_Dummy(nn.Module):
         n_time_series_attrs: int,
         tabular_unimodal_encoder: str,
         ts_unimodal_encoder: str,
+        intermediate_mode: str = "average",
     ) -> None:
         """
         Parameters
@@ -6253,7 +6254,7 @@ class FT_Interleaved_2UniFTs_Dummy(nn.Module):
         self.n_cross_blocks = n_cross_blocks
         self.n_bidirectional_blocks = n_bidirectional_blocks
 
-        self.tabular_lin_proj = nn.Linear(d_token, d_token)
+        self.tabular_lin_proj = nn.Linear(d_token, 2*d_token)
         self.time_series_lin_proj = nn.Linear(d_token, d_token)
 
         self.n_tabular_attrs = n_tabular_attrs
@@ -6262,6 +6263,7 @@ class FT_Interleaved_2UniFTs_Dummy(nn.Module):
         self.tabular_unimodal_encoder = get_nn_module(tabular_unimodal_encoder)
         self.ts_unimodal_encoder = get_nn_module(ts_unimodal_encoder)
 
+        self.intermediate_mode = intermediate_mode
         
         layers = []
         total_blocks = max(self.n_self_blocks, self.n_cross_blocks)
@@ -6428,12 +6430,16 @@ class FT_Interleaved_2UniFTs_Dummy(nn.Module):
         ts_tokens = self.time_series_lin_proj(ts_tokens)
         tab_tokens = self.tabular_lin_proj(tab_tokens)
         
+        tab_tokens_unique = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,::2,:]
+        tab_tokens_shared = tab_tokens.reshape(tab_tokens.shape[0], -1, self.d_token)[:,1::2,:]
+
         if output_intermediate:
-            return ts_tokens.mean(dim=1), tab_tokens.mean(dim=1), tab_tokens.mean(dim=1)
+            # return aggregate_tokens(ts_tokens, tab_tokens_unique, tab_tokens_shared, mode=self.intermediate_mode)
+            return ts_tokens.mean(dim=1), tab_tokens_unique.mean(dim=1), tab_tokens_shared.mean(dim=1)
 
         # x = torch.cat([ts_tokens, tab_tokens_unique, tab_tokens_shared, cls_tokens.unsqueeze(1)], dim=1)
-        x = torch.cat([tab_tokens, cls_tokens.unsqueeze(1)], dim=1)
-        x_context = ts_tokens
+        x = torch.cat([tab_tokens_unique, cls_tokens.unsqueeze(1)], dim=1)
+        x_context = torch.cat([tab_tokens_shared, ts_tokens,], dim=1)
 
         for layer_idx, block in enumerate(self.blocks):
             if "cross_attention" not in block:
@@ -6503,5 +6509,4 @@ class FT_Interleaved_2UniFTs_Dummy(nn.Module):
 
         # Concatenation is only for hook purposes
         output_tensor = torch.cat([x_context, x], dim=1) if x_context is not None else x
-
         return output_tensor
