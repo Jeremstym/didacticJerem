@@ -30,7 +30,7 @@ def load_results(model_name: str) -> pd.DataFrame:
 @click.command()
 @click.option("--model_name", help="Name of the model to load results from")
 def load_fold_results(model_name: str) -> pd.DataFrame:
-    path = '/data/stympopper/didacticWORKSHOP/' + model_name + 'fold[0-9]/seed[0-9][0-9]/predictions/test_categorical_scores.csv'
+    path = '/data/stympopper/didacticWORKSHOP/' + model_name + '/fold[0-9]/seed[0-9][0-9]/predictions/test_categorical_scores.csv'
     files = glob(path)
     if not files:
         raise ValueError("No files found")
