@@ -6275,6 +6275,7 @@ class FT_Interleaved_2UniFTs_Dummy(nn.Module):
                 
                 if layer_idx < self.n_cross_blocks:
                     layers.append(self._init_cross_attention_block(layer_idx))
+            self.unique_cross_block = None
         elif self.n_cross_blocks == 1:
             for layer_idx in range(self.n_self_blocks):
                 layers.append(self._init_attention_block(layer_idx))
