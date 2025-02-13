@@ -455,7 +455,7 @@ for seed in {42..51}; do
     # done
 
     for fold in {0..4}; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLPDecoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-5folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt' +fold=$fold
+        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLPDecoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-5folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.model.encoder.decoupling_method=mlp 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt' +fold=$fold
     done
 
     # for fold in {0..4}; do
