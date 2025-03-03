@@ -51,7 +51,7 @@ def load_fold_results(model_name: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    # results = load_results()
-    # print(results)
-    results = load_fold_results()
+    results = load_results()
     print(results)
+    # results = load_fold_results()
+    # print(results)
