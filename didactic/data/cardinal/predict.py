@@ -448,8 +448,11 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     subset_categorical_stats.loc["auroc", f"{attr}_prediction"] = roc_auc_score(
                         target_num_labels, pred_probas, multi_class="ovr"
                     )
-                    subset_categorical_stats.loc["f1", f"{attr}_prediction"] = f1_score(
-                        target, pred_labels, average="weighted" # maybe try with average="weighted" later
+                    subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = f1_score(
+                        target, pred_labels, average="weighted"
+                    )
+                    subset_categorical_stats.loc["f1_binary", f"{attr}_prediction"] = f1_score(
+                        target, pred_labels, average="binary"
                     )
 
                     y_bins = label_binarize(target_num_labels, classes=np.arange(len(labels_arr[0])))
