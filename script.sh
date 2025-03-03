@@ -432,7 +432,7 @@ for seed in {42..51}; do
     # done
 
     for bs in 1 2 4 8 16 32 64 128 256; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-batchcrossval/bs${bs}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert data.batch_size=$bs
+        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-batchcrossval/bs${bs}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.batch_size=${bs}' +bs=$bs
     done
 
     # for fold in {0..2}; do
