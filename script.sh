@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=electronic,hard
+#SBATCH --partition=electronic
 #SBATCH --job-name=CV-DAFTED
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
