@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=electronic
-#SBATCH --job-name=CV-DAFTED
+#SBATCH --job-name=F1-compute
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=4-16:00:00
@@ -424,7 +424,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer-low-patching task.no_ts_pooling=True task.contrastive_loss=null train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-LXMERT-lowTS-patching-TSonly/seed${seed}/cardinal_default.ckpt' +state_dict=True
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-unimodal-TS/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=time-series task/time_series_tokenizer/model=transformer task.contrastive_loss=null train=False 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-unimodal-TS/seed${seed}/cardinal_default.ckpt' +state_dict=True
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-Decoupling/seed${seed}/cardinal_default.ckpt' strict=True
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-CONISTENCY/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series train=False test=True task/model/encoder=xtab-interleaved-2UniFTs-TSinvert 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-CONSISTENCY/seed${seed}/cardinal_default.ckpt' strict=True
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-CONISTENCY/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series train=False test=True task/model/encoder=xtab-interleaved-2UniFTs-TSinvert 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-CONSISTENCY/seed${seed}/cardinal_default.ckpt' strict=True
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-FT-Transformer-2UniFTs/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13+time-series train=False test=True task/model/encoder=xtab-interleaved-2UniFTs-TSinvert 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-FT-Transformer-2UniFTs/seed${seed}/cardinal_default.ckpt' strict=True
 
     # ! TEST CROSS VALIDATION
 
