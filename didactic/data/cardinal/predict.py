@@ -451,8 +451,10 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = f1_score(
                         target, pred_labels, average="weighted"
                     )
-                    subset_categorical_stats.loc["f1_binary", f"{attr}_prediction"] = f1_score(
+                    subset_categorical_stats.loc["f1_binary", f"{attr}_prediction"] = np.mean(
+                        f1_score(
                         target, pred_labels, average=None
+                        )
                     )
 
                     y_bins = label_binarize(target_num_labels, classes=np.arange(len(labels_arr[0])))
