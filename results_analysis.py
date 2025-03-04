@@ -15,7 +15,6 @@ def load_results(model_name: str) -> pd.DataFrame:
     results = pd.DataFrame()
     for file in files:
         df = pd.read_csv(file, index_col=0) 
-        print(f"df is {df}")
         # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         df = df.loc[["acc", "auroc", "f1_avg", "f1_binary"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         results = pd.concat([results, df], axis=0)
