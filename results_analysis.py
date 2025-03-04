@@ -10,13 +10,12 @@ import click
 def load_results(model_name: str) -> pd.DataFrame:
     path = '/data/stympopper/didacticWORKSHOP/' + model_name + '/seed[0-9][0-9]/predictions/test_categorical_scores.csv'
     files = glob(path)
-    print(f"files are {files}")
     if not files:
         raise ValueError("No files found")
     results = pd.DataFrame()
     for file in files:
-        print(f"Reading file {file}")
         df = pd.read_csv(file, index_col=0) 
+        print(f"df is {df}")
         # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         df = df.loc[["acc", "auroc", "f1_avg", "f1_binary"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         results = pd.concat([results, df], axis=0)
