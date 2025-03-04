@@ -10,6 +10,7 @@ import click
 def load_results(model_name: str) -> pd.DataFrame:
     path = '/data/stympopper/didacticWORKSHOP/' + model_name + '/seed[0-9][0-9]/predictions/test_categorical_scores.csv'
     files = glob(path)
+    print(f"files are {files}")
     if not files:
         raise ValueError("No files found")
     results = pd.DataFrame()
