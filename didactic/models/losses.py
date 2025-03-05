@@ -671,7 +671,7 @@ class SupConCLIPLoss(nn.Module):
         self.temperature = temperature
         self.margin = margin
 
-    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor) -> Tensor:
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor, *args) -> Tensor:
         """Performs a forward pass through the loss function.
 
         Args:
@@ -708,6 +708,98 @@ class SupConCLIPLoss(nn.Module):
         x_1 = (x_1 * mask).sum(dim=1) / mask.sum(dim=1)
         x_2 = (x_2 * mask).sum(dim=0) / mask.sum(dim=0)
         return (-x_1.mean() - x_2.mean()) / 2
+
+
+class SupConCLIPLossIntraModal(nn.Module):
+    """SupCLIP Loss with intra modal regularization."""
+
+    def __init__(self, temperature: float = 1.0, margin: float = 0.0):
+        """Initializes class instance.
+
+        Args:
+            temperature: Temperature scaling factor.
+        """
+        super().__init__()
+        self.temperature = temperature
+        self.margin = margin
+
+    def forward(self, tab_unique: Tensor, ts_anchor: Tensor, labels: Tensor, tab_shared: Tensor = None) -> Tensor:
+        """Performs a forward pass through the loss function.
+
+        Args:
+            tab_unique: (N, E), Unique token.
+            ts_anchor: (N, E), Anchor
+
+        Returns:
+            Scalar loss value.
+        """
+        batch_size = tab_unique.shape[0]
+        labels = labels.view(-1, 1)
+        mask = torch.eq(labels, labels.t()).float().to(tab_unique.device)
+
+        # logits_mask = torch.scatter(
+        #     torch.ones_like(mask),
+        #     1,
+        #     torch.arange(batch_size).view(-1, 1).to(tab_unique.device),
+        #     0
+        # )
+        # mask = mask * logits_mask
+        
+        # Remove self contrastive elements in diagonal
+        # label_mask -= torch.eye(label_mask.shape[0]).to(label_mask.device)
+
+        tab_unique = F.normalize(tab_unique, p=2, dim=1)
+        ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
+        if tab_shared:
+            tab_shared = F.normalize(tab_shared, p=2, dim=1)
+        similarity = torch.mm(tab_unique, ts_anchor.t())
+        similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
+        similarity /= self.temperature
+        exp_similarity = torch.exp(similarity)
+        # Write in this form to avoid -inf in log
+        x_1 = similarity - torch.log(exp_similarity.sum(dim=1, keepdim=True))
+        x_2 = similarity - torch.log(exp_similarity.sum(dim=0, keepdim=True))
+        x_1 = (x_1 * mask).sum(dim=1) / mask.sum(dim=1)
+        x_2 = (x_2 * mask).sum(dim=0) / mask.sum(dim=0)
+
+        supcliploss = (-x_1.mean() - x_2.mean()) / 2
+
+        # Intra-modal regularization
+        sim_ts = torch.mm(ts_anchor, ts_anchor.t())
+        sim_ts -= torch.eye(sim_ts.shape[0]).to(sim_ts.device) * self.margin
+        sim_ts /= self.temperature
+        exp_sim_ts = torch.exp(sim_ts)
+        x_1_ts = sim_ts - torch.log(exp_sim_ts.sum(dim=1, keepdim=True))
+        x_2_ts = sim_ts - torch.log(exp_sim_ts.sum(dim=0, keepdim=True))
+        x_1_ts = (x_1_ts * mask).sum(dim=1) / mask.sum(dim=1)
+        x_2_ts = (x_2_ts * mask).sum(dim=0) / mask.sum(dim=0)
+
+        supcliploss += (-x_1_ts.mean() - x_2_ts.mean()) / 2
+
+        sim_tab_unique = torch.mm(tab_unique, tab_unique.t())
+        sim_tab_unique -= torch.eye(sim_tab_unique.shape[0]).to(sim_tab_unique.device) * self.margin
+        sim_tab_unique /= self.temperature
+        exp_sim_tab_unique = torch.exp(sim_tab_unique)
+        x_1_tab_unique = sim_tab_unique - torch.log(exp_sim_tab_unique.sum(dim=1, keepdim=True))
+        x_2_tab_unique = sim_tab_unique - torch.log(exp_sim_tab_unique.sum(dim=0, keepdim=True))
+        x_1_tab_unique = (x_1_tab_unique * mask).sum(dim=1) / mask.sum(dim=1)
+        x_2_tab_unique = (x_2_tab_unique * mask).sum(dim=0) / mask.sum(dim=0)
+
+        supcliploss += (-x_1_tab_unique.mean() - x_2_tab_unique.mean()) / 2
+
+        if tab_shared:
+            sim_tab_shared = torch.mm(tab_shared, tab_shared.t())
+            sim_tab_shared -= torch.eye(sim_tab_shared.shape[0]).to(sim_tab_shared.device) * self.margin
+            sim_tab_shared /= self.temperature
+            exp_sim_tab_shared = torch.exp(sim_tab_shared)
+            x_1_tab_shared = sim_tab_shared - torch.log(exp_sim_tab_shared.sum(dim=1, keepdim=True))
+            x_2_tab_shared = sim_tab_shared - torch.log(exp_sim_tab_shared.sum(dim=0, keepdim=True))
+            x_1_tab_shared = (x_1_tab_shared * mask).sum(dim=1) / mask.sum(dim=1)
+            x_2_tab_shared = (x_2_tab_shared * mask).sum(dim=0) / mask.sum(dim=0)
+
+            supcliploss += (-x_1_tab_shared.mean() - x_2_tab_shared.mean()) / 2
+
+        return supcliploss
 
 class SupConCLIPLoss2(nn.Module):
     """SupCLIP Loss."""

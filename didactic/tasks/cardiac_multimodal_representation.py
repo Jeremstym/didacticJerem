@@ -905,7 +905,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         metrics = {}
         
         # Forward pass through the encoder
-        ts_avg, tab_unique_avg, _ = self.encode(in_tokens, avail_mask, output_intermediate=True)
+        ts_avg, tab_unique_avg, tab_shared_avg = self.encode(in_tokens, avail_mask, output_intermediate=True)
        
         # Iterate on the attributes to get labels
         for attr, _ in self.predict_losses.items():
@@ -919,7 +919,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Compute the inter-sample loss/metrics
         metrics.update(
             {
-                "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask])
+                "inter_loss": self.inter_sample_loss(tab_unique_avg, ts_avg, target[notna_mask], tab_shared_avg)
             }
         )
             
