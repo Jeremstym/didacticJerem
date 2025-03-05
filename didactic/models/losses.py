@@ -750,7 +750,7 @@ class SupConCLIPLossIntraModal(nn.Module):
 
         tab_unique = F.normalize(tab_unique, p=2, dim=1)
         ts_anchor = F.normalize(ts_anchor, p=2, dim=1)
-        if tab_shared:
+        if tab_shared is not None:
             tab_shared = F.normalize(tab_shared, p=2, dim=1)
         similarity = torch.mm(tab_unique, ts_anchor.t())
         similarity -= torch.eye(similarity.shape[0]).to(similarity.device) * self.margin
@@ -787,7 +787,7 @@ class SupConCLIPLossIntraModal(nn.Module):
 
         supcliploss += (-x_1_tab_unique.mean() - x_2_tab_unique.mean()) / 2
 
-        if tab_shared:
+        if tab_shared is not None:
             sim_tab_shared = torch.mm(tab_shared, tab_shared.t())
             sim_tab_shared -= torch.eye(sim_tab_shared.shape[0]).to(sim_tab_shared.device) * self.margin
             sim_tab_shared /= self.temperature
