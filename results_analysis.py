@@ -62,8 +62,10 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
         df = pd.read_csv(file, index_col=0) 
         # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         df = df.loc[["acc", "auroc", "auroc_wht", "auroc_controlled", "auroc_uncontrolled"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
+        df["Batch"] = file.split("/")[-2]
         results = pd.concat([results, df], axis=0)
     results = results.reset_index(drop=True)
+    results = results.groupby(["Metric", "Batch"]).mean().reset_index()
     print(results)
     results.to_csv("/data/stympopper/didacticWORKSHOP/" + model_name + "/results_per_batch.csv", index=False)
     results["ht_severity_prediction"] = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
