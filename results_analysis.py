@@ -64,7 +64,7 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
         df = df.loc[["acc", "auroc", "auroc_wht", "auroc_controlled", "auroc_uncontrolled"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         df["Batch"] = file.split("/")[-4]
         results = pd.concat([results, df], axis=0)
-    results = results.reset_index(drop=False)
+    results = results.reset_index(drop=True)
     print(results)
     # results = results.groupby(["Metric", "Batch"]).mean().reset_index()
     # print(results)
