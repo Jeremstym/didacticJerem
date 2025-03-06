@@ -65,6 +65,7 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
         df["Batch"] = file.split("/")[-2]
         results = pd.concat([results, df], axis=0)
     results = results.reset_index(drop=True)
+    print(results)
     results = results.groupby(["Batch", "Metric"]).mean().reset_index()
     print(results)
     results.to_csv("/data/stympopper/didacticWORKSHOP/" + model_name + "/results_per_batch.csv", index=False)
