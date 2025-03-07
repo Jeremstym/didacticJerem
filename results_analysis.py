@@ -1,6 +1,7 @@
 import pandas as pd 
 from glob import glob
 import click
+import re
 
 # Load the results in several csv files named 'test_categorical_scores.csv .csv', just keep acc, roc_auc and pr_auc
 # The files are in folder which path is "~/didactcWORKSHOP/name_of_the_model{seed}/predictions"
@@ -66,6 +67,10 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
         results = pd.concat([results, df], axis=0)
     results = results.reset_index(drop=True)
     results.set_index(["Batch", "Metric"], inplace=True)
+    df['ht_severity_prediction'] = df['ht_severity_prediction'].astype(str)  # Ensure it's a string
+    df['ht_severity_prediction'] = df['ht_severity_prediction'].apply(lambda x: re.findall(r'\d+\.\d+', x))
+    df = df.explode('ht_severity_prediction')
+    df['ht_severity_prediction'] = pd.to_numeric(df['ht_severity_prediction'])
     print(results)
     results = results.groupby(level=["Batch", "Metric"])["ht_severity_prediction"].mean().reset_index()
     print(results)
