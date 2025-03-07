@@ -58,8 +58,6 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
     if not files:
         raise ValueError("No files found")
     results = pd.DataFrame()
-    print(files)
-    raise Exception
     for file in files:
         df = pd.read_csv(file, index_col=0) 
         # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
