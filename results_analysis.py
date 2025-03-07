@@ -67,12 +67,12 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
         results = pd.concat([results, df], axis=0)
     results = results.reset_index(drop=True)
     results.set_index(["Batch", "Metric"], inplace=True)
-    df['ht_severity_prediction'] = df['ht_severity_prediction'].astype(str)  # Ensure it's a string
-    df['ht_severity_prediction'] = df['ht_severity_prediction'].apply(lambda x: re.findall(r'\d+\.\d+', x))
-    df = df.explode('ht_severity_prediction')
-    df['ht_severity_prediction'] = pd.to_numeric(df['ht_severity_prediction'])
+    # df['ht_severity_prediction'] = df['ht_severity_prediction'].astype(str)  # Ensure it's a string
+    # df['ht_severity_prediction'] = df['ht_severity_prediction'].apply(lambda x: re.findall(r'\d+\.\d+', x))
+    # df = df.explode('ht_severity_prediction')
+    # df['ht_severity_prediction'] = pd.to_numeric(df['ht_severity_prediction'])
     print(results)
-    results = results.groupby(level=["Batch", "Metric"])["ht_severity_prediction"].mean().reset_index()
+    results = results.groupby(level=["Batch", "Metric"])["ht_severity_prediction"].mean()
     print(results)
     results.to_csv("/data/stympopper/didacticWORKSHOP/" + model_name + "/results_per_batch.csv", index=False)
     results["ht_severity_prediction"] = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
