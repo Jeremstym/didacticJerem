@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=electronic
+#SBATCH --partition=electronic,hard
 #SBATCH --job-name=EVAL-DAFTED
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
