@@ -74,10 +74,7 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
     results["ht_severity_prediction"] = pd.to_numeric(results["ht_severity_prediction"], downcast="float")
     results = results.groupby(["Batch", "Metric"]).mean()
     results.to_csv("/data/stympopper/didacticWORKSHOP/" + model_name + "/results_per_batch.csv", index=False)
-    print("Mean")
-    print(results.groupby("Metric").mean())
-    print("Std")
-    print(results.groupby("Metric").std())
+    print(f"Results are {results}")
     return results.groupby("Metric").mean(), results.groupby("Metric").std()
 
 
