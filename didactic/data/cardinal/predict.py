@@ -12,7 +12,7 @@ from pytorch_lightning.callbacks.prediction_writer import WriteInterval
 from scipy import stats
 from scipy.special import softmax
 from sklearn.preprocessing import label_binarize
-from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, f1_score
+from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, f1_score, average_precision_score
 from torch import Tensor
 import torch
 from vital.data.cardinal.config import TabularAttribute, TimeSeriesAttribute
@@ -448,14 +448,26 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     subset_categorical_stats.loc["auroc", f"{attr}_prediction"] = roc_auc_score(
                         target_num_labels, pred_probas, multi_class="ovr"
                     )
-                    subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = f1_score(
-                        target, pred_labels, average="weighted"
-                    )
-                    subset_categorical_stats.loc["f1_binary", f"{attr}_prediction"] = np.mean(
+                    # subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = f1_score(
+                    #     target, pred_labels, average="weighted"
+                    # )
+                    subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = np.mean(
                         f1_score(
-                        target, pred_labels, average=None
+                        target, pred_labels, average="macro"
                         )
                     )
+                    subset_categorical_stats.loc["f1_mult", f"{attr}_prediction"] = np.mean(
+                        f1_score(
+                        target, pred_labels, average="micro"
+                        )
+                    )
+                    subset_categorical_stats.loc["auprc_weighted", f"{attr}_prediction"] = average_precision_score(
+                        target_num_labels, pred_probas, average="weighted"
+                    )
+                    subset_categorical_stats.loc["auprc_avg", f"{attr}_prediction"] = average_precision_score(
+                        target_num_labels, pred_probas, average="macro"
+                    )
+                    
 
                     y_bins = label_binarize(target_num_labels, classes=np.arange(len(labels_arr[0])))
                     auroc_scores = {}
