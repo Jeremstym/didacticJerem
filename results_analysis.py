@@ -62,7 +62,7 @@ def load_batch_results(model_name: str) -> pd.DataFrame:
     for file in files:
         df = pd.read_csv(file, index_col=0) 
         # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
-        df = df.loc[["acc", "auroc", "auroc_wht", "auroc_controlled", "auroc_uncontrolled"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
+        df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         df["Batch"] = file.split("/")[-4]
         results = pd.concat([results, df], axis=0)
     results = results.reset_index(drop=True)
