@@ -451,15 +451,11 @@ class CardiacRepresentationPredictionWriter(BasePredictionWriter):
                     # subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = f1_score(
                     #     target, pred_labels, average="weighted"
                     # )
-                    subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = np.mean(
-                        f1_score(
+                    subset_categorical_stats.loc["f1_avg", f"{attr}_prediction"] = f1_score(
                         target, pred_labels, average="macro"
-                        )
                     )
-                    subset_categorical_stats.loc["f1_mult", f"{attr}_prediction"] = np.mean(
-                        f1_score(
+                    subset_categorical_stats.loc["f1_mult", f"{attr}_prediction"] = f1_score(
                         target, pred_labels, average="micro"
-                        )
                     )
                     subset_categorical_stats.loc["auprc_weighted", f"{attr}_prediction"] = average_precision_score(
                         target_num_labels, pred_probas, average="weighted"
