@@ -192,6 +192,11 @@ class FT_Transformer(nn.Module):
                 self._init_cross_attention_block(layer_idx)
                 for layer_idx in range(self.n_self_blocks, self.n_self_blocks + self.n_cross_blocks)
             ]
+        elif self.n_bidirectional_blocks:
+            layers += [
+                self._init_bidirectional_block(layer_idx)
+                for layer_idx in range(self.n_self_blocks + self.n_cross_blocks, self.n_self_blocks + self.n_cross_blocks + self.n_bidirectional_blocks)
+            ]
 
         self.blocks = nn.ModuleList(layers)
 
@@ -467,8 +472,12 @@ class FT_Transformer(nn.Module):
         self.batch_size = x.shape[0] # Save the batch size for later use in explainability
 
         self_attention_blocks = self.blocks[: self.n_self_blocks]
-        cross_attention_blocks = self.blocks[self.n_self_blocks :]
-        bidirectional_attention_blocks = [] #FIXME: build bidirectional attention blocks later
+        if self.n_cross_blocks:
+            cross_attention_blocks = self.blocks[self.n_self_blocks :]
+            bidirectional_attention_blocks = []
+        elif self.n_bidirectional_blocks:
+            cross_attention_blocks = []
+            bidirectional_attention_blocks = self.blocks[self.n_self_blocks :]
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
