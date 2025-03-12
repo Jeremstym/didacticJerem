@@ -435,19 +435,21 @@ for seed in {42..51}; do
 
     #? poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Unimodal-Tab13/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13 task.ordinal_mode=False train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-tab13/seed${seed}/cardinal_default.ckpt' strict=True
 
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-bidirectional/seed${seed}' +experiment=cardinal/bidirectional-xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.contrastive_loss=null train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-bidirectional/seed${seed}/cardinal_default.ckpt' strict=True
+
     # ! TEST CROSS VALIDATION
 
     # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-crossval/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
     # done
 
-    #? for bs in 1 2 4 8 16 32 64 128 256; do
+    # for bs in 1 2 4 8 16 32 64 128 256; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-batchcrossval/bs${bs}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.batch_size=${bs}' +bs=$bs
     # done
 
-    for bs in 16 32 64 128 256; do
-        poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-batchcrossval/bs${bs}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-TSinvert 'data.batch_size=${bs}' +bs=$bs
-    done
+    #? for bs in 16 32 64 128 256; do
+    #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-batchcrossval/bs${bs}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-TSinvert 'data.batch_size=${bs}' +bs=$bs
+    # done
 
     # for fold in {0..2}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-3folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_3/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_3/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_3/${fold}/test.txt' +fold=$fold
@@ -461,7 +463,7 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-ordinal-5folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert taks.ordinal_mode=True 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt' +fold=$fold
     # done
 
-    #? for fold in {0..4}; do
+    # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Decoupling-FT-2UniFTs-5-2Cross-NTX-SupCLIP-5folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-interpatient exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-dummy 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt' +fold=$fold
     # done
 
@@ -477,7 +479,7 @@ for seed in {42..51}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLPDecoupling-FT-2UniFTs-interleaved-NTX-SupCLIP/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/${fold}/test.txt' +fold=$fold
     # done
 
-    #? for fold in {0..4}; do
+    # for fold in {0..4}; do
     #     poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLPDecoupling-FT-2UniFTs-interleaved-NTX-SupCLIP-5folds/fold${fold}/seed${seed}' +experiment=cardinal/xtab-alignment exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task/model/encoder=xtab-interleaved-2UniFTs-invert task.model.encoder.decoupling_method=mlp 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt' +fold=$fold
     # done
 
