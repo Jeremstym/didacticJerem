@@ -522,6 +522,7 @@ for seed in {42..51}; do
    
     # DRAFT for XGBOOST
 
+    # python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py task/data=tab-selec ~task.time_series_attrs task.target_attr=ht_severity 
     # python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py task/data=tab-selec ~task.time_series_attrs task.target_attr=ht_severity 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/0/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/0/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/0/test.txt'
     # python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py task/data=tab-selec ~task.time_series_attrs task.target_attr=ht_severity 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt'
 
