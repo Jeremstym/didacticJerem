@@ -542,19 +542,24 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
             )
             notna_mask.append(time_series_notna_mask)
-
+        
         if tabular_attrs:
-            num_attrs, cat_attrs = None, None
-            if self.tabular_num_attrs:
-                # Group the numerical attributes from the `tabular_attrs` input in a single tensor
-                num_attrs = torch.hstack(
-                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
-                )  # (N, S_num)
-            if self.tabular_cat_attrs:
-                # Group the categorical attributes from the `tabular_attrs` input in a single tensor
-                cat_attrs = torch.hstack(
-                    [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
-                )  # (N, S_cat)
+            tab_attrs_tokens, tab_notna_mask = self.tabular_tokenizer(
+                tabular_attrs = tabular_attrs,
+                tabular_num_attrs = self.tabular_num_attrs,
+                tabular_cat_attrs = self.tabular_cat_attrs
+            )
+            # num_attrs, cat_attrs = None, None
+            # if self.tabular_num_attrs:
+            #     # Group the numerical attributes from the `tabular_attrs` input in a single tensor
+            #     num_attrs = torch.hstack(
+            #         [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
+            #     )  # (N, S_num)
+            # if self.tabular_cat_attrs:
+            #     # Group the categorical attributes from the `tabular_attrs` input in a single tensor
+            #     cat_attrs = torch.hstack(
+            #         [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
+            #     )  # (N, S_cat)
             # Use "sanitized" version of the inputs, where invalid values are replaced by null/default values, for the
             # tokenization process. This is done to avoid propagating NaNs to available/valid values.
             # If the embeddings cannot be ignored later on (e.g. by using an attention mask during inference), they
@@ -562,18 +567,21 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # instead of their current null/default values.
             # 1) Convert missing numerical attributes (NaNs) to numbers to avoid propagating NaNs
             # 2) Clip categorical labels to convert indicators of missing data (-1) into valid indices (0)
-            if isinstance(self.tabular_tokenizer, nn.Identity):
-                num_attrs = torch.nan_to_num(num_attrs) if num_attrs is not None else None
-                cat_attrs = cat_attrs.clip(0) if cat_attrs is not None else None
-                tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
-                tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
-                tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
-            else:
-                tab_attrs_tokens = self.tabular_tokenizer(
-                    x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
-                    x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
-                )  # (N, S_tab, E)
+            # if isinstance(self.tabular_tokenizer, nn.Identity):
+            #     num_attrs = torch.nan_to_num(num_attrs) if num_attrs is not None else None
+            #     cat_attrs = cat_attrs.clip(0) if cat_attrs is not None else None
+            #     tab_attrs_tokens = torch.cat([num_attrs, cat_attrs], dim=1) # (N, S_tab)
+            #     tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
+            #     tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
+            # else:
+            #     tab_attrs_tokens = self.tabular_tokenizer(
+            #         x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
+            #         x_cat=cat_attrs.clip(0) if cat_attrs is not None else None,
+            #     )  # (N, S_tab, E)
+            
             tokens.append(tab_attrs_tokens)
+            notna_mask.append(tab_notna_mask)
+            
             # if self.tabular_shared_tokenizer:
             #     tab_attrs_tokens_shared = self.tabular_shared_tokenizer(
             #         x_num=torch.nan_to_num(num_attrs) if num_attrs is not None else None,
@@ -582,10 +590,10 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             #     tokens.append(tab_attrs_tokens_shared)
 
             # Identify missing data in tabular attributes
-            if self.tabular_num_attrs:
-                notna_mask.append(~(num_attrs.isnan()))
-            if self.tabular_cat_attrs:
-                notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
+            # if self.tabular_num_attrs:
+            #     notna_mask.append(~(num_attrs.isnan()))
+            # if self.tabular_cat_attrs:
+            #     notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
             # if self.tabular_shared_tokenizer:
             #     notna_mask.append(~(num_attrs.isnan()))
             #     notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
