@@ -276,7 +276,7 @@ class TabularLinearSerializer(nn.Module):
         self,
         **kwargs,
     ):
-        pass
+        super().__init__()
 
     def forward(
         tabular_attrs: Dict[TabularAttribute, Tensor],
