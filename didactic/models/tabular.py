@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import Any, Callable, Dict, Literal, Optional, Sequence, Tuple, Union, List
 
 import torch
 from rtdl_revisiting_models import CategoricalEmbeddings, LinearEmbeddings
 from torch import Tensor, nn
+import json
 
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
 
@@ -250,6 +251,38 @@ class TabularIdentityEmbedding(nn.Module):
         return tab_attrs_tokens
 
 
+class TabularLinearSerializer(nn.Module):
+    """
+    The TabularLinearSerializer class is a PyTorch nn.Module designed to serialize tabular attributes into a JSON string format.
+    This class is part of a larger module that deals with tabular data, specifically for transforming and handling numerical 
+    and categorical features.
+
+    """
+    
+    def __init__(
+        self,
+        **kwargs,
+    ):
+        pass
+
+    def forward(
+        tabular_attrs: Dict[TabularAttribute, Tensor],
+        **kwargs,
+    ) -> str:
+        """Perform the forward pass.
+
+        Args:
+            tabular_attrs: (K: S, V: N), Sequence of batches of tabular attributes. To indicate an item is missing an
+                attribute, the flags `MISSING_NUM_ATTR`/`MISSING_CAT_ATTR` can be used for numerical and categorical
+                attributes, respectively.
+
+        Returns:
+            tokens
+
+        Raises:
+            AssertionError: if the described requirements for the inputs are not met.
+        """
+        return json.dumps(tabular_attrs).replace("\na", "[SEP]")
 
 class TabularLinearEmbedding(nn.Module):
     """Combines `LinearEmbeddings` and `CategoricalEmbeddings`.
