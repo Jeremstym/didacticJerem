@@ -297,8 +297,9 @@ class TabularLinearSerializer(nn.Module):
             AssertionError: if the described requirements for the inputs are not met.
         """
         tabular_attrs = {str(attr.value): tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
-        print(tabular_attrs)
-        return json.dumps(tabular_attrs).replace("\na", "[SEP]")
+        serialized_dict = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
+        print(serialized_dict)
+        return serialized_dict
 
 class TabularLinearEmbedding(nn.Module):
     """Combines `LinearEmbeddings` and `CategoricalEmbeddings`.
