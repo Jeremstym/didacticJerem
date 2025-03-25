@@ -129,7 +129,7 @@ class TabularEmbedding(nn.Module):
 
         if tabular_num_attrs:
             tab_notna_mask.append(~(num_attrs.isnan()))
-        if stabular_cat_attrs:
+        if tabular_cat_attrs:
             tab_notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
 
         return (x[0], tab_notna_mask) if len(x) == 1 else (torch.cat(x, dim=1), tab_notna_mask)
@@ -243,7 +243,7 @@ class TabularIdentityEmbedding(nn.Module):
 
         if tabular_num_attrs:
             tab_notna_mask.append(~(num_attrs.isnan()))
-        if stabular_cat_attrs:
+        if tabular_cat_attrs:
             tab_notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
 
         return tab_attrs_tokens
