@@ -231,7 +231,6 @@ class TabularIdentityEmbedding(nn.Module):
         """
         # assert x_num is not None or x_cat is not None, "At least one of x_num and x_cat must be presented"
         num_attrs, cat_attrs = None, None
-        tab_notna_mask = []
         if tabular_num_attrs:
             # Group the numerical attributes from the `tabular_attrs` input in a single tensor
             num_attrs = torch.hstack(
@@ -249,12 +248,20 @@ class TabularIdentityEmbedding(nn.Module):
         tab_attrs_tokens = tab_attrs_tokens.unsqueeze(-1) # (N, S_tab, 1)
         tab_attrs_tokens = tab_attrs_tokens.repeat(1,1, self.hparams.embed_dim) # (N, S_tab, E)
 
-        if tabular_num_attrs:
-            tab_notna_mask.append(~(num_attrs.isnan()))
-        if tabular_cat_attrs:
-            tab_notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
+        if tabular_num_attrs and tabular_cat_attrs:
+            tab_num_notna_mask = ~(num_attrs.isnan())
+            tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
+            tab_notna_mask = (tab_num_notna_mask, tab_cat_notna_mask)
+        elif tabular_num_attrs:
+            tab_num_notna_mask = ~(num_attrs.isnan())
+            tab_notna_mask = tab_num_notna_mask
+        elif tabular_cat_attrs:
+            tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
+            tab_notna_mask = tab_cat_notna_mask
+        else:
+            tab_notna_mask = None
 
-        return tab_attrs_tokens
+        return tab_attrs_tokens, tab_notna_mask
 
 
 class TabularLinearSerializer(nn.Module):
