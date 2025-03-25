@@ -6,6 +6,7 @@ from torch import Tensor, nn
 import json
 
 from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
+from vital.data.cardinal.datapipes import MISSING_CAT_ATTR
 
 def _all_or_none(values):
     return all(x is None for x in values) or all(x is not None for x in values)
