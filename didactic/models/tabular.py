@@ -105,12 +105,12 @@ class TabularEmbedding(nn.Module):
         if tabular_num_attrs:
             # Group the numerical attributes from the `tabular_attrs` input in a single tensor
             num_attrs = torch.hstack(
-                [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
+                [tabular_attrs[attr].unsqueeze(1) for attr in tabular_num_attrs]
             )  # (N, S_num)
         if tabular_cat_attrs:
             # Group the categorical attributes from the `tabular_attrs` input in a single tensor
             cat_attrs = torch.hstack(
-                [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
+                [tabular_attrs[attr].unsqueeze(1) for attr in tabular_cat_attrs]
             )  # (N, S_cat)
 
         x_num = torch.nan_to_num(num_attrs) if num_attrs is not None else None
@@ -200,8 +200,8 @@ class TabularIdentityEmbedding(nn.Module):
     def forward(
         self,
         tabular_attrs: Dict[TabularAttribute, Tensor],
-        tabular_num_attrs: bool,
-        tabular_cat_attrs: bool,
+        tabular_num_attrs: List[TabularAttribute],
+        tabular_cat_attrs: List[TabularAttribute],
     ) -> Tensor:
         """Perform the forward pass.
 
@@ -212,10 +212,8 @@ class TabularIdentityEmbedding(nn.Module):
             tabular_attrs: (K: S, V: N), Sequence of batches of tabular attributes. To indicate an item is missing an
                 attribute, the flags `MISSING_NUM_ATTR`/`MISSING_CAT_ATTR` can be used for numerical and categorical
                 attributes, respectively.
-            tabular_num_attrs: boolean flag indicating whether numerical attributes are present in the `tabular_attrs`
-                input.
-            tabular_cat_attrs: boolean flag indicating whether categorical attributes are present in the `tabular_attrs`
-                input.
+            tabular_num_attrs: List of numerical attributes to be used in the embedding.
+            tabular_cat_attrs: List of categorical attributes to be used in the embedding.
 
         Returns:
             tokens
@@ -229,12 +227,12 @@ class TabularIdentityEmbedding(nn.Module):
         if tabular_num_attrs:
             # Group the numerical attributes from the `tabular_attrs` input in a single tensor
             num_attrs = torch.hstack(
-                [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_num_attrs]
+                [tabular_attrs[attr].unsqueeze(1) for attr in tabular_num_attrs]
             )  # (N, S_num)
         if tabular_cat_attrs:
             # Group the categorical attributes from the `tabular_attrs` input in a single tensor
             cat_attrs = torch.hstack(
-                [tabular_attrs[attr].unsqueeze(1) for attr in self.tabular_cat_attrs]
+                [tabular_attrs[attr].unsqueeze(1) for attr in tabular_cat_attrs]
             )  # (N, S_cat)
 
         num_attrs = torch.nan_to_num(num_attrs) if num_attrs is not None else None
