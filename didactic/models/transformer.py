@@ -478,6 +478,9 @@ class FT_Transformer(nn.Module):
         elif self.n_bidirectional_blocks:
             cross_attention_blocks = []
             bidirectional_attention_blocks = self.blocks[self.n_self_blocks :]
+        else:
+            cross_attention_blocks = []
+            bidirectional_attention_blocks = []
 
         for block in self_attention_blocks:
             block = cast(nn.ModuleDict, block)
