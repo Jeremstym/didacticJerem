@@ -102,7 +102,6 @@ class TabularEmbedding(nn.Module):
         """
         # assert x_num is not None or x_cat is not None, "At least one of x_num and x_cat must be presented"
         num_attrs, cat_attrs = None, None
-        tab_notna_mask = []
         if tabular_num_attrs:
             # Group the numerical attributes from the `tabular_attrs` input in a single tensor
             num_attrs = torch.hstack(
@@ -128,10 +127,18 @@ class TabularEmbedding(nn.Module):
         if self.cat_tokenizer is not None:
             x.append(self.cat_tokenizer(x_cat))
 
-        if tabular_num_attrs:
-            tab_notna_mask.append(~(num_attrs.isnan()))
-        if tabular_cat_attrs:
-            tab_notna_mask.append(cat_attrs != MISSING_CAT_ATTR)
+        if tabular_num_attrs and tabular_cat_attrs:
+            tab_num_notna_mask = ~(num_attrs.isnan())
+            tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
+            tab_notna_mask = (tab_num_notna_mask, tab_cat_notna_mask)
+        elif tabular_num_attrs:
+            tab_num_notna_mask = ~(num_attrs.isnan())
+            tab_notna_mask = tab_num_notna_mask
+        elif tabular_cat_attrs:
+            tab_cat_notna_mask = (cat_attrs != MISSING_CAT_ATTR)
+            tab_notna_mask = tab_cat_notna_mask
+        else:
+            tab_notna_mask = None
 
         return (x[0], tab_notna_mask) if len(x) == 1 else (torch.cat(x, dim=1), tab_notna_mask)
 

@@ -580,7 +580,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             #     )  # (N, S_tab, E)
             
             tokens.append(tab_attrs_tokens)
-            notna_mask.append(tab_notna_mask)
+            notna_mask.extend(list(tab_notna_mask))
             
             # if self.tabular_shared_tokenizer:
             #     tab_attrs_tokens_shared = self.tabular_shared_tokenizer(
