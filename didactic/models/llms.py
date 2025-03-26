@@ -196,7 +196,7 @@ class TaBERTTokenizer(nn.Module):
     def __init__(self, model_name, **kwargs):
         super().__init__()
 
-        self.serializer = TabularLinearSerializer()
+        # self.serializer = TabularLinearSerializer()
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     def forward(
@@ -205,7 +205,10 @@ class TaBERTTokenizer(nn.Module):
         **kwargs
     ):
         # Tokenize the input text and return tensor inputs
-        inputs_text = self.serializer(tabular_attrs)
+        # inputs_text = self.serializer(tabular_attrs)
+        tabular_attrs = {str(attr.value): tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
+        inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
+        print(serialized_dict)
         inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["inputs_ids"].to(self.device)
         return inputs_ids
 
