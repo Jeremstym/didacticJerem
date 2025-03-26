@@ -209,10 +209,10 @@ class TaBERTModel(nn.Module):
         print(f"inputs before deviceing {inputs}")
 
         # Make prediction on the input
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}  # Move input tensors to the same device as the model
+        inputs = {k.to(self.device): v.to(self.device) for k, v in inputs.items()}  # Move input tensors to the same device as the model
 
         print(f"inputs after deviceing {inputs}")
-        
+
         # Inference
         with torch.no_grad():
             outputs = self.model(**inputs)
