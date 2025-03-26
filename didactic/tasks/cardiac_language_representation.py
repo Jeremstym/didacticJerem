@@ -332,7 +332,22 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
             else:
                 adapter_encoder = AdapterWrapperFT_Transformer_CrossAtt(self.encoder, lora_linar, gamma=8, lora_alpha=8)
             setattr(self, "encoder", adapter_encoder)
-            
+    
+    @property
+    def example_input_array(
+        self,
+    ) -> Tuple[Dict[TabularAttribute, Tensor], Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor]]:
+        """Redefine example input array based on the cardiac attributes provided to the model."""
+        # 2 is the size of the batch in the example
+        tab_attrs = {attr: torch.randn(2) for attr in self.tabular_num_attrs}
+        # Only generate 0/1 labels, to avoid generating labels bigger than the number of classes, which would lead to
+        # an index out of range error when looking up the embedding of the class in the categorical feature tokenizer
+        tab_attrs.update({attr: torch.randint(2, (2,)) for attr in self.tabular_cat_attrs})
+        time_series_attrs = {
+            (view, attr): torch.randn(2, self.hparams.data_params.in_shape[CardinalTag.time_series_attrs][1])
+            for view, attr in itertools.product(self.hparams.views, self.hparams.time_series_attrs)
+        }
+        return tab_attrs, time_series_attrs
 
     def configure_model(
         self,
