@@ -108,7 +108,7 @@ n_time_series_attrs: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.
 
 
 task:
-  _target_: didactic.tasks.cardiac_multimodal_representation.CardiacMultimodalRepresentationTask
+  _target_: didactic.tasks.cardiac_multimodal_representation.CardiacLanguageRepresentationTask
   embed_dim: 8
   views: ${data.patients_kwargs.views}
   ordinal_mode: False
