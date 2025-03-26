@@ -205,13 +205,13 @@ class TaBERTModel(nn.Module):
         print(f"inputs before deviceing {inputs}")
 
         # Move input tensors to the same device as the model
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        inputs_ids = {k: v.to(self.device) for k, v in inputs.items()}['input_ids']
 
         print(f"inputs after deviceing {inputs}")
         
         # Inference
         with torch.no_grad():
-            outputs = self.model(**inputs)
+            outputs = self.model(input_ids=inputs_ids.to(self.device))
             last_hidden_state = outputs[0]  # Shape: (batch_size, seq_len, hidden_size)
             attention = outputs[4] if len(outputs) > 4 else None  # Attention is optional, check if it's available
 
