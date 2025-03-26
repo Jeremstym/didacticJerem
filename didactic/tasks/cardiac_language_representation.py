@@ -266,70 +266,8 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
 
         # Configure tokenizers and extract relevant info about the models' architectures
         self.separate_modality = False
-        if isinstance(self.encoder, nn.TransformerEncoder):  # Native PyTorch `TransformerEncoder`
-            self.nhead = self.encoder.layers[0].self_attn.num_heads
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer):  # didactic submodule `Transformer`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = bool(self.hparams.model.encoder.n_cross_blocks or self.hparams.model.encoder.n_bidirectional_blocks)
-        elif isinstance(self.encoder, didactic.models.baselines.ConcatMLPDecoupling):  # didactic submodule `MLP`
-            self.nhead = 1
-            self.separate_modality = True
-        elif isinstance(self.encoder, didactic.models.baselines.ConcatMLPDecoupling2FTs):  # didactic submodule `MLP`
-            self.nhead = 1
-            self.separate_modality = True
-        elif isinstance(self.encoder, didactic.models.baselines.FlatConcatMLP):  # didactic submodule `FlatConcatMLP`
-            self.nhead = 1
-            self.separate_modality = True
-        elif isinstance(self.encoder, didactic.models.baselines.AvgConcatMLP):  # didactic submodule `AvgConcatMLP`
-            self.nhead = 1
-            self.separate_modality = True
-        elif isinstance(self.encoder, didactic.models.baselines.ConcatMLP):  # didactic submodule `ConcatMLP`
-            self.nhead = 1
-            self.separate_modality = True
-        elif isinstance(self.encoder, didactic.models.baselines.MMCLEncoder):  # didactic submodule `MMCLEncoder (BoB)`
-            self.nhead = 1
-            self.separate_modality = True
-            assert not self.contrastive_loss, "MMCLEncoder does not support contrastive loss"
-        elif isinstance(self.encoder, didactic.models.baselines.IRENEModel):  # didactic submodule `IRENEModel`
-            # self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = True
-            assert not (self.contrastive_loss or self.inter_sample_loss), "IRENEModel does not support contrastive or inter-sample loss" 
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved):  # didactic submodule `FT_Interleaved`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = True
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Transformer_2UniFTs):  # didactic submodule `Transformer`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment):  # didactic submodule `FT_Alignment`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment_2UniFTs):  # didactic submodule `FT_Alignment`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_Alignment):  # didactic submodule `FT_Alignment`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment_2UniFTs_BiDirectional):  # didactic submodule `FT_Alignment_BiDirectional`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Alignment_2UniFTs_CrossAtt):  # didactic submodule `FT_Alignment`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs):  # didactic submodule `FT_Interleaved`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_Inverted):  # didactic submodule `FT_Interleaved`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_Inverted_TS):  # didactic submodule `FT_Interleaved`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_2UniFTs_nodecoupling):  # didactic submodule `FT_Interleaved`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
-        elif isinstance(self.encoder, didactic.models.transformer.FT_Interleaved_Inverted):  # didactic submodule `FT_Interleaved`
-            self.nhead = self.hparams.model.encoder.attention_n_heads
-            self.separate_modality = False
+        if isintance(self.encoder, didactic.models.llms.TaBERTModel): # didactic submodule `TaBERT`
+            self.nhead = self.encoder.config.num_attention_heads
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "

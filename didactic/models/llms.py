@@ -210,8 +210,9 @@ class TaBERTModel(nn.Module):
         # Inference
         with torch.no_grad():
             outputs = model(**inputs)
-            logits = outputs.logits
-            attention = outputs.attentions
+            last_hidden_state = outputs[0]
+            # logits = outputs.logits
+            attention = outputs[4] #outputs.attentions
 
         # # Apply softmax to get probabilities
         # probabilities = torch.nn.functional.softmax(logits, dim=-1)
@@ -224,7 +225,7 @@ class TaBERTModel(nn.Module):
         # predicted_label = labels[predicted_class]
 
         # print(f"Predicted ht_severity: {predicted_label}")
-        return outputs, attention
+        return last_hidden_state, attention
 
     # def tokenize(self, text: str):
     #     return self.tokenizer(text, return_tensors='pt', truncation=True, padding=Trues)
