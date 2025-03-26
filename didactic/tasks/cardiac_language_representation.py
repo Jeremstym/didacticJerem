@@ -591,7 +591,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         self, batch: PatientData, batch_idx: int, tab_llm_ids: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Forward pass through the encoder without gradient computation to fine-tune only the prediction heads
-        llm_logits, attention_weights = self.encode(tab_llm_ids)
+        llm_logits = self.encode(tab_llm_ids)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(llm_logits)
