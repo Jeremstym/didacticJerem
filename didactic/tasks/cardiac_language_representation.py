@@ -457,7 +457,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         Returns: (N, E), Embeddings of the input sequences.
         """
         
-        out_tokens = self.encoder(tab_attrs_serialized)
+        out_tokens, _ = self.encoder(tab_attrs_serialized)
 
         return out_tokens # (N, E)
 
