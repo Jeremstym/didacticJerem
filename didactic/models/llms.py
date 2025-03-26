@@ -208,7 +208,7 @@ class TaBERTTokenizer(nn.Module):
         # inputs_text = self.serializer(tabular_attrs)
         tabular_attrs = {str(attr.value): tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
-        print(serialized_dict)
+        print(inputs_text)
         inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["inputs_ids"].to(self.device)
         return inputs_ids
 
