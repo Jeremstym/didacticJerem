@@ -7,7 +7,7 @@ from torch.nn import BCEWithLogitsLoss
 from transformers import AutoTokenizer, AutoModelForMaskedLM
 from transformers import BertForSequenceClassification
 from transformers import BertTokenizer
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModel
 from transformers.modeling_outputs import SequenceClassifierOutput
 
 # distilltabtokenizer
@@ -194,10 +194,9 @@ class TaBERTModel(nn.Module):
         super().__init__()
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         print("------- LOADING MODEL -------")
-        self.model = AutoModelForMaskedLM.from_pretrained(model_name, num_labels=3)
+        self.model = AutoModel.from_pretrained(model_name, num_labels=3)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         print("------- MODEL LOADED -------")
-        self.tokenizer.to(self.device)
         self.model.to(self.device)
 
     def forward(self, text: str):
@@ -207,10 +206,13 @@ class TaBERTModel(nn.Module):
         #                      labels=labels)
         
         inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True)
+        print(f"inputs before deviceing {inputs}")
 
         # Make prediction on the input
         inputs = {k: v.to(self.device) for k, v in inputs.items()}  # Move input tensors to the same device as the model
 
+        print(f"inputs after deviceing {inputs}")
+        
         # Inference
         with torch.no_grad():
             outputs = self.model(**inputs)
