@@ -437,7 +437,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
             ts_notna_mask = torch.empty(0, 0, dtype=torch.bool)
 
         if tabular_attrs:
-            tab_attrs_serialized, _ = self.tabular_tokenizer(
+            tab_llm_ids = self.tabular_tokenizer(
                 tabular_attrs = tabular_attrs,
                 tabular_num_attrs = self.tabular_num_attrs,
                 tabular_cat_attrs = self.tabular_cat_attrs
@@ -445,7 +445,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         else:
             raise ValueError("Tabular attributes are required to tokenize the input data.")
 
-        return tab_attrs_serialized, ts_tokens, ts_notna_mask
+        return tab_llm_ids, ts_tokens, ts_notna_mask
 
 
     @auto_move_data
@@ -515,8 +515,8 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
                 "predict ordinal targets. Either set `ordinal_mode` to `True` or change the requested inference task."
             )
 
-        tab_attrs_serialized, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs) # (N, S, E), (N, S)
-        out_features = self.encode(tab_attrs_serialized)  # (N, S, E) -> (N, E)
+        tab_llm_ids, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs) # (N, S, E), (N, S)
+        out_features = self.encode(tab_attrs_ids)  # (N, S, E) -> (N, E)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
@@ -553,8 +553,8 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
     ) -> Tensor:
         """Extracts the latent vectors from the encoder for the given batch."""
-        tab_attrs_serialized, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs) # (N, S, E), (N, S)
-        return self.encode(tab_attrs_serialized)  # (N, S, E) -> (N, E)
+        tab_llm_ids, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs) # (N, S, E), (N, S)
+        return self.encode(tab_llm_ids)  # (N, S, E) -> (N, E)
 
     def _shared_step(self, batch: PatientData, batch_idx: int) -> Dict[str, Tensor]:
         # Extract tabular and time-series attributes from the batch
@@ -564,7 +564,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
 
-        tab_attrs_serialized, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs)
+        tab_llm_ids, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs)
         
         metrics = {}
         losses = []
