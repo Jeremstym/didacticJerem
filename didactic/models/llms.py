@@ -194,44 +194,26 @@ class TaBERTModel(nn.Module):
         super().__init__()
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         print("------- LOADING LANGUAGE MODEL -------")
-        self.model = AutoModel.from_pretrained(model_name, num_labels=3)
+        self.model = AutoModel.from_pretrained(model_name)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         print("------- LANGUAGE MODEL LOADED -------")
         self.model.to(self.device)
 
     def forward(self, text: str):
-        # outputs = self.model(input_ids=input_ids,
-        #                      attention_mask=attention_mask,
-        #                      token_type_ids=token_type_ids,
-        #                      labels=labels)
-        
+        # Tokenize the input text and return tensor inputs
         inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True)
         print(f"inputs before deviceing {inputs}")
 
-        # Make prediction on the input
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}  # Move input tensors to the same device as the model
+        # Move input tensors to the same device as the model
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
         print(f"inputs after deviceing {inputs}")
         
         # Inference
         with torch.no_grad():
             outputs = self.model(**inputs)
-            last_hidden_state = outputs[0]
-            # logits = outputs.logits
-            attention = outputs[4] #outputs.attentions
+            last_hidden_state = outputs[0]  # Shape: (batch_size, seq_len, hidden_size)
+            attention = outputs[4] if len(outputs) > 4 else None  # Attention is optional, check if it's available
 
-        # # Apply softmax to get probabilities
-        # probabilities = torch.nn.functional.softmax(logits, dim=-1)
-
-        # # Get the predicted class
-        # predicted_class = torch.argmax(probabilities, dim=-1).item()
-
-        # # Mapping the predicted class to the label
-        # labels = ["wht", "controlled", "uncontrolled"]
-        # predicted_label = labels[predicted_class]
-
-        # print(f"Predicted ht_severity: {predicted_label}")
+        # Return the last hidden state and attention weights
         return last_hidden_state, attention
-
-    # def tokenize(self, text: str):
-    #     return self.tokenizer(text, return_tensors='pt', truncation=True, padding=Trues)
