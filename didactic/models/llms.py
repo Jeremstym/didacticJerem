@@ -193,7 +193,7 @@ class TabBioBERT(nn.Module):
         pass
 
 class TaBERTTokenizer(nn.Module):
-    def __init__(self, model_name):
+    def __init__(self, model_name, **kwargs):
         super().__init__()
 
         self.serializer = TabularLinearSerializer()
