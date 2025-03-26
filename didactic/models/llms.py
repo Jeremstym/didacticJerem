@@ -2,6 +2,7 @@ import re
 from typing import List, Optional, Tuple, Union
 
 import torch
+import torch.nn as nn
 from torch.nn import BCEWithLogitsLoss
 from transformers import AutoTokenizer, AutoModelForMaskedLM
 from transformers import BertForSequenceClassification
