@@ -451,7 +451,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
     @auto_move_data
     def encode(
         self,
-        tab_attrs_serialized: str,
+        tab_llm_ids: str,
         # avail_mask: Tensor,
         # enable_augments: bool = False,
         # output_intermediate: bool = False,
@@ -472,7 +472,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         Returns: (N, E), Embeddings of the input sequences.
         """
         
-        out_tokens, _ = self.encoder(tab_attrs_serialized)
+        out_tokens, _ = self.encoder(tab_llm_ids)
 
         return out_tokens # (N, E)
 
@@ -516,7 +516,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
             )
 
         tab_llm_ids, ts_tokens, ts_notna_mask = self.tokenize(tabular_attrs, time_series_attrs) # (N, S, E), (N, S)
-        out_features = self.encode(tab_attrs_ids)  # (N, S, E) -> (N, E)
+        out_features = self.encode(tab_llm_ids)  # (N, S, E) -> (N, E)
 
         # Early return if requested task requires no prediction heads
         if task == "encode":
@@ -569,18 +569,18 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         metrics = {}
         losses = []
         if self.contrastive_loss:  # run self-supervised contrastive step
-            metrics.update(self._contrastive_shared_step(batch, batch_idx, tab_attrs_serialized, ts_tokens, ts_notna_mask))
+            metrics.update(self._contrastive_shared_step(batch, batch_idx, tab_llm_ids, ts_tokens, ts_notna_mask))
             losses.append(self.hparams.contrastive_loss_weight * metrics["cont_loss"])
             if self.orthogonal_loss:
                 losses.append(self.hparams.orthogonal_loss_weight * metrics["orth_loss"])
         if self.predict_losses:  # run fully-supervised prediction step
-            metrics.update(self._prediction_shared_step(batch, batch_idx, tab_attrs_serialized, ts_tokens, ts_notna_mask))
+            metrics.update(self._prediction_shared_step(batch, batch_idx, tab_llm_ids, ts_tokens, ts_notna_mask))
             losses.append(metrics["s_loss"])
         if self.reconstruction_loss_unique:  # run reconstruction step
-            metrics.update(self._reconstruction_step(batch, batch_idx, tab_attrs_serialized, ts_tokens, ts_notna_mask))
+            metrics.update(self._reconstruction_step(batch, batch_idx, tab_llm_ids, ts_tokens, ts_notna_mask))
             losses.append(self.hparams.reconstruction_loss_weight * metrics["rec_loss"])
         if self.inter_sample_loss:
-            metrics.update(self._inter_sample_step(batch, batch_idx, tab_attrs_serialized, ts_tokens, ts_notna_mask))
+            metrics.update(self._inter_sample_step(batch, batch_idx, tab_llm_ids, ts_tokens, ts_notna_mask))
             losses.append(self.hparams.inter_sample_loss_weight * metrics["inter_loss"])
 
         # Compute the sum of the (weighted) losses
@@ -588,10 +588,10 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         return metrics
 
     def _prediction_shared_step(
-        self, batch: PatientData, batch_idx: int, tab_attrs_serialized: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
+        self, batch: PatientData, batch_idx: int, tab_llm_ids: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Forward pass through the encoder without gradient computation to fine-tune only the prediction heads
-        llm_logits, attention_weights = self.encode(tab_attrs_serialized)
+        llm_logits, attention_weights = self.encode(tab_llm_ids)
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(llm_logits)
@@ -627,7 +627,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         return metrics
 
     def _reconstruction_step(
-        self, batch: PatientData, batch_idx: int, tab_attrs_serialized: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
+        self, batch: PatientData, batch_idx: int, tab_llm_ids: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Forward pass through the encoder
         tab_features = self.encode(in_tokens, avail_mask, output_unique=True)
@@ -654,7 +654,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         return metrics
 
     def _inter_sample_step(
-        self, batch: PatientData, batch_idx: int, tab_attrs_serialized: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
+        self, batch: PatientData, batch_idx: int, tab_llm_ids: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
     ) -> Dict[str, Tensor]:
         metrics = {}
         
@@ -680,7 +680,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         return metrics
 
     def _contrastive_shared_step(
-        self, batch: PatientData, batch_idx: int, tab_attrs_serialized: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
+        self, batch: PatientData, batch_idx: int, tab_llm_ids: Tensor, ts_tokens: Tensor, ts_notna_mask: Tensor,
     ) -> Dict[str, Tensor]:
         # Extract features from the original view + from a view corrupted by augmentations
         # anchor_out_features = out_features
