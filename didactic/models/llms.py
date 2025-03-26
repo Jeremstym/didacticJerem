@@ -11,6 +11,7 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModel
 from transformers.modeling_outputs import SequenceClassifierOutput
 
 from didactic.models.tabular import TabularLinearSerializer
+from vital.data.cardinal.config import TabularAttribute
 
 # distilltabtokenizer
 # distilltabclassifier
