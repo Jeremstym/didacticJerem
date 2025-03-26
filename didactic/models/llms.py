@@ -197,7 +197,7 @@ class TaBERTModel(nn.Module):
         self.model = AutoModelForMaskedLM.from_pretrained(model_name, num_labels=3)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         print("------- MODEL LOADED -------")
-        model.to(self.device)
+        self.model.to(self.device)
 
     def forward(self, text: str):
         # outputs = self.model(input_ids=input_ids,
@@ -212,7 +212,7 @@ class TaBERTModel(nn.Module):
 
         # Inference
         with torch.no_grad():
-            outputs = model(**inputs)
+            outputs = self.model(**inputs)
             last_hidden_state = outputs[0]
             # logits = outputs.logits
             attention = outputs[4] #outputs.attentions
