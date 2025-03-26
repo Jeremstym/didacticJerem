@@ -209,7 +209,7 @@ class TaBERTTokenizer(nn.Module):
         tabular_attrs = {str(attr.value): tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
         print(inputs_text)
-        inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["inputs_ids"].to(self.device)
+        inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["input_ids"].to(self.device)
         return inputs_ids
 
 class TaBERTModel(nn.Module):
