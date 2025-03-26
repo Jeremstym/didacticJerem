@@ -201,7 +201,7 @@ class TaBERTTokenizer(nn.Module):
 
     def forward(
         self,
-        tabular_attrs: Dict[TabularAttribute, Tensor],
+        tabular_attrs: Dict[TabularAttribute, torch.Tensor],
         **kwargs
     ):
         # Tokenize the input text and return tensor inputs
