@@ -198,6 +198,7 @@ class TaBERTTokenizer(nn.Module):
 
         # self.serializer = TabularLinearSerializer()
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     def forward(
         self,
