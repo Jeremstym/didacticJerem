@@ -121,7 +121,7 @@ task:
   tabular_tokenizer:
     # _target_: didactic.models.tabular.TabularEmbedding
     # d_token: ${task.embed_dim}
-    _target_: didactic.models.llms.TaBERTModel
+    _target_: didactic.models.tabular.TabularLinearSerializer
 
   time_series_tokenizer:
     _target_: didactic.models.time_series.TimeSeriesEmbedding

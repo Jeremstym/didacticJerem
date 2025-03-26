@@ -2,7 +2,7 @@
 
 defaults:
   - cardinal/cardiac-language-representation
-  - override /task/model/encoder: xtab
+  - override /task/model/encoder: tabert
 
 trainer:
   max_steps: 2000

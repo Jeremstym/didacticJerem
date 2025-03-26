@@ -1,0 +1,3 @@
+_target_: didactic.models.llms.TaBERTModel
+
+model_name: bert-base-uncased

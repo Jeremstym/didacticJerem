@@ -189,7 +189,7 @@ class TabBioBERT(nn.Module):
         pass
 
 class TaBERTModel(nn.Module):
-    def __init__(self, model_name='bert-base-uncased'):
+    def __init__(self, model_name):
         super(BertModel, self).__init__()
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.model = AutoModelForMaskedLM.from_pretrained(model_name, num_labels=3)
