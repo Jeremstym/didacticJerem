@@ -201,7 +201,7 @@ class TaBERTModel(nn.Module):
 
     def forward(self, text: str):
         # Tokenize the input text and return tensor inputs
-        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True)
+        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(self.device)
         print(f"inputs before deviceing {inputs}")
 
         # Move input tensors to the same device as the model
