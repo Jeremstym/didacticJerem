@@ -208,7 +208,7 @@ class TaBERTModel(nn.Module):
         inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True)
 
         # Make prediction on the input
-        inputs = {k: v.to(device) for k, v in inputs.items()}  # Move input tensors to the same device as the model
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}  # Move input tensors to the same device as the model
 
         # Inference
         with torch.no_grad():
