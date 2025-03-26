@@ -193,10 +193,10 @@ class TaBERTModel(nn.Module):
     def __init__(self, model_name):
         super().__init__()
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-        print("------- LOADING MODEL -------")
+        print("------- LOADING LANGUAGE MODEL -------")
         self.model = AutoModel.from_pretrained(model_name, num_labels=3)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        print("------- MODEL LOADED -------")
+        print("------- LANGUAGE MODEL LOADED -------")
         self.model.to(self.device)
 
     def forward(self, text: str):
