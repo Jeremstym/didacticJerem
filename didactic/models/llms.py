@@ -10,6 +10,8 @@ from transformers import BertTokenizer
 from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoModel
 from transformers.modeling_outputs import SequenceClassifierOutput
 
+from didactic.models.tabular import TabularLinearSerializer
+
 # distilltabtokenizer
 # distilltabclassifier
 
@@ -189,29 +191,46 @@ class TabBioBERT(nn.Module):
     def load(cls, path):
         pass
 
+class TaBERTTokenizer(nn.Module):
+    def __init__(self, model_name):
+        super().__init__()
+
+        self.serializer = TabularLinearSerializer()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    def forward(
+        self,
+        tabular_attrs: Dict[TabularAttribute, Tensor],
+        **kwargs
+    ):
+        # Tokenize the input text and return tensor inputs
+        inputs_text = self.serializer(tabular_attrs)
+        inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["inputs_ids"].to(self.device)
+        return inputs_ids
+
 class TaBERTModel(nn.Module):
     def __init__(self, model_name):
         super().__init__()
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         print("------- LOADING LANGUAGE MODEL -------")
         self.model = AutoModel.from_pretrained(model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         print("------- LANGUAGE MODEL LOADED -------")
         self.model.to(self.device)
 
-    def forward(self, text: str):
+    def forward(self, inputs_ids: torch.Tensor):
         # Tokenize the input text and return tensor inputs
-        inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True).to(self.device)
-        print(f"inputs before deviceing {inputs}")
+        # inputs = self.tokenizer(text, return_tensors='pt', truncation=True, padding=True)
+        # print(f"inputs before deviceing {inputs}")
 
-        # Move input tensors to the same device as the model
-        inputs_ids = {k: v.to(self.device) for k, v in inputs.items()}['input_ids']
+        # # Move input tensors to the same device as the model
+        # inputs_ids = {k: v.to(self.device) for k, v in inputs.items()}['input_ids']
 
-        print(f"inputs after deviceing {inputs}")
+        # print(f"inputs after deviceing {inputs}")
         
         # Inference
         with torch.no_grad():
-            outputs = self.model(input_ids=inputs_ids.to(self.device))
+            outputs = self.model(input_ids=inputs_ids)
             last_hidden_state = outputs[0]  # Shape: (batch_size, seq_len, hidden_size)
             attention = outputs[4] if len(outputs) > 4 else None  # Attention is optional, check if it's available
 
