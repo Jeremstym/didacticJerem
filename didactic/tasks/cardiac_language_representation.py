@@ -266,7 +266,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
 
         # Configure tokenizers and extract relevant info about the models' architectures
         self.separate_modality = False
-        if isintance(self.encoder, didactic.models.llms.TaBERTModel): # didactic submodule `TaBERT`
+        if isinstance(self.encoder, didactic.models.llms.TaBERTModel): # didactic submodule `TaBERT`
             self.nhead = self.encoder.config.num_attention_heads
         else:
             raise NotImplementedError(
