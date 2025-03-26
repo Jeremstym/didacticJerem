@@ -197,6 +197,7 @@ class TaBERTModel(nn.Module):
         self.model = AutoModelForMaskedLM.from_pretrained(model_name, num_labels=3)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         print("------- MODEL LOADED -------")
+        self.tokenizer.to(self.device)
         self.model.to(self.device)
 
     def forward(self, text: str):
