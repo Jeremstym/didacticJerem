@@ -267,7 +267,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         # Configure tokenizers and extract relevant info about the models' architectures
         self.separate_modality = False
         if isinstance(self.encoder, didactic.models.llms.TaBERTModel): # didactic submodule `TaBERT`
-            self.nhead = self.encoder.config.num_attention_heads
+            self.nhead = 12 # Default number of attention heads for the transformer encoder BERT
         else:
             raise NotImplementedError(
                 "To instantiate the cardiac multimodal representation task, it is necessary to determine the number of "
