@@ -450,7 +450,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         return tab_llm_ids, ts_tokens, ts_notna_mask
 
 
-    @auto_move_data
+    # @auto_move_data
     def encode(
         self,
         tab_llm_ids: str,
