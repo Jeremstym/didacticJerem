@@ -131,10 +131,10 @@ class BertTabTokenizer(BertTokenizer):
         # to have better handling of numerical values
         # that means we also need to modify the embedding layer of BioBERT
 
-    def __call__(self, tabular_attrs, *args, **kwargs):
+    def __call__(self, batch_tabular_attrs, *args, **kwargs):
         if isinstance(tabular_attrs, dict):
             # If input is tabular attributes, serialize it first
-            text = self._serialize(tabular_attrs)
+            text = self._serialize(batch_tabular_attrs)
         else:
             # If input is already text, use it as is
             text = tabular_attrs
@@ -142,10 +142,15 @@ class BertTabTokenizer(BertTokenizer):
         # Now proceed with tokenization using the prepared text
         return super().__call__(text, *args, **kwargs)
 
-    def _serialize(self, tabular_attrs):
-        # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
-        inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
-        return inputs_text
+    def _serialize(self, batch_tabular_attrs):
+        # # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
+        # inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
+        # return inputs_text
+         serialized_batch = [
+            '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
+            for tabular_attrs in batch_tabular_attrs
+        ]
+    return serialized_batch
 
     def _tokenize(self, text):
         # add a special token [NUM] ahead of numerical values

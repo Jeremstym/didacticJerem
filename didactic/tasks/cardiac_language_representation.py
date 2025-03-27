@@ -440,7 +440,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
 
         if tabular_attrs:
             tab_llm_ids = self.tabular_tokenizer(
-                tabular_attrs = tabular_attrs,
+                batch_tabular_attrs = tabular_attrs,
                 tabular_num_attrs = self.tabular_num_attrs,
                 tabular_cat_attrs = self.tabular_cat_attrs
             )
