@@ -596,6 +596,7 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         predictions = {}
         for attr, prediction_head in self.prediction_heads.items():
             pred = prediction_head(llm_logits)
+            print(f"pred shape: {pred.shape}")
             if self.hparams.ordinal_mode and attr in TabularAttribute.ordinal_attrs():
                 # For ordinal targets, extract the logits from the multiple outputs of classification head
                 pred = pred[0]
