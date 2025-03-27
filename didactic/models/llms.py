@@ -132,7 +132,7 @@ class BertTabTokenizer(BertTokenizer):
         # that means we also need to modify the embedding layer of BioBERT
 
     def __call__(self, batch_tabular_attrs, *args, **kwargs):
-        if isinstance(tabular_attrs, dict):
+        if isinstance(batch_tabular_attrs, dict):
             # If input is tabular attributes, serialize it first
             text = self._serialize(batch_tabular_attrs)
         else:
