@@ -30,6 +30,8 @@ class BertTabClassifier(BertForSequenceClassification):
         for param in self.bert.encoder.layer[:6].parameters():
             param.requires_grad = False
 
+        print(f"bert device: {self.bert.device}")
+        raise Exception("stop here")
     def forward(
         self,
         input_ids: Optional[torch.Tensor] = None,
