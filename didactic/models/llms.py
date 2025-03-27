@@ -146,11 +146,11 @@ class BertTabTokenizer(BertTokenizer):
         # # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
         # inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
         # return inputs_text
-         serialized_batch = [
+        serialized_batch = [
             '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
             for tabular_attrs in batch_tabular_attrs
         ]
-    return serialized_batch
+        return serialized_batch
 
     def _tokenize(self, text):
         # add a special token [NUM] ahead of numerical values
