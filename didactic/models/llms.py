@@ -131,6 +131,10 @@ class BertTabTokenizer(BertTokenizer):
         # to have better handling of numerical values
         # that means we also need to modify the embedding layer of BioBERT
 
+    def _serialize(self, tabular_attrs):
+        tabular_attrs = {attr: tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
+        inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
+
     def _tokenize(self, text):
         # add a special token [NUM] ahead of numerical values
         # add a special token [/NUM] after numerical values
@@ -211,6 +215,7 @@ class TaBERTTokenizer(nn.Module):
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
         print(inputs_text)
         inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["input_ids"].to(self.device)
+        print(f"inputs_ids value: {inputs_ids}")
         print(f"inputs_ids: {inputs_ids.shape}")
         return inputs_ids
 
