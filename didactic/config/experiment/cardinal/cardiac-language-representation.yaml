@@ -120,7 +120,8 @@ task:
 
   tabular_tokenizer:
     _target_: didactic.models.llms.BertTabTokenizer.from_pretrained
-    pretrained_model_name_or_path: bert-base-uncased
+    # pretrained_model_name_or_path: bert-base-uncased
+    pretrained_model_name_or_path: dmis-lab/biobert-base-cased-v1.2
 
   time_series_tokenizer:
     _target_: didactic.models.time_series.TimeSeriesEmbedding
