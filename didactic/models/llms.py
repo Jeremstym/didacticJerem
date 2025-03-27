@@ -211,6 +211,8 @@ class TaBERTTokenizer(nn.Module):
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
         print(inputs_text)
         inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["input_ids"].to(self.device)
+        print(f"inputs_ids: {inputs_ids.shape}")
+        raise Exception("stop here")
         return inputs_ids
 
 class TaBERTModel(nn.Module):
