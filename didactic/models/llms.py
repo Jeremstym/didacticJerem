@@ -136,13 +136,12 @@ class BertTabTokenizer(BertTokenizer):
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
         return inputs_text
 
-    def _tokenize(self, tabular_attrs):
+    def _tokenize(self, text):
         # add a special token [NUM] ahead of numerical values
         # add a special token [/NUM] after numerical values
         # if there is + or - mark ahead the number, add [NUM] ahead of it
         # consider the case of multiple comma in the number
         # using regular expression
-        text = self._serialize(tabular_attrs)
         pattern = r'\b([+-]?(?:\d{1,3},)*\d{1,3}(?:\.\d+)?)'
         replacement = r'[NUM]\1[/NUM]'
         new_text = re.sub(pattern, replacement, text)
