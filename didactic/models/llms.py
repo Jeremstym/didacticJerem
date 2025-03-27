@@ -127,6 +127,7 @@ class BertTabTokenizer(BertTokenizer):
         
         # add a special number token
         self.add_tokens(['[NUM]','[/NUM]'])
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
         # replace the tokenizer's processor and post-processor
         # to have better handling of numerical values
@@ -147,7 +148,7 @@ class BertTabTokenizer(BertTokenizer):
         kwargs['padding'] = True
         kwargs['truncation'] = True
         full_output = super().__call__(text, *args, **kwargs)
-        return full_output["input_ids"]
+        return full_output["input_ids"].to(self.device)
 
     def _serialize(self, batch_tabular_attrs):
         # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
