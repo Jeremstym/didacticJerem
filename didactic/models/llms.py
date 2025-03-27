@@ -131,13 +131,13 @@ class BertTabTokenizer(BertTokenizer):
         # to have better handling of numerical values
         # that means we also need to modify the embedding layer of BioBERT
 
-    def __call__(self, text_or_tabular_attrs, *args, **kwargs):
-        if isinstance(text_or_tabular_attrs, dict):
+    def __call__(self, tabular_attrs, *args, **kwargs):
+        if isinstance(tabular_attrs, dict):
             # If input is tabular attributes, serialize it first
-            text = self._serialize(text_or_tabular_attrs)
+            text = self._serialize(tabular_attrs)
         else:
             # If input is already text, use it as is
-            text = text_or_tabular_attrs
+            text = tabular_attrs
 
         # Now proceed with tokenization using the prepared text
         return super().__call__(text, *args, **kwargs)
