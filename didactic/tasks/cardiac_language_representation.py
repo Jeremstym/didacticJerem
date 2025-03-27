@@ -441,8 +441,8 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
         if tabular_attrs:
             tab_llm_ids = self.tabular_tokenizer(
                 batch_tabular_attrs = tabular_attrs,
-                tabular_num_attrs = self.tabular_num_attrs,
-                tabular_cat_attrs = self.tabular_cat_attrs
+                # tabular_num_attrs = self.tabular_num_attrs,
+                # tabular_cat_attrs = self.tabular_cat_attrs
             )
         else:
             raise ValueError("Tabular attributes are required to tokenize the input data.")
