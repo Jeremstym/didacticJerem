@@ -298,7 +298,6 @@ class TabularLinearSerializer(nn.Module):
         """
         tabular_attrs = {str(attr.value): tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
         serialized_dict = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
-        print(serialized_dict)
         return serialized_dict 
 
 class TabularLinearEmbedding(nn.Module):
