@@ -79,12 +79,13 @@ class BertTabClassifier(BertForSequenceClassification):
         #     output = (logits,) + outputs[2:]
         #     return ((loss,) + output) if loss is not None else output
 
-        return SequenceClassifierOutput(
-            # loss=loss,
-            last_hidden_state=pooled_output,
-            # hidden_states=outputs.hidden_states,
-            attentions=outputs.attentions,
-        )
+        # return SequenceClassifierOutput(
+        #     # loss=loss,
+        #     logits=pooled_output,
+        #     # hidden_states=outputs.hidden_states,
+        #     attentions=outputs.attentions,
+        # )
+        return pooled_output
 
 class BertTabClassifierWithMLM(BertTabClassifier):
     '''Classification loss + MLM loss during the training.
