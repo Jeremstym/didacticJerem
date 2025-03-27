@@ -154,9 +154,25 @@ class BertTabTokenizer(BertTokenizer):
 
     def _serialize(self, batch_tabular_attrs):
         # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
-        inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in batch_tabular_attrs.items())
-        print(f"inputs_text: {inputs_text}")
-        return inputs_text
+        # inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in batch_tabular_attrs.items())
+        # print(f"inputs_text: {inputs_text}")
+        # return inputs_text
+        # Determine the batch size
+        batch_size = len(next(iter(batch_tabular_attrs.values())))
+        
+        # Create a list to store serialized texts for each sample
+        serialized_texts = []
+        
+        # Iterate over each sample in the batch
+        for i in range(batch_size):
+            # Create a dictionary for the current sample
+            sample_dict = {k: v[i] for k, v in batch_tabular_attrs.items()}
+            
+            # Serialize the sample
+            sample_text = '[SEP]'.join(f"{k}: {v}" for k, v in sample_dict.items())
+            serialized_texts.append(sample_text)
+        
+        print(f"Sample {i} inputs_text: {sample_text}")
         # serialized_batch = [
         #     '[SEP]'.join(f"{k}: {v}" for k, v in sample.items())
         #     for sample in batch_tabular_attrs
