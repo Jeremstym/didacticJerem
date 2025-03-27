@@ -241,4 +241,5 @@ class TaBERTModel(nn.Module):
             attention = outputs[4] if len(outputs) > 4 else None  # Attention is optional, check if it's available
 
         # Return the last hidden state and attention weights
+        print(f"last_hidden_state: {last_hidden_state.shape}")
         return last_hidden_state, attention
