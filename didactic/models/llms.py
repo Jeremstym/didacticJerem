@@ -67,21 +67,21 @@ class BertTabClassifier(BertForSequenceClassification):
         pooled_output = self.dropout(pooled_output)
         # logits = self.classifier(pooled_output)
         
-        loss = None
-        if labels is not None:
-            # align the shape of logits and labels
-            # logits: (batch_size, 1)
-            # labels: (batch_size, )
-            logits = logits.view(-1)
-            loss_fct = BCEWithLogitsLoss()
-            loss = loss_fct(logits, labels)
-        if not return_dict:
-            output = (logits,) + outputs[2:]
-            return ((loss,) + output) if loss is not None else output
+        # loss = None
+        # if labels is not None:
+        #     # align the shape of logits and labels
+        #     # logits: (batch_size, 1)
+        #     # labels: (batch_size, )
+        #     logits = logits.view(-1)
+        #     loss_fct = BCEWithLogitsLoss()
+        #     loss = loss_fct(logits, labels)
+        # if not return_dict:
+        #     output = (logits,) + outputs[2:]
+        #     return ((loss,) + output) if loss is not None else output
 
         return SequenceClassifierOutput(
             # loss=loss,
-            logits=pooled_output,
+            last_hidden_state=pooled_output,
             # hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
@@ -134,13 +134,15 @@ class BertTabTokenizer(BertTokenizer):
     def _serialize(self, tabular_attrs):
         tabular_attrs = {attr: tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
+        return inputs_text
 
-    def _tokenize(self, text):
+    def _tokenize(self, tabular_attrs):
         # add a special token [NUM] ahead of numerical values
         # add a special token [/NUM] after numerical values
         # if there is + or - mark ahead the number, add [NUM] ahead of it
         # consider the case of multiple comma in the number
         # using regular expression
+        text = self._serialize(tabular_attrs)
         pattern = r'\b([+-]?(?:\d{1,3},)*\d{1,3}(?:\.\d+)?)'
         replacement = r'[NUM]\1[/NUM]'
         new_text = re.sub(pattern, replacement, text)
