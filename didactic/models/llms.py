@@ -140,6 +140,7 @@ class BertTabTokenizer(BertTokenizer):
             text = tabular_attrs
 
         # Now proceed with tokenization using the prepared text
+        kwargs['return_tensors'] = 'pt'
         return super().__call__(text, *args, **kwargs)
 
     def _serialize(self, batch_tabular_attrs):
