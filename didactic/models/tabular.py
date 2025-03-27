@@ -77,8 +77,8 @@ class TabularEmbedding(nn.Module):
     def forward(
         self,
         tabular_attrs: Dict[TabularAttribute, Tensor],
-        tabular_num_attrs: bool,
-        tabular_cat_attrs: bool,
+        tabular_num_attrs: List[TabularAttribute],
+        tabular_cat_attrs: List[TabularAttribute],
     ) -> Tensor:
         """Perform the forward pass.
 
