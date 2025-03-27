@@ -172,6 +172,8 @@ class BertTabTokenizer(BertTokenizer):
             sample_text = '[SEP]'.join(f"{k}: {v}" for k, v in sample_dict.items())
             serialized_texts.append(sample_text)
         
+        return serialized_texts
+        
         print(f"Sample {i} inputs_text: {sample_text}")
         # serialized_batch = [
         #     '[SEP]'.join(f"{k}: {v}" for k, v in sample.items())
