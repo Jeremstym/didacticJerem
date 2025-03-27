@@ -143,7 +143,7 @@ class BertTabTokenizer(BertTokenizer):
         return super().__call__(text, *args, **kwargs)
 
     def _serialize(self, tabular_attrs):
-        tabular_attrs = {attr: tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
+        # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
         return inputs_text
 
