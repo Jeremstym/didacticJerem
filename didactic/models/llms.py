@@ -23,6 +23,9 @@ class BertTabClassifier(BertForSequenceClassification):
         config.problem_type = "single_label_classification"
         super().__init__(config)
         print("freeze the first six layers of BioBERT for fine-tuning")
+        # device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        # self.bert.to(device)
+        # freeze the first six layers of BioBERT for fine-tuning
         for param in self.bert.embeddings.parameters():
             param.requires_grad = False
 
@@ -30,8 +33,6 @@ class BertTabClassifier(BertForSequenceClassification):
         for param in self.bert.encoder.layer[:6].parameters():
             param.requires_grad = False
 
-        print(f"bert device: {self.bert.device}")
-        raise Exception("stop here")
     def forward(
         self,
         input_ids: Optional[torch.Tensor] = None,
