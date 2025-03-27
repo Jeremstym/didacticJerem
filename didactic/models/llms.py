@@ -174,7 +174,6 @@ class BertTabTokenizer(BertTokenizer):
         
         return serialized_texts
         
-        print(f"Sample {i} inputs_text: {sample_text}")
         # serialized_batch = [
         #     '[SEP]'.join(f"{k}: {v}" for k, v in sample.items())
         #     for sample in batch_tabular_attrs
@@ -259,9 +258,7 @@ class TaBERTTokenizer(nn.Module):
         # inputs_text = self.serializer(tabular_attrs)
         tabular_attrs = {attr: tabular_attrs[attr].tolist()[0] for attr in tabular_attrs}
         inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
-        print(inputs_text)
         inputs_ids = self.tokenizer(inputs_text, return_tensors='pt', truncation=True, padding=True)["input_ids"].to(self.device)
-        print(f"inputs_ids: {inputs_ids.shape}")
         return inputs_ids
 
 class TaBERTModel(nn.Module):
@@ -291,5 +288,4 @@ class TaBERTModel(nn.Module):
             attention = outputs[4] if len(outputs) > 4 else None  # Attention is optional, check if it's available
 
         # Return the last hidden state and attention weights
-        print(f"last_hidden_state: {last_hidden_state.shape}")
         return last_hidden_state #, attention UNDONE for now
