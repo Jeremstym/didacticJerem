@@ -141,19 +141,23 @@ class BertTabTokenizer(BertTokenizer):
             text = tabular_attrs
 
         # Now proceed with tokenization using the prepared text
+        max_length = 512  # or whatever maximum length you want to use
+        kwargs['max_length'] = max_length
         kwargs['return_tensors'] = 'pt'
+        kwargs['padding'] = True
+        kwargs['truncation'] = True
         full_output = super().__call__(text, *args, **kwargs)
         return full_output["input_ids"]
 
     def _serialize(self, batch_tabular_attrs):
         # tabular_attrs = {attr: tabular_attrs[attr] for attr in tabular_attrs}
-        inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in batch_tabular_attrs.items())
-        return inputs_text
-        # serialized_batch = [
-        #     '[SEP]'.join(f"{k}: {v}" for k, v in tabular_attrs.items())
-        #     for tabular_attrs in batch_tabular_attrs
-        # ]
-        # return serialized_batch
+        # inputs_text = '[SEP]'.join(f"{k}: {v}" for k, v in batch_tabular_attrs.items())
+        # return inputs_text
+        serialized_batch = [
+            '[SEP]'.join(f"{k}: {v}" for k, v in sample.items())
+            for sample in batch_tabular_attrs
+        ]
+        return serialized_batch
 
     def _tokenize(self, text):
         # add a special token [NUM] ahead of numerical values
