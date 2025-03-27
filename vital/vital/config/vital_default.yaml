@@ -5,7 +5,7 @@ defaults:
   - callbacks:
       - model_checkpoint
   # - logger: comet/online
-  - logger: null
+  - logger: comet/online
   - _self_
 
 seed: null
