@@ -266,4 +266,4 @@ class TaBERTModel(nn.Module):
 
         # Return the last hidden state and attention weights
         print(f"last_hidden_state: {last_hidden_state.shape}")
-        return last_hidden_state, attention
+        return last_hidden_state #, attention UNDONE for now
