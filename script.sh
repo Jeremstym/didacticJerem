@@ -423,7 +423,7 @@ for seed in {42..51}; do
 
     # ! TEST LLM and FMs
 
-    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint
 
     # ! TEST WITHOUT TRAINING
 
