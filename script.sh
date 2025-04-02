@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --partition=electronic,hard
-#SBATCH --job-name=EVAL-DAFTED
+#SBATCH --partition=electronic
+#SBATCH --job-name=TaBioBERT
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=4-16:00:00
