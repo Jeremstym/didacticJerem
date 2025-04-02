@@ -266,8 +266,8 @@ class CardiacLanguageRepresentationTask(SharedStepsTask):
 
         # Configure tokenizers and extract relevant info about the models' architectures
         self.separate_modality = False
-        if isinstance(self.encoder, didactic.models.llms.TaBERTModel): # didactic submodule `TaBERT`
-            self.nhead = 12 # Default number of attention heads for the transformer encoder BERT
+        # if isinstance(self.encoder, didactic.models.llms.TaBERTModel): # didactic submodule `TaBERT`
+        #     self.nhead = 12 # Default number of attention heads for the transformer encoder BERT
         if isinstance(self.encoder, didactic.models.llms.BertTabClassifier): # didactic submodule `BertTabClassifier` from MediTab
             self.nhead = 12 # Default number of attention heads for the transformer encoder BERT
         else:
