@@ -14,6 +14,7 @@ import torch
 from dotenv import load_dotenv
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, open_dict
+from omegaconf.base import ContainerMetadata
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import CometLogger, Logger
 
@@ -146,6 +147,7 @@ class VitalRunner(ABC):
             else:
                 logger.info(f"Loading model from {ckpt_path}")
                 torch.serialization.add_safe_globals([DictConfig])
+                torch.serialization.add_safe_globals([ContainerMetadata])
                 model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict, map_location="cpu")
                 model.to(model.device)
 
