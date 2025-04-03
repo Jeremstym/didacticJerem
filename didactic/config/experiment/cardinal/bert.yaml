@@ -41,5 +41,5 @@ task:
 
 # Change checkpoint loading defaults to:
 ckpt: ??? # Make it mandatory to provide a checkpoint
-weights_only: True  # Only load the weights and ignore the hyperparameters
+weights_only: False  # Only load the weights and ignore the hyperparameters
 strict: False # Only load weights where they match the defined network, to only some changes (e.g. heads, etc.)
