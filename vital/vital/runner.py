@@ -145,7 +145,8 @@ class VitalRunner(ABC):
                 print(commonkeys)
             else:
                 logger.info(f"Loading model from {ckpt_path}")
-                model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict, weights_only=cfg.weights_only)
+                torch.serialization.add_safe_globals([DictConfig])
+                model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict)
 
         if cfg.train:
             if cfg.resume:
