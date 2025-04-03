@@ -423,7 +423,7 @@ for seed in {42..51}; do
 
     # ! TEST LLM and FMs
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint
 
     # ! TEST WITHOUT TRAINING
 
@@ -438,6 +438,8 @@ for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-MLP-concat-baseline/seed${seed}' +experiment=cardinal/baseline-mlp-concat 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13+time-series task.cls_token=False train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-MLP-concat-baseline/seed${seed}/cardinal_default.ckpt' strict=True
 
     #? poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-Unimodal-Tab13/seed${seed}' +experiment=cardinal/xtab 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] seed=$seed task/data=tab-13 task.ordinal_mode=False train=False test=True 'ckpt=/data/stympopper/didacticWORKSHOP/TEST-NO24-unimodal-tab13/seed${seed}/cardinal_default.ckpt' strict=True
+
+    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint train=False test=True ckpt='/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}/cardinal_default.ckpt' strict=True
 
     # ! TEST CROSS VALIDATION
 

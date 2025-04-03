@@ -145,7 +145,7 @@ class VitalRunner(ABC):
                 print(commonkeys)
             else:
                 logger.info(f"Loading model from {ckpt_path}")
-                model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict)
+                model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict, weights_only=cfg.weights_only)
 
         if cfg.train:
             if cfg.resume:
