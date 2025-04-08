@@ -19,7 +19,8 @@ def load_results(model_name: str) -> pd.DataFrame:
         # df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         # df = df.loc[["acc", "auroc", "f1_avg", "f1_binary"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         try:
-            df = df.loc[["acc", "auroc", "f1_mult", "f1_avg", "auprc_weighted", "auprc_avg"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
+            df = df.loc[["acc", "auroc", "f1_avg", "auprc_avg"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
+            # df = df.loc[["acc", "auroc", "f1_mult", "f1_avg", "auprc_weighted", "auprc_avg"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         except KeyError:
             df = df.loc[["acc", "auroc"]]["ht_severity_prediction"].reset_index().rename(columns={"index": "Metric"})
         results = pd.concat([results, df], axis=0)
