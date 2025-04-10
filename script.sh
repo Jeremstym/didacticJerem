@@ -553,3 +553,7 @@ done
 # done
 
 #! TODO: test IRENE with CLS token (now it is average pooling) but not necessary since it is note done in the paper
+
+#! nnUnet Segmentation command
+
+# ascent_predict dataset=ORCHID model=cardinal_3d trainer.precision=32 ckpt_path=/data/stympopper/nnUnet/best_3d.ckpt input_folder=/data/stympopper/nnUnet/ORCHID/raw/imagesTs output_folder=/data/stympopper/nnUnet/experiments
