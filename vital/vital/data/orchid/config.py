@@ -65,15 +65,19 @@ class TimeSeriesAttribute(SnakeCaseStrEnum):
 class TabularAttribute(SnakeCaseStrEnum):
     """Name of the attributes that are scalar values extracted from the patient's record or the images."""
     ef = auto()
-    a2c_ef = auto()
-    a4c_ef = auto()
     """Ejection Fraction (EF)."""
-    a4c_edv = auto()
-    a2c_edv = auto()
-    """End-Diastolic Volume (EDV)."""
-    a4c_esv = auto()
-    a2c_esv = auto()
-    """End-Systolic Volume (ESV)."""
+    a2c_ef = "a2c_ef"
+    """Ejection Fraction (EF) in the A2C view."""
+    a4c_ef = "a4c_ef"
+    """Ejection Fraction (EF) in the A4C view."""
+    a4c_edv = "a4c_edv"
+    """End-Diastolic Volume (EDV) in the A4C view."""
+    a2c_edv = "a2c_edv"
+    """End-Diastolic Volume (EDV) in the A2C view."""
+    a4c_esv = "a4c_esv"
+    """End-Systolic Volume (ESV) in the A4C view."""
+    a2c_esv = "a2c_esv"
+    """End-Systolic Volume (ESV) in the A2C view."""
     a4c_ed_sc_min = "a4c_ed_sc_min"  # Assign the string manually because numbers are discarded by `auto`
     a4c_ed_sc_max = "a4c_ed_sc_max"  # ""
     a4c_ed_lc_min = "a4c_ed_lc_min"  # ""
@@ -178,8 +182,8 @@ class TabularAttribute(SnakeCaseStrEnum):
     vci_exp = auto()
     la_dm = auto()
     la_area_s = auto()
-    a4c_la_esv = auto()
-    a2c_la_esv = auto()
+    a4c_la_esv = "a4c_la_esv"
+    a2c_la_esv = "a2c_la_esv"
     ra_area_d = auto()
     pisa_vit_mi = auto()
     pisa_flow_mi = auto()
