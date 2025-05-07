@@ -20,7 +20,7 @@ trainer:
 data:
   batch_size: 128
   patients_kwargs:
-    views: [A4C, A2C]
+    views: [A4C, A2C, A3C]
   process_patient_kwargs:
     tabular_attrs:
       - ef
@@ -42,7 +42,6 @@ data:
       - a3c_ed_ilc_max
       - a3c_ed_asc_min
       - a3c_ed_asc_max
-      - oui
       - age
       - sex
       - bmi
