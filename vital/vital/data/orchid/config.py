@@ -176,8 +176,8 @@ class TabularAttribute(SnakeCaseStrEnum):
     pisa_radius_mi = auto()
     sinus = auto()
     blood_flow = auto()
-    a4c_lv_ev = auto()
-    a2c_lv_ev = auto()
+    a4c_lv_ev = "a4c_lv_ev"
+    a2c_lv_ev = "a2c_lv_ev"
     vci_insp = auto()
     vci_exp = auto()
     la_dm = auto()
