@@ -522,8 +522,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 tabular_num_attrs = self.tabular_num_attrs,
                 tabular_cat_attrs = self.tabular_cat_attrs
             )
-            print(f"tab_attrs_tokens: {tab_attrs_tokens}")
-            raise Exception("Stop here")
             
             tokens.append(tab_attrs_tokens)
             notna_mask.extend(list(tab_notna_mask))
