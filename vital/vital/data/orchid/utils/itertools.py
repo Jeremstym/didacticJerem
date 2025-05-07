@@ -6,6 +6,7 @@ from typing import Dict, Iterator, List, Literal, Mapping, Optional, Sequence, U
 
 import pandas as pd
 from pandas.api.types import CategoricalDtype
+from tqdm import tqdm
 
 from vital.data.orchid.config import IMG_FILENAME_PATTERN, IMG_FORMAT, PATIENT_ID_REGEX, TabularAttribute
 from vital.data.orchid.config import View as ViewEnum
@@ -159,7 +160,7 @@ class Patients(Collection, Mapping[Patient.Id, Patient]):
                 eager_loading=eager_loading,
                 overwrite_attrs_cache=overwrite_attrs_cache,
             )
-            for patient_id in patient_ids
+            for patient_id in tqdm(patient_ids, desc=f"Loading {self.item}s", unit=self.item)
         }
 
     @classmethod
