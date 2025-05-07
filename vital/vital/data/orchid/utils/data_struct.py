@@ -180,7 +180,7 @@ class Patient:
         views_data = {}
         for view in views:
             if view not in avail_views:
-                logging.warning(f"Patient '{patient_id}' had no data for the requested '{view}' view.")
+                # logging.warning(f"Patient '{patient_id}' had no data for the requested '{view}' view.")
                 continue
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
