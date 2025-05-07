@@ -25,7 +25,6 @@ TIME_SERIES_ATTR_LABELS = {
 }
 TABULAR_CAT_ATTR_LABELS = {
     TabularAttribute.sex: ["M", "W"],
-    TabularAttribute.cad: [False, True],
     TabularAttribute.stroke: [False, True],
     TabularAttribute.tobacco: ["none", "Ceased", "Active"],
     TabularAttribute.diabetes: [False, True],
