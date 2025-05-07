@@ -197,6 +197,7 @@ class TabularAttribute(SnakeCaseStrEnum):
     vci_insp = auto()
     vci_exp = auto()
     la_dm = auto()
+    la_area = auto()
     la_area_s = auto()
     a4c_la_esv = "a4c_la_esv"
     a2c_la_esv = "a2c_la_esv"
