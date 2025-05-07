@@ -173,6 +173,11 @@ class OrchidDataModule(VitalDataModule):
                 ),  # Number of attributes across all views
                 len(first_item[ViewEnum.A2C][first_time_series_attr]),  # Attribute shape
             )
+        else:
+            raise ValueError(
+                "No image data available in the first item of the training datapipe. "
+                "Please check the data loading pipeline."
+            )
         # else:
         #     # If no image data is available, add the shapes of each sequence, by process of elimination
         #     modalities_shapes.update(
