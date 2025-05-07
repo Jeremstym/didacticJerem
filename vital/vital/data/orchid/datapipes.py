@@ -90,8 +90,6 @@ def process_patient(
         tab_attrs_data = {attr_tag: patient.attrs.get(attr_tag) for attr_tag in tabular_attrs}
 
         for attr_tag, attr in tab_attrs_data.items():
-            print(f"Processing {attr_tag} for patient {patient.id}...")
-            print(f"  {attr_tag}: {attr}")
             if attr_tag in TabularAttribute.numerical_attrs():
                 # Convert numerical attributes to numpy arrays of dtype `np.float32`
                 tab_attrs_data[attr_tag] = np.array(attr if attr is not None else MISSING_NUM_ATTR, dtype=np.float32)
