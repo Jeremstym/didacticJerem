@@ -169,11 +169,6 @@ class TabularAttribute(SnakeCaseStrEnum):
     """Left ventricular Posterior Wall (PW) thickness at end-diastole (D)."""
     tapse = auto()
     """Tricuspid Annular Plane Systolic Excursion (TAPSE)."""
-    hb = auto()
-    bnp = auto()
-    proteinuria = auto()
-    creatinuria = auto()
-    microalbuminuria = auto()
     pisa_radius_mi = auto()
     sinus = auto()
     blood_flow = auto()
