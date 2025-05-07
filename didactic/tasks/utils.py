@@ -7,12 +7,12 @@ import torch
 from torch import Tensor
 from torch.utils.data import default_collate
 from tqdm.auto import tqdm
-from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.cardinal.datapipes import process_patient
-from vital.data.cardinal.utils.data_dis import check_subsets
-from vital.data.cardinal.utils.data_struct import Patient
-from vital.data.cardinal.utils.itertools import Patients
+from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from vital.data.orchid.config import View as ViewEnum
+from vital.data.orchid.datapipes import process_patient
+from vital.data.orchid.utils.data_dis import check_subsets
+from vital.data.orchid.utils.data_struct import Patient
+from vital.data.orchid.utils.itertools import Patients
 from vital.utils.format.torch import numpy_to_torch, torch_apply, torch_to_numpy
 
 from didactic.models.explain import attention_rollout, k_number, register_attn_weights_hook
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def encode_patients(
     model: CardiacMultimodalRepresentationTask,
     patients: Iterable[Patient],
-    mask_tag: str = CardinalTag.mask,
+    mask_tag: str = OrchidTag.mask,
     progress_bar: bool = False,
     **forward_kwargs,
 ) -> np.ndarray | Dict[str, np.ndarray]:
@@ -114,7 +114,7 @@ def encode_patients_attrs(
 def summarize_patient_attn(
     model: CardiacMultimodalRepresentationTask,
     patient: Patient,
-    mask_tag: str = CardinalTag.mask,
+    mask_tag: str = OrchidTag.mask,
     use_attention_rollout: bool = False,
     attention_rollout_kwargs: Dict[str, Any] = None,
     head_reduction: Literal["mean", "k_max", "k_min"] = "k_min",

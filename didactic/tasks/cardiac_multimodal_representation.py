@@ -13,10 +13,10 @@ from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
 from torchmetrics.functional import accuracy, auroc, mean_absolute_error, f1_score
 from vital.data.augmentation.base import mask_tokens, random_masking
-from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
-from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
+from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from vital.data.orchid.config import View as ViewEnum
+from vital.data.orchid.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
+from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from vital.tasks.generic import SharedStepsTask
 from vital.utils.decorators import auto_move_data
@@ -432,7 +432,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # an index out of range error when looking up the embedding of the class in the categorical feature tokenizer
         tab_attrs.update({attr: torch.randint(2, (2,)) for attr in self.tabular_cat_attrs})
         time_series_attrs = {
-            (view, attr): torch.randn(2, self.hparams.data_params.in_shape[CardinalTag.time_series_attrs][1])
+            (view, attr): torch.randn(2, self.hparams.data_params.in_shape[OrchidTag.time_series_attrs][1])
             for view, attr in itertools.product(self.hparams.views, self.hparams.time_series_attrs)
         }
         return tab_attrs, time_series_attrs
