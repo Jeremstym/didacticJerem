@@ -128,6 +128,22 @@ class TabularAttribute(SnakeCaseStrEnum):
     """Whether the patient's treatment contains a Calcium Channel Blocker (CCB) and which one."""
     antipla = auto()
     anticoag = auto()
+    cd_grade = auto()
+    """Coronary Disease (CD) grade."""
+    m_stenosis = auto()
+    """Mitral Stenosis (MS) grade."""
+    mi_grade = auto()
+    """Mitral Insufficiency (MI) grade."""
+    a_stenosis = auto()
+    """Aortic Stenosis (AS) grade."""
+    dilation = auto()
+    """Aortic Dilation grade."""
+    ti_grade = auto()
+    """Tricuspid Insufficiency (TI) grade."""
+    pi_grade = auto()
+    """Pulmonary Insufficiency (PI) grade."""
+    pericardium = auto()
+    """Pericardium grade."""
     lp_diuritique = auto()
     k_diuritique = auto()
     arni = auto()
