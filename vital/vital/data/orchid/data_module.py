@@ -104,7 +104,7 @@ class OrchidDataModule(VitalDataModule):
         train_dp = self._build_subset_datapipes(Subset.TRAIN)
         first_item = train_dp[0]
         modalities_shapes = {}
-        if ViewEnum.A4C in first_item or ViewEnum.A2C in first_item or ViewEnum.A3C in first_item:
+        if ViewEnum.A4C in first_item:
             # If image data is available
 
             # Add the shapes of each sequence, by process of elimination. Since a views' data contains only sequences
@@ -126,6 +126,67 @@ class OrchidDataModule(VitalDataModule):
                     if view_entry in TimeSeriesAttribute
                 ),  # Number of attributes across all views
                 len(first_item[ViewEnum.A4C][first_time_series_attr]),  # Attribute shape
+            )
+        elif ViewEnum.A3C in first_item:
+            # If image data is available
+
+            # Add the shapes of each sequence, by process of elimination. Since a views' data contains only sequences
+            # and the masks' attributes, any entry that is not an attribute is an image
+            modalities_shapes.update(
+                {
+                    item_data_tag: item_data.shape
+                    for item_data_tag, item_data in first_item[ViewEnum.A3C].items()
+                    if item_data_tag not in TimeSeriesAttribute
+                }
+            )
+            # Add the normalized size of the time-series attributes: (num_attrs, attr_len)
+            first_time_series_attr = list(first_item[ViewEnum.A3C])[0]
+            modalities_shapes[OrchidTag.time_series_attrs] = (
+                sum(
+                    1
+                    for view in ViewEnum
+                    for view_entry in first_item.get(view, [])
+                    if view_entry in TimeSeriesAttribute
+                ),  # Number of attributes across all views
+                len(first_item[ViewEnum.A3C][first_time_series_attr]),  # Attribute shape
+            )
+        elif ViewEnum.A2C in first_item:
+            # If image data is available
+
+            # Add the shapes of each sequence, by process of elimination. Since a views' data contains only sequences
+            # and the masks' attributes, any entry that is not an attribute is an image
+            modalities_shapes.update(
+                {
+                    item_data_tag: item_data.shape
+                    for item_data_tag, item_data in first_item[ViewEnum.A2C].items()
+                    if item_data_tag not in TimeSeriesAttribute
+                }
+            )
+            # Add the normalized size of the time-series attributes: (num_attrs, attr_len)
+            first_time_series_attr = list(first_item[ViewEnum.A2C])[0]
+            modalities_shapes[OrchidTag.time_series_attrs] = (
+                sum(
+                    1
+                    for view in ViewEnum
+                    for view_entry in first_item.get(view, [])
+                    if view_entry in TimeSeriesAttribute
+                ),  # Number of attributes across all views
+                len(first_item[ViewEnum.A2C][first_time_series_attr]),  # Attribute shape
+            )
+        else:
+            # If no image data is available, add the shapes of each sequence, by process of elimination
+            modalities_shapes.update(
+                {
+                    item_data_tag: item_data.shape
+                    for item_data_tag, item_data in first_item.items()
+                    if item_data_tag not in TimeSeriesAttribute
+                }
+            )
+            # Add the normalized size of the time-series attributes: (num_attrs, attr_len)
+            first_time_series_attr = list(first_item)[0]
+            modalities_shapes[OrchidTag.time_series_attrs] = (
+                sum(1 for attr in TimeSeriesAttribute if attr in first_item),  # Number of attributes
+                len(first_item[first_time_series_attr]),  # Attribute shape
             )
         # Add the number of tabular attributes
         num_tab_attrs = sum(1 for tab_attrs in TabularAttribute if tab_attrs in first_item)

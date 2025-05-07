@@ -431,8 +431,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         # Only generate 0/1 labels, to avoid generating labels bigger than the number of classes, which would lead to
         # an index out of range error when looking up the embedding of the class in the categorical feature tokenizer
         tab_attrs.update({attr: torch.randint(2, (2,)) for attr in self.tabular_cat_attrs})
-        print(f"ORCHID in_shape data_params: {self.hparams.data_params.in_shape}")
-        raise Exception("Stop here")
         time_series_attrs = {
             (view, attr): torch.randn(2, self.hparams.data_params.in_shape[OrchidTag.time_series_attrs][1])
             for view, attr in itertools.product(self.hparams.views, self.hparams.time_series_attrs)
