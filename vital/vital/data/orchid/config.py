@@ -177,6 +177,8 @@ class TabularAttribute(SnakeCaseStrEnum):
     """Septal mitral annular velocity."""
     e_e_prime_ratio = auto()
     """Ratio of E over e'."""
+    lvm = auto()
+    """Left Ventricular Mass (LVM)."""
     lvm_ind = auto()
     """Left Ventricular Mass (LVM) index."""
     lvh = auto()
