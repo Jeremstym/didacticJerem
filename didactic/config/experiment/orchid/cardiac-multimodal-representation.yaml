@@ -42,6 +42,7 @@ data:
       - a3c_ed_ilc_max
       - a3c_ed_asc_min
       - a3c_ed_asc_max
+      - oui
       - age
       - sex
       - bmi
