@@ -178,6 +178,7 @@ TABULAR_ATTR_UNITS = {
     TabularAttribute.qrs_interval: ("(in ?)", int),
     TabularAttribute.qt_interval: ("(in ?)", int),
     TabularAttribute.r_axis: ("(in ?)", float),
+    TabularAttribute.gls: ("(in %)", float), # Redundant with TimeSeriesAttribute.gls, unused later
     **{
         cat_attr: (f"({'/'.join(str(category) for category in categories)})", Any)
         for cat_attr, categories in TABULAR_CAT_ATTR_LABELS.items()

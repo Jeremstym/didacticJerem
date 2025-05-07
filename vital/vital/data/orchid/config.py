@@ -245,6 +245,7 @@ class TabularAttribute(SnakeCaseStrEnum):
     a2c_pld_ab = auto()
     a2c_pld_aa = auto()
     a2c_pld_am = auto()
+    gls = auto()
 
     lbbb = auto()
     rbbb = auto()
