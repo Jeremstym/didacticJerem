@@ -104,7 +104,7 @@ class OrchidDataModule(VitalDataModule):
         train_dp = self._build_subset_datapipes(Subset.TRAIN)
         first_item = train_dp[0]
         modalities_shapes = {}
-        if ViewEnum.A4C in first_item:
+        if ViewEnum.A4C in first_item or ViewEnum.A2C in first_item or ViewEnum.A3C in first_item:
             # If image data is available
 
             # Add the shapes of each sequence, by process of elimination. Since a views' data contains only sequences
