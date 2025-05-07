@@ -104,6 +104,7 @@ class OrchidDataModule(VitalDataModule):
         train_dp = self._build_subset_datapipes(Subset.TRAIN)
         first_item = train_dp[0]
         modalities_shapes = {}
+        print(f"First item: {first_item}")
         if ViewEnum.A4C in first_item:
             # If image data is available
 
