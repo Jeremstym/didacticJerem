@@ -10,9 +10,9 @@ from omegaconf import DictConfig
 from strenum import SnakeCaseStrEnum
 from torch import Tensor, nn
 from torch.nn import functional as F
-from vital.data.cardinal.config import CardinalTag, TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.cardinal.datapipes import PatientData, filter_time_series_attributes
+from vital.data.orchid.config import OrchidTag, TimeSeriesAttribute
+from vital.data.orchid.config import View as ViewEnum
+from vital.data.orchid.datapipes import PatientData, filter_time_series_attributes
 from vital.tasks.generic import SharedStepsTask
 from vital.utils.decorators import auto_move_data
 from vital.utils.norm import minmax_scaling, scale
@@ -89,7 +89,7 @@ class CardiacSequenceAttributesAutoencoder(SharedStepsTask):
     @property
     def example_input_array(self) -> Tensor:
         """Redefine example input array based only on the time-series attributes modality."""
-        attrs_shape = self.hparams.data_params.in_shape[CardinalTag.time_series_attrs]
+        attrs_shape = self.hparams.data_params.in_shape[OrchidTag.time_series_attrs]
         return torch.randn((2, 1, attrs_shape[1]))
 
     @property
@@ -154,7 +154,7 @@ class CardiacSequenceAttributesAutoencoder(SharedStepsTask):
 
     def configure_model(self) -> nn.Module:
         """Configure the network architecture used by the system."""
-        attrs_shape = self.hparams.data_params.in_shape[CardinalTag.time_series_attrs]
+        attrs_shape = self.hparams.data_params.in_shape[OrchidTag.time_series_attrs]
         model = hydra.utils.instantiate(self.hparams.model, input_shape=(1, attrs_shape[-1]))
         return model
 
