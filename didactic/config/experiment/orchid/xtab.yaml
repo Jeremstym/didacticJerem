@@ -9,7 +9,7 @@ trainer:
 
 task:
   predict_losses:
-    ht_severity:
+    diagnosis:
       _target_: torch.nn.CrossEntropyLoss
   ordinal_mode: False
   contrastive_loss: null
