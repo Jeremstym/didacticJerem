@@ -88,6 +88,7 @@ data:
       - qrs_interval
       - qt_interval
       - r_axis
+      - sa_ve
     time_series_attrs:
       - gls
       - ls_left

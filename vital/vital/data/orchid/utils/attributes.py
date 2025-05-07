@@ -179,6 +179,7 @@ TABULAR_ATTR_UNITS = {
     TabularAttribute.qt_interval: ("(in ?)", int),
     TabularAttribute.r_axis: ("(in ?)", float),
     TabularAttribute.gls: ("(in %)", float), # Redundant with TimeSeriesAttribute.gls, unused later
+    TabularAttribute.sa_ve: ("(in ml)", float),
     **{
         cat_attr: (f"({'/'.join(str(category) for category in categories)})", Any)
         for cat_attr, categories in TABULAR_CAT_ATTR_LABELS.items()
@@ -325,6 +326,7 @@ TABULAR_ATTR_GROUPS = {
         TabularAttribute.a2c_pld_ab,
         TabularAttribute.a2c_pld_am,
         TabularAttribute.a2c_pld_aa,
+        TabularAttribute.sa_ve,
         ],
     "ecg": [
         TabularAttribute.lbbb,
