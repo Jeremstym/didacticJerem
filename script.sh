@@ -557,3 +557,4 @@ done
 #! nnUnet Segmentation command
 
 # ascent_predict dataset=ORCHID model=cardinal_3d trainer.precision=32 ckpt_path=/data/stympopper/nnUnet/best_3d.ckpt input_folder=/data/stympopper/nnUnet/ORCHID/raw/imagesTs output_folder=/data/stympopper/nnUnet/experiments
+# ascent_predict dataset=ORCHID model=cardinal_3d ckpt_path=/data/stympopper/nnUnet/best_3d.ckpt input_folder=/data/stympopper/ORCHID/raw/imagesTs output_folder=/data/stympopper/ORCHID/preprocessed
