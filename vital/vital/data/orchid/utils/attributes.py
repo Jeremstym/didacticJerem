@@ -172,6 +172,7 @@ TABULAR_ATTR_UNITS = {
     TabularAttribute.a2c_pld_im: ("(in %)", int),
     TabularAttribute.a2c_pld_ia: ("(in %)", int),
     TabularAttribute.a2c_pld_ab: ("(in %)", int),
+    TabularAttribute.a2c_pld_am: ("(in %)", int),
     TabularAttribute.a2c_pld_aa: ("(in %)", int),
     TabularAttribute.pr_interval: ("(in ?)", int),
     TabularAttribute.qrs_interval: ("(in ?)", int),
@@ -321,6 +322,7 @@ TABULAR_ATTR_GROUPS = {
         TabularAttribute.a2c_pld_im,
         TabularAttribute.a2c_pld_ia,
         TabularAttribute.a2c_pld_ab,
+        TabularAttribute.a2c_pld_am,
         TabularAttribute.a2c_pld_aa,
         ],
     "ecg": [
