@@ -292,6 +292,8 @@ class View:
         attrs_cache_path = remove_suffixes(self._data_paths[data_tag]).with_suffix(
             as_file_extension(ATTRS_CACHE_FORMAT)
         )
+        print(f"cache_path: {attrs_cache_path}")
+        raise Exception("test")
         cached_attrs = None
         if attrs_cache_path.exists() and not overwrite_attrs_cache:
             cached_attrs = np.load(attrs_cache_path)
