@@ -558,3 +558,8 @@ done
 
 # ascent_predict dataset=ORCHID model=cardinal_3d trainer.precision=32 ckpt_path=/data/stympopper/nnUnet/best_3d.ckpt input_folder=/data/stympopper/nnUnet/ORCHID/raw/imagesTs output_folder=/data/stympopper/nnUnet/experiments
 # ascent_predict dataset=ORCHID model=cardinal_3d ckpt_path=/data/stympopper/nnUnet/best_3d.ckpt input_folder=/data/stympopper/ORCHID/raw/imagesTs output_folder=/data/stympopper/ORCHID/preprocessed
+
+#! ORCHID learning
+
+# didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular
+# didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
