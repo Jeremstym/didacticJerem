@@ -321,13 +321,11 @@ class View:
         )
         if attrs_cache_path.exists() and not overwrite_attrs_cache:
             self.attrs[data_tag] = np.load(attrs_cache_path)
-            raise Exception("A cache path was found")
         else:
             # If no cache of attributes is available (or it should be overwritten), manually load the data again to
             # compute and cache the attributes. This can cause the image to be read again even if it was already loaded,
             # but since most of the cost of `_load_data_and_attrs` comes from computing the attributes, the cost of
             # reading the image itself is negligible
-            raise Exception("No cache path was found")
             _ = self._load_data_and_attrs(data_tag, overwrite_attrs_cache=True)
 
         return self.attrs[data_tag]
