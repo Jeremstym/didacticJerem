@@ -123,6 +123,8 @@ def process_patient(
                 for attr_tag, attr in view_data.items()
                 if attr_tag in time_series_attrs
             }
+            if view_data
+            else MISSING_TS_VIEWS[view_enum]
             for view_enum, view_data in time_series_attrs_data.items()
         }
     else:
