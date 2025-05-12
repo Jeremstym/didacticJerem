@@ -22,6 +22,7 @@ AttributeTransform = Callable[[np.ndarray], np.ndarray]
 
 MISSING_NUM_ATTR = np.nan
 MISSING_CAT_ATTR = -1
+MISSING_TS_VIEWS = {view_enum: {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute} for view_enum in ViewEnum}
 
 
 def build_datapipes(

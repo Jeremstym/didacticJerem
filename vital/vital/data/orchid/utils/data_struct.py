@@ -35,6 +35,7 @@ from vital.utils.path import as_file_extension, remove_suffixes
 logger = logging.getLogger(__name__)
 
 PIL_SEQUENCE_FORMATS = [".gif"]
+MISSING_VIEW = "missing_view"
 
 
 def load_attributes(
@@ -135,7 +136,7 @@ class Patient:
         Returns:
             Dictionary of attributes and their values for the given mask, for each view.
         """
-        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items()}
+        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items() if view is not None else view_enum, MISSING_VIEW}
 
     def get_patient_attributes(self) -> Dict[str, Union[int, float]]:
         """Returns the patient's global attributes.
@@ -180,8 +181,8 @@ class Patient:
         views_data = {}
         for view in views:
             if view not in avail_views:
-                # logging.warning(f"Patient '{patient_id}' had no data for the requested '{view}' view.")
-                continue
+                # Add missing views to the dictionary with empty data
+                views_data[view] = None
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
@@ -320,6 +321,8 @@ class View:
         attrs_cache_path = remove_suffixes(self._data_paths[data_tag]).with_suffix(
             as_file_extension(ATTRS_CACHE_FORMAT)
         )
+        print(f"cache_path: {attrs_cache_path}")
+        raise Exception("test")
         if attrs_cache_path.exists() and not overwrite_attrs_cache:
             self.attrs[data_tag] = np.load(attrs_cache_path)
         else:

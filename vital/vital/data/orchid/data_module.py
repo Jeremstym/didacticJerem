@@ -173,26 +173,7 @@ class OrchidDataModule(VitalDataModule):
                 ),  # Number of attributes across all views
                 len(first_item[ViewEnum.A2C][first_time_series_attr]),  # Attribute shape
             )
-        # else:
-        #     raise ValueError(
-        #         "No image data available in the first item of the training datapipe. "
-        #         "Please check the data loading pipeline."
-        #     )
-        # else:
-        #     # If no image data is available, add the shapes of each sequence, by process of elimination
-        #     modalities_shapes.update(
-        #         {
-        #             item_data_tag: item_data.shape
-        #             for item_data_tag, item_data in first_item.items()
-        #             if item_data_tag not in TimeSeriesAttribute
-        #         }
-        #     )
-        #     # Add the normalized size of the time-series attributes: (num_attrs, attr_len)
-        #     first_time_series_attr = list(first_item)[0]
-        #     modalities_shapes[OrchidTag.time_series_attrs] = (
-        #         sum(1 for attr in TimeSeriesAttribute if attr in first_item),  # Number of attributes
-        #         len(first_item[first_time_series_attr]),  # Attribute shape
-        #     )
+        
         # Add the number of tabular attributes
         num_tab_attrs = sum(1 for tab_attrs in TabularAttribute if tab_attrs in first_item)
         if num_tab_attrs:
