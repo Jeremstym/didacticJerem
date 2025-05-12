@@ -37,7 +37,8 @@ logger = logging.getLogger(__name__)
 PIL_SEQUENCE_FORMATS = [".gif"]
 # MISSING_VIEW_ATTR = "missing_view"
 MISSING_NUM_ATTR = np.nan
-MISSING_TS_ATTRS = {"mask": {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}}
+# MISSING_TS_ATTRS = {"mask": {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}}
+MISSING_TS_ATTRS = {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}
 
 
 def load_attributes(
@@ -139,7 +140,7 @@ class Patient:
             Dictionary of attributes and their values for the given mask, for each view.
         """
         # return {view_enum: view.get_mask_attributes(mask_tag) if view is not None else MISSING_VIEW_ATTR for view_enum, view in self.views.items()}
-        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items()}
+        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items() if view != MISSING_TS_ATTR}
 
     def get_patient_attributes(self) -> Dict[str, Union[int, float]]:
         """Returns the patient's global attributes.
@@ -185,8 +186,8 @@ class Patient:
         for view in views:
             if view not in avail_views:
                 # Add missing views to the dictionary with empty data
-                views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_ATTRS)
-                # views_data[view] = MISSING_TS_ATTRS
+                # views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_ATTRS)
+                views_data[view] = MISSING_TS_ATTRS
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
