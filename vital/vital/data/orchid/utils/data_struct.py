@@ -183,7 +183,8 @@ class Patient:
         for view in views:
             if view not in avail_views:
                 # Add missing views to the dictionary with empty data
-                views_data[view] = None
+                # views_data[view] = None
+                continue
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
