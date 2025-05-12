@@ -136,7 +136,7 @@ class Patient:
         Returns:
             Dictionary of attributes and their values for the given mask, for each view.
         """
-        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items() if view is not None else view_enum, MISSING_VIEW}
+        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items() if view is not None}
 
     def get_patient_attributes(self) -> Dict[str, Union[int, float]]:
         """Returns the patient's global attributes.
