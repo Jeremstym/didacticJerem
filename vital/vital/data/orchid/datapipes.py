@@ -92,11 +92,11 @@ def process_patient(
         for attr_tag, attr in tab_attrs_data.items():
             if attr_tag in TabularAttribute.numerical_attrs():
                 # Convert numerical attributes to numpy arrays of dtype `np.float32`
-                tab_attrs_data[attr_tag] = np.array(attr if attr is not np.NaN else MISSING_NUM_ATTR, dtype=np.float32)
+                tab_attrs_data[attr_tag] = np.array(attr if attr is not np.nan else MISSING_NUM_ATTR, dtype=np.float32)
             else:
                 # Convert categorical attributes to numerical labels inside numpy arrays of dtype `np.int64`
                 tab_attrs_data[attr_tag] = np.array(
-                    TABULAR_CAT_ATTR_LABELS[attr_tag].index(attr) if attr is not np.NaN else MISSING_CAT_ATTR,
+                    TABULAR_CAT_ATTR_LABELS[attr_tag].index(attr) if attr is not np.nan else MISSING_CAT_ATTR,
                     dtype=np.int64,
                 )
     else:
