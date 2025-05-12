@@ -35,7 +35,7 @@ from vital.utils.path import as_file_extension, remove_suffixes
 logger = logging.getLogger(__name__)
 
 PIL_SEQUENCE_FORMATS = [".gif"]
-MISSING_VIEW = "missing_view"
+MISSING_VIEW_ATTR = "missing_view"
 
 
 def load_attributes(
@@ -136,7 +136,7 @@ class Patient:
         Returns:
             Dictionary of attributes and their values for the given mask, for each view.
         """
-        return {view_enum: view.get_mask_attributes(mask_tag) for view_enum, view in self.views.items() if view is not None}
+        return {view_enum: view.get_mask_attributes(mask_tag) if view is not None else MISSING_VIEW_ATTR for view_enum, view in self.views.items()}
 
     def get_patient_attributes(self) -> Dict[str, Union[int, float]]:
         """Returns the patient's global attributes.
@@ -295,10 +295,8 @@ class View:
         )
         cached_attrs = None
         if attrs_cache_path.exists() and not overwrite_attrs_cache:
-            raise Exception("test: attrs_cache_path detected")
             cached_attrs = np.load(attrs_cache_path)
         
-        raise Exception("test: cached_attrs not detected")
         self.add_image(data_tag, im_array, voxelspacing=voxelspacing, precomputed_attrs=cached_attrs)
 
         # If no cache of the attributes exists or it should be overwritten, create it
@@ -321,15 +319,15 @@ class View:
         attrs_cache_path = remove_suffixes(self._data_paths[data_tag]).with_suffix(
             as_file_extension(ATTRS_CACHE_FORMAT)
         )
-        print(f"cache_path: {attrs_cache_path}")
-        raise Exception("test")
         if attrs_cache_path.exists() and not overwrite_attrs_cache:
             self.attrs[data_tag] = np.load(attrs_cache_path)
+            raise Exception("A cache path was found")
         else:
             # If no cache of attributes is available (or it should be overwritten), manually load the data again to
             # compute and cache the attributes. This can cause the image to be read again even if it was already loaded,
             # but since most of the cost of `_load_data_and_attrs` comes from computing the attributes, the cost of
             # reading the image itself is negligible
+            raise Exception("No cache path was found")
             _ = self._load_data_and_attrs(data_tag, overwrite_attrs_cache=True)
 
         return self.attrs[data_tag]
