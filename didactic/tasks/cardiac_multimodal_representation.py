@@ -729,10 +729,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     def _shared_step(self, batch: PatientData, batch_idx: int) -> Dict[str, Tensor]:
         # Extract tabular and time-series attributes from the batch
         tabular_attrs = {attr: attr_data for attr, attr_data in batch.items() if attr in self.hparams.tabular_attrs}
-        time_series_attrs = filter_time_series_attributes(
+        time_series_attrs, time_series_attrs_notna_mask = filter_time_series_attributes(
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
 
+        print(f'notna mask: {time_series_attrs_notna_mask}')
+        raise Exception("stop here")
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         
         metrics = {}
