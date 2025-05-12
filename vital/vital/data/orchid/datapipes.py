@@ -96,7 +96,7 @@ def process_patient(
             else:
                 # Convert categorical attributes to numerical labels inside numpy arrays of dtype `np.int64`
                 tab_attrs_data[attr_tag] = np.array(
-                    TABULAR_CAT_ATTR_LABELS[attr_tag].index(attr) if attr is not np.nan else MISSING_CAT_ATTR,
+                    TABULAR_CAT_ATTR_LABELS[attr_tag].index(attr) if not np.isnan(attr) else MISSING_CAT_ATTR,
                     dtype=np.int64,
                 )
     else:
