@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 
 PIL_SEQUENCE_FORMATS = [".gif"]
 # MISSING_VIEW_ATTR = "missing_view"
+MISSING_NUM_ATTR = np.nan
+MISSING_TS_ATTRS = {"mask": {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}}
 
 
 def load_attributes(
@@ -183,7 +185,8 @@ class Patient:
         for view in views:
             if view not in avail_views:
                 # Add missing views to the dictionary with empty data
-                views_data[view] = View(Id=(patient_id, view), data={}, attrs={})
+                views_data[view] = View(Id=(patient_id, view), data={}, attrs=MISSING_TS_ATTRS)
+                # views_data[view] = MISSING_TS_ATTRS
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(

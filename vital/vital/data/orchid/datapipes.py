@@ -11,7 +11,7 @@ from torchvision.transforms import transforms
 from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
 from vital.data.orchid.config import View as ViewEnum
 from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
-from vital.data.orchid.utils.data_struct import Patient
+from vital.data.orchid.utils.data_struct import Patient, MISSING_TS_ATTRS
 from vital.data.orchid.utils.itertools import Patients
 
 T = TypeVar("T", np.ndarray, Tensor)
@@ -123,7 +123,7 @@ def process_patient(
                 for attr_tag, attr in view_data.items()
                 if attr_tag in time_series_attrs
             }
-            if view_data
+            if view_data != MISSING_TS_ATTRS
             else MISSING_TS_VIEWS[view_enum]
             for view_enum, view_data in time_series_attrs_data.items()
         }
