@@ -217,12 +217,20 @@ def filter_time_series_attributes(
     Returns:
         Requested time-series attributes from the requested views in the item/batch of data.
     """
-    return {
+    time_series_data = {
         (view_enum, view_data_tag): data
         for view_enum in views
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
         if view_data_tag in attrs
     }
+    time_series_notna_mask = np.array(
+        [
+            not np.array_equal(data, MISSING_NUM_ATTR)
+            for view_enum, view_data_tag in time_series_data
+            for data in time_series_data[(view_enum, view_data_tag)]
+        ]
+    ).reshape(-1, len(attrs))
+    return time_series_data, time_series_notna_mask
 
 
 if __name__ == "__main__":
