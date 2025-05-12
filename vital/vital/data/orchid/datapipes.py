@@ -92,13 +92,23 @@ def process_patient(
         for attr_tag, attr in tab_attrs_data.items():
             if attr_tag in TabularAttribute.numerical_attrs():
                 # Convert numerical attributes to numpy arrays of dtype `np.float32`
-                tab_attrs_data[attr_tag] = np.array(attr if attr is not None else MISSING_NUM_ATTR, dtype=np.float32)
+                try:
+                    tab_attrs_data[attr_tag] = np.array(attr if attr is not None else MISSING_NUM_ATTR, dtype=np.float32)
+                except ValueError as e:
+                    raise ValueError(
+                        f"Tabular attribute {attr_tag} of patient {patient.id} raise the issue {e} for value {attr}"
+                    ) from e
             else:
                 # Convert categorical attributes to numerical labels inside numpy arrays of dtype `np.int64`
-                tab_attrs_data[attr_tag] = np.array(
-                    TABULAR_CAT_ATTR_LABELS[attr_tag].index(attr) if attr is not None else MISSING_CAT_ATTR,
-                    dtype=np.int64,
-                )
+                try:
+                    tab_attrs_data[attr_tag] = np.array(
+                        TABULAR_CAT_ATTR_LABELS[attr_tag].index(attr) if attr is not None else MISSING_CAT_ATTR,
+                        dtype=np.int64,
+                    )
+                except ValueError as e:
+                    raise ValueError(
+                        f"Tabular attribute {attr_tag} of patient {patient.id} raise the issue {e} for value {attr}"
+                    ) from e
     else:
         tab_attrs_data = {}
 
