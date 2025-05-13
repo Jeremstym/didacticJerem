@@ -307,6 +307,10 @@ class View:
         cached_attrs = None
         if attrs_cache_path.exists() and not overwrite_attrs_cache:
             cached_attrs = np.load(attrs_cache_path)
+        else:
+            raise Exception(
+                f"Attributes cache not found for '{data_tag}' at '{attrs_cache_path}'. "
+            )
         
         self.add_image(data_tag, im_array, voxelspacing=voxelspacing, precomputed_attrs=cached_attrs)
 
