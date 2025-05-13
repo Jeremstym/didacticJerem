@@ -137,7 +137,6 @@ def process_patient(
             else MISSING_TS_VIEWS[view_enum]
             for view_enum, view_data in time_series_attrs_data.items()
         }
-        print(f"Time-series attributes data: {time_series_attrs_data}")
     else:
         time_series_attrs_data = {}
 
