@@ -11,7 +11,7 @@ from torchvision.transforms import transforms
 from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
 from vital.data.orchid.config import View as ViewEnum
 from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
-from vital.data.orchid.utils.data_struct import Patient, MISSING_TS_VIEWS
+from vital.data.orchid.utils.data_struct import Patient, MISSING_TS_VIEWS, MISSING_TS_ATTR
 from vital.data.orchid.utils.itertools import Patients
 
 T = TypeVar("T", np.ndarray, Tensor)
@@ -240,7 +240,7 @@ def filter_time_series_attributes(
     }
     time_series_notna_mask = np.array(
         [
-            not np.array_equal(data, MISSING_NUM_ATTR)
+            not np.array_equal(data, MISSING_TS_ATTR)
             for view_enum, view_data_tag in time_series_data
             for data in time_series_data[(view_enum, view_data_tag)]
         ]
