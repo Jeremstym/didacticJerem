@@ -12,7 +12,7 @@ nvidia-smi
 
 ulimit -n 4096
 
-for seed in {42..51}; do
+# for seed in {42..51}; do
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/irene-sanity${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.irene_baseline=True task.cross_attention=True task.embed_dim=768
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/irene_ternary-no-echo${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={ht_severity:{_target_:torch.nn.CrossEntropyLoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.irene_baseline=True
     # poetry run didactic-runner 'hydra.run.dir=/home/stympopper/didacticWORKSHOP/cross-xtab-prenorm${seed}' +experiment=cardinal/xtab-finetune +trainer.max_epochs=100 'task.predict_losses={sanity:{_target_:torch.nn.BCELoss}}' exclude_tabular_attrs=[ht_severity,ht_grade,sanity] +seed=$seed task.cross_attention=True task.first_prenormalization=True ckpt=/home/stympopper/didacticJerem/ckpts/xtab.ckpt
@@ -533,7 +533,7 @@ for seed in {42..51}; do
     # python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py task/data=tab-selec ~task.time_series_attrs task.target_attr=ht_severity 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt'
 
     # echo "Current seed: $seed"
-done
+# done
 
 
 #! CROSS VALIDATION WITH 2 SEED
