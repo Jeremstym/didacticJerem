@@ -37,8 +37,9 @@ logger = logging.getLogger(__name__)
 PIL_SEQUENCE_FORMATS = [".gif"]
 # MISSING_VIEW_ATTR = "missing_view"
 MISSING_NUM_ATTR = np.nan
-# MISSING_TS_ATTRS = {"mask": {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}}
-MISSING_TS_ATTRS = {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}
+# MISSING_TS_VIEWS = {"mask": {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute}}
+MISSING_TS_ATTR = np.full(64, MISSING_NUM_ATTR, dtype=np.float32)
+MISSING_TS_VIEWS = {attr_tag: MISSING_TS_ATTR for attr_tag in TimeSeriesAttribute}
 
 
 def load_attributes(
@@ -142,7 +143,7 @@ class Patient:
         # return {view_enum: view.get_mask_attributes(mask_tag) if view is not None else MISSING_VIEW_ATTR for view_enum, view in self.views.items()}
         mask_attrs = {
             view_enum: view.get_mask_attributes(mask_tag) 
-            if view != MISSING_TS_ATTRS else MISSING_TS_ATTRS
+            if view != MISSING_TS_VIEWS else MISSING_TS_VIEWS
             for view_enum, view in self.views.items()
         }
         return mask_attrs
@@ -191,8 +192,8 @@ class Patient:
         for view in views:
             if view not in avail_views:
                 # Add missing views to the dictionary with empty data
-                # views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_ATTRS)
-                views_data[view] = MISSING_TS_ATTRS
+                # views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_VIEWS)
+                views_data[view] = MISSING_TS_VIEWS
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
@@ -467,9 +468,9 @@ class View:
             Dictionary of attributes and their values for the given mask.
         """
         if mask_tag not in self.attrs:
-            # Handle missing mask_tag by returning MISSING_TS_ATTRS or an empty dictionary
+            # Handle missing mask_tag by returning MISSING_TS_VIEWS or an empty dictionary
             # logger.warning(f"Mask tag '{mask_tag}' is missing in view '{self.id}'. Returning default attributes.")
-            return {attr: MISSING_NUM_ATTR for attr in TimeSeriesAttribute}
+            return {attr: MISSING_TS_ATTR for attr in TimeSeriesAttribute}
 
         # If mask_tag exists, return its attributes
         return {attr: self.attrs[mask_tag][attr] for attr in TimeSeriesAttribute}
