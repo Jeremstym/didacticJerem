@@ -129,7 +129,7 @@ def process_patient(
         # Make sure the attributes array are of dtype `np.float32`, so that they'll be converted to dtype `torch.float`
         time_series_attrs_data = {
             view_enum: {
-                attr_tag: attr.astype(np.float32)
+                attr_tag: np.array(attr, dtype=np.float32)  # Ensure attr is a NumPy array
                 for attr_tag, attr in view_data.items()
                 if attr_tag in time_series_attrs
             }
