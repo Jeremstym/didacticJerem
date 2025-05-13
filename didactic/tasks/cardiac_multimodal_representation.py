@@ -736,7 +736,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         )
 
         print(f'notna mask returnes: {time_series_notna_mask.shape}')
-        raise Exception("stop here")
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         
         metrics = {}
