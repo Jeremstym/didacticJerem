@@ -162,6 +162,7 @@ class Patients(Collection, Mapping[Patient.Id, Patient]):
             )
             for patient_id in tqdm(patient_ids, desc=f"Loading {self.item}s", unit=self.item)
         }
+        print(f"patients views: {self._patients.views}")
 
     @classmethod
     def from_dict(cls, patients: Dict[Patient.Id, Patient]) -> "Patients":

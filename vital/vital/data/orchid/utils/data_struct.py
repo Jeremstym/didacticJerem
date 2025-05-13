@@ -140,7 +140,6 @@ class Patient:
             Dictionary of attributes and their values for the given mask, for each view.
         """
         # return {view_enum: view.get_mask_attributes(mask_tag) if view is not None else MISSING_VIEW_ATTR for view_enum, view in self.views.items()}
-        print(f"patient views: {self.views}")
         mask_attrs = {
             view_enum: view.get_mask_attributes(mask_tag) 
             if view != MISSING_TS_ATTRS else MISSING_TS_ATTRS
