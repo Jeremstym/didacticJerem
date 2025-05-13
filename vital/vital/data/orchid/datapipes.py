@@ -126,7 +126,6 @@ def process_patient(
     if time_series_attrs:
         # Prepare attributes computed from the images
         time_series_attrs_data = patient.get_mask_attributes(mask_tag)
-        raise Exception("The time-series attributes are not yet implemented for the orchid dataset")
         # Make sure the attributes array are of dtype `np.float32`, so that they'll be converted to dtype `torch.float`
         time_series_attrs_data = {
             view_enum: {
@@ -138,6 +137,7 @@ def process_patient(
             else MISSING_TS_VIEWS[view_enum]
             for view_enum, view_data in time_series_attrs_data.items()
         }
+        print(f"Time-series attributes data: {time_series_attrs_data}")
     else:
         time_series_attrs_data = {}
 
