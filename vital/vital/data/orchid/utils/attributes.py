@@ -31,7 +31,7 @@ TABULAR_CAT_ATTR_LABELS = {
     TabularAttribute.dyslipidemia: [False, True],
     TabularAttribute.arb: ["none", "irbesartan", "losartan", "valsartan", "candesartan", "telmisartan"],
     TabularAttribute.tz_diuretic: ["none", "indapamide", "hydrochlorothiazide", "esidrex"],
-    TabularAttribute.alpha_blocker: ["none", "urapidil", "prazosine", "silodosine", "alfuzosine"],
+    TabularAttribute.alpha_blocker: ["none", "urapidil", "prazosine", "silodosine", "alfuzosine", "tamsulosine"],
     TabularAttribute.ccb: ['none', 'amlodipine', 'lercanidipine', 'manidipine', 'vérapamil', 'isradipine', 'diltiazem chlorhydrate'],
     TabularAttribute.lvh: [False, True],
     TabularAttribute.oall: [False, True],
