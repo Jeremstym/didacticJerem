@@ -520,8 +520,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             # time_series_notna_mask = torch.full(
             #     time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
             # )
-            print(f"Time series notna mask shape: {time_series_notna_mask.shape}")
-            raise Exception("stop")
             notna_mask.append(time_series_notna_mask)
         
         if tabular_attrs:
