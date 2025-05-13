@@ -89,6 +89,7 @@ data:
       - qt_interval
       - r_axis
       - sa_ev
+      - diagnosis
     time_series_attrs:
       - gls
       - ls_left
@@ -103,7 +104,7 @@ data:
     write_path: ${sys.getcwd:}/predictions
     # hue_attrs: ${data.process_patient_kwargs.tabular_attrs}
 
-exclude_tabular_attrs: []
+exclude_tabular_attrs: [diagnosis]
 # Determine the number of tabular + time-series attributes used by the model based on their respective configs
 n_tabular_attrs: ${builtin.len:${task.tabular_attrs}}
 n_time_series_attrs: ${op.mul:${builtin.len:${task.views}},${builtin.len:${task.time_series_attrs}}}
