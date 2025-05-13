@@ -468,7 +468,7 @@ class View:
         """
         if mask_tag not in self.attrs:
             # Handle missing mask_tag by returning MISSING_TS_ATTRS or an empty dictionary
-            logger.warning(f"Mask tag '{mask_tag}' is missing in view '{self.id}'. Returning default attributes.")
+            # logger.warning(f"Mask tag '{mask_tag}' is missing in view '{self.id}'. Returning default attributes.")
             return {attr: MISSING_NUM_ATTR for attr in TimeSeriesAttribute}
 
         # If mask_tag exists, return its attributes
