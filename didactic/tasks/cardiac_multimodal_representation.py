@@ -427,7 +427,6 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     ) -> Tuple[Dict[TabularAttribute, Tensor], Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor]]:
         """Redefine example input array based on the cardiac attributes provided to the model."""
         # 2 is the size of the batch in the example
-        print("Example input array performing")
         tab_attrs = {attr: torch.randn(2) for attr in self.tabular_num_attrs}
         # Only generate 0/1 labels, to avoid generating labels bigger than the number of classes, which would lead to
         # an index out of range error when looking up the embedding of the class in the categorical feature tokenizer
