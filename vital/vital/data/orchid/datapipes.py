@@ -240,7 +240,7 @@ def filter_time_series_attributes(
     }
     time_series_notna_mask = np.array(
         [
-            not np.array_equal(data, MISSING_TS_ATTR)
+            not np.array_equal(data, MISSING_NUM_ATTR) # Or MISSING_TS_VIEWS?
             for view_enum, view_data_tag in time_series_data
             for data in time_series_data[(view_enum, view_data_tag)]
         ]
