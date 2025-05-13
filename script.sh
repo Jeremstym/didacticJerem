@@ -563,4 +563,4 @@ ulimit -n 4096
 
 # didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular
 # didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
-didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
+poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
