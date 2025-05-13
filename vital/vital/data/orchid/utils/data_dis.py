@@ -250,7 +250,11 @@ def plot_time_series_attrs_wrt_group(
         resampling_fn = Interp1d(64)
         time_series_attr_by_group = {
             group_label: {
-                patient.id: resampling_fn(patient.get_mask_attributes(mask_tag)[attr_view][attr])
+                patient.id: (
+                    resampling_fn(patient.get_mask_attributes(mask_tag)[attr_view][attr])
+                    if attr_view in patient.get_mask_attributes(mask_tag) and attr in patient.get_mask_attributes(mask_tag)[attr_view]
+                    else None  # Skip resampling for missing time-series
+                )
                 for patient in patients
             }
             for group_label, patients in patients_by_group.items()
