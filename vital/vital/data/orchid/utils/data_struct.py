@@ -145,7 +145,6 @@ class Patient:
             if view != MISSING_TS_ATTRS else MISSING_TS_ATTRS
             for view_enum, view in self.views.items()
         }
-        print(mask_attrs)
         return mask_attrs
 
     def get_patient_attributes(self) -> Dict[str, Union[int, float]]:
@@ -467,6 +466,12 @@ class View:
         Returns:
             Dictionary of attributes and their values for the given mask.
         """
+        if mask_tag not in self.attrs:
+            # Handle missing mask_tag by returning MISSING_TS_ATTRS or an empty dictionary
+            logger.warning(f"Mask tag '{mask_tag}' is missing in view '{self.id}'. Returning default attributes.")
+            return {attr: MISSING_NUM_ATTR for attr in TimeSeriesAttribute}
+
+        # If mask_tag exists, return its attributes
         return {attr: self.attrs[mask_tag][attr] for attr in TimeSeriesAttribute}
 
     @classmethod
