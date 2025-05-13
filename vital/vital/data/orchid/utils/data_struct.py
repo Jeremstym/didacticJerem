@@ -142,7 +142,7 @@ class Patient:
         # return {view_enum: view.get_mask_attributes(mask_tag) if view is not None else MISSING_VIEW_ATTR for view_enum, view in self.views.items()}
         return {
             view_enum: view.get_mask_attributes(mask_tag) 
-            if view != MISSING_TS_ATTRS else raise Exception(f"View '{view_enum}' not found for patient '{self.id}'.")
+            if view != MISSING_TS_ATTRS else MISSING_TS_ATTRS
             for view_enum, view in self.views.items()
         }
 
