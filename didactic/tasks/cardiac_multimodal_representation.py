@@ -489,6 +489,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self,
         tabular_attrs: Dict[TabularAttribute, Tensor],
         time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
+        time_series_notna_mask: Optional[Tensor] = None,
     ) -> Tuple[Tensor, Tensor]:
         """Tokenizes the input tabular and time-series attributes, providing a mask of non-missing attributes.
 
@@ -511,9 +512,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             tokens.append(time_series_attrs_tokens)
 
             # Indicate that, when time-series tokens are requested, they are always available
-            time_series_notna_mask = torch.full(
-                time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
-            )
+            if time_series_notna_mask is None:
+                time_series_notna_mask = torch.full(
+                    time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
+                )
+            
+            # time_series_notna_mask = torch.full(
+            #     time_series_attrs_tokens.shape[:2], True, device=time_series_attrs_tokens.device
+            # )
             print(f"Time series notna mask shape: {time_series_notna_mask.shape}")
             raise Exception("stop")
             notna_mask.append(time_series_notna_mask)
@@ -735,8 +741,8 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
 
-        print(f'notna mask returnes: {time_series_notna_mask.shape}')
-        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
+        # print(f'notna mask returnes: {time_series_notna_mask.shape}')
+        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs, time_series_notna_mask)  # (N, S, E), (N, S)
         
         metrics = {}
         losses = []

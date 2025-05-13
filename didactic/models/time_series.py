@@ -4,6 +4,8 @@ import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
 
+from vital.data.orchid.datapipes import filter_time_series_attributes
+
 
 def differentiate_ts(x: Tensor, order: int = 1) -> Tensor:
     """Differentiates the input time series tensor.
