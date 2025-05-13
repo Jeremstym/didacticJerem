@@ -75,6 +75,7 @@ data:
       - qt_interval
       - r_axis
       - sa_ev
+      - diagnosis
 
 task:
   _target_: didactic.tasks.cardiac_records_stratification.CardiacRecordsStratificationTask
@@ -84,9 +85,9 @@ task:
     enable_categorical: True
     random_state: ${oc.select:trial,null}
 
-  target_attr: ht_severity
+  target_attr: diagnosis
 
-exclude_tabular_attrs: [ht_severity,ht_grade]
+exclude_tabular_attrs: [diagnosis]
 # Determine the number of tabular attributes used by the model based on the config
 n_tabular_attrs: ${builtin.len:${task.tabular_attrs}}
 
