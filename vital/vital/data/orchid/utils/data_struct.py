@@ -193,6 +193,9 @@ class Patient:
                 # Add missing views to the dictionary with empty data
                 # views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_ATTRS)
                 views_data[view] = MISSING_TS_ATTRS
+                print(f"View '{view}' not found for patient '{patient_id}'.")
+                print(f"Set default view {views_data[view]}")
+                raise Exception("stop")
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
