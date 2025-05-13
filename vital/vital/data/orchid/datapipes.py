@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, Literal, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
 import torchdata.datapipes as dp
+import torch
 from torch import Tensor
 from torch.utils.data import MapDataPipe
 from torchvision.transforms import transforms
