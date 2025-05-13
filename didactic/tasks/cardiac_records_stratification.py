@@ -10,9 +10,9 @@ from omegaconf import DictConfig
 from pytorch_lightning.trainer.states import TrainerFn
 from sklearn.base import ClassifierMixin
 from sklearn.metrics import accuracy_score, roc_auc_score
-from vital.data.cardinal.config import TabularAttribute
-from vital.data.cardinal.data_module import CardinalDataModule
-from vital.data.cardinal.datapipes import MISSING_CAT_ATTR
+from vital.data.orchid.config import TabularAttribute
+from vital.data.orchid.data_module import OrchidDataModule
+from vital.data.orchid.datapipes import MISSING_CAT_ATTR
 from vital.data.config import Subset
 from vital.utils.config import register_omegaconf_resolvers
 
@@ -42,11 +42,11 @@ class CardiacRecordsStratificationTask:
         self.tabular_attrs = tuple(TabularAttribute[e] for e in tabular_attrs)
         self.target_attr = TabularAttribute[target_attr]
 
-    def _prepare_data_subset(self, data: CardinalDataModule, subset: str) -> Tuple[pd.DataFrame, np.ndarray]:
+    def _prepare_data_subset(self, data: OrchidDataModule, subset: str) -> Tuple[pd.DataFrame, np.ndarray]:
         """Extract and process from the data module, specifically to handle missing values and categorical attributes.
 
         Args:
-            data: CARDINAL data module.
+            data: ORCHID data module.
             subset: Subset of the data to extract (e.g. "train", "test").
 
         Returns:
@@ -91,11 +91,11 @@ class CardiacRecordsStratificationTask:
 
         return tab_df, target
 
-    def fit(self, data: CardinalDataModule) -> "CardiacRecordsStratificationTask":
+    def fit(self, data: OrchidDataModule) -> "CardiacRecordsStratificationTask":
         """Fit the model to the training set.
 
         Args:
-            data: CARDINAL data module.
+            data: ORCHID data module.
 
         Returns:
             The fitted model.
@@ -107,11 +107,11 @@ class CardiacRecordsStratificationTask:
 
         return self
 
-    def score(self, data: CardinalDataModule) -> Dict[str, float]:
+    def score(self, data: OrchidDataModule) -> Dict[str, float]:
         """Measure the model's performance on the test set.
 
         Args:
-            data: CARDINAL data module.
+            data: ORCHID data module.
 
         Returns:
             Dictionary of model's metrics (e.g. accuracy, AUROC, etc.) on the test set.
