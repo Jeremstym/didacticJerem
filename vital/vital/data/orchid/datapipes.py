@@ -24,6 +24,16 @@ MISSING_NUM_ATTR = np.nan
 MISSING_CAT_ATTR = -1
 MISSING_TS_VIEWS = {view_enum: {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute} for view_enum in ViewEnum}
 
+def dicts_equal(di1, di2):
+    if set(di1.keys()) != set(di2.keys()):
+        return False
+    for k in di1:
+        v1, v2 = di1[k], di2[k]
+        # Use np.array_equal for exact, or np.allclose for approximate equality
+        if not np.array_equal(v1, v2):
+            return False
+    return True
+
 
 def build_datapipes(
     patients: Patients,
@@ -123,7 +133,7 @@ def process_patient(
                 for attr_tag, attr in view_data.items()
                 if attr_tag in time_series_attrs
             }
-            if view_data != MISSING_TS_ATTRS
+        if not dicts_equal(view_data, MISSING_TS_ATTRS)
             else MISSING_TS_VIEWS[view_enum]
             for view_enum, view_data in time_series_attrs_data.items()
         }
