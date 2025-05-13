@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=electronic
-#SBATCH --job-name=TaBioBERT
+#SBATCH --job-name=ORCHID-FT
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --time=4-16:00:00
@@ -423,7 +423,7 @@ for seed in {42..51}; do
 
     # ! TEST LLM and FMs
 
-    poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint
+    # poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/TEST-TaBioBERT/seed${seed}' +experiment=cardinal/bert exclude_tabular_attrs=[ht_severity,ht_grade] seed=$seed task/data=tab-13 ~callbacks.model_checkpoint
 
     # ! TEST WITHOUT TRAINING
 
@@ -532,7 +532,7 @@ for seed in {42..51}; do
     # python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py task/data=tab-selec ~task.time_series_attrs task.target_attr=ht_severity 'data.subsets.train=/home/stympopper/data/CARDINAL/splits/0/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/splits/0/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/splits/0/test.txt'
     # python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py task/data=tab-selec ~task.time_series_attrs task.target_attr=ht_severity 'data.subsets.train=/home/stympopper/data/CARDINAL/split_to_5/${fold}/train.txt' 'data.subsets.val=/home/stympopper/data/CARDINAL/split_to_5/${fold}/val.txt' 'data.subsets.test=/home/stympopper/data/CARDINAL/split_to_5/${fold}/test.txt'
 
-    echo "Current seed: $seed"
+    # echo "Current seed: $seed"
 done
 
 
@@ -563,3 +563,4 @@ done
 
 # didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular
 # didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
+didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
