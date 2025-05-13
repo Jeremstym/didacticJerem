@@ -195,6 +195,10 @@ def transform_patient_data(
     # Apply time-series attributes transforms
     for view_data in (patient_data[view] for view in views):
         for time_series_attr in view_data:
+            # Skip transformation if the time-series attribute is missing
+            if np.array_equal(view_data[time_series_attr], MISSING_NUM_ATTR):
+                continue
+
             # Store the original dtype of the attribute
             attr_dtype = view_data[time_series_attr].dtype
 
