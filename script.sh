@@ -3,7 +3,7 @@
 #SBATCH --job-name=ORCHID-FT
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=4-16:00:00
+#SBATCH --time=1-16:00:00
 #SBATCH --output=/home/stympopper/bash/out/%x-%j.out
 #SBATCH --error=/home/stympopper/bash/out/%x-%j.err
 
