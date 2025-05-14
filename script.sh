@@ -564,3 +564,5 @@ ulimit -n 4096
 # didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular
 # didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
 poetry run didactic-runner 'hydra.run.dir=/data/stympopper/didacticWORKSHOP/ORCHID-FT-Transformer/seed${seed}' +experiment=orchid/xtab exclude_tabular_attrs=[diagnosis] seed=42 task/data=tabular+time-series
+
+# python /home/stympopper/didactic/didactic/tasks/cardiac_records_stratification.py +experiment=orchid/records-xgb task/data=tabular ~task.time_series_attrs task.target_attr=diagnosis
