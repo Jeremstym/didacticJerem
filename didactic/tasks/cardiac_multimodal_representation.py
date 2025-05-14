@@ -653,6 +653,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         self,
         tabular_attrs: Dict[TabularAttribute, Tensor],
         time_series_attrs: Dict[Tuple[ViewEnum, TimeSeriesAttribute], Tensor],
+        time_series_notna_mask: Optional[Tensor] = None,
         task: Literal["encode", "predict", "continuum_param", "continuum_tau"] = "encode",
         output_all: bool = False,
     ) -> Tensor | Dict[TabularAttribute, Tensor]:
@@ -687,7 +688,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 "predict ordinal targets. Either set `ordinal_mode` to `True` or change the requested inference task."
             )
 
-        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
+        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs, time_series_notna_mask)  # (N, S, E), (N, S)
         # if self.contrastive_loss and self.hparams.contrastive_loss_weight:
         #     enable_proj = True
         out_features = self.encode(in_tokens, avail_mask, output_all=output_all)  # (N, S, E) -> (N, E)
@@ -922,11 +923,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             attr: attr_data[None, ...]
             for attr, attr_data in filter_time_series_attributes(
                 batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
-            ).items()
+            )[0].items()
         }
+        time_series_notna_mask = filter_time_series_attributes(
+            batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
+        )[1]
 
         # Encoder's output
-        out_features = self(tabular_attrs, time_series_attrs)
+        out_features = self(tabular_attrs, time_series_attrs, time_series_notna_mask)
 
         # If the model has targets to predict, output the predictions
         predictions = None
