@@ -225,7 +225,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                     "acc": functools.partial(accuracy, task="multiclass", num_classes=num_classes),
                     "auroc": functools.partial(auroc, task="multiclass", num_classes=num_classes),
                     "auprc": functools.partial(average_precision, task="multiclass", average="macro", num_classes=num_classes),
-                    "f1": functools.partial(f1_score, task="multiclass", num_classes=num_classes),
+                    "f1": functools.partial(f1_score, task="multiclass", num_classes=num_classes, average="macro"),
                 }
         # Switch on ordinal mode if i) it's enabled, and ii) there are ordinal targets to predict
         self.hparams.ordinal_mode = self.hparams.ordinal_mode and any(
