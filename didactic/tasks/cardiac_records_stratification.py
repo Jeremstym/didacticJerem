@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from omegaconf import DictConfig
 from pytorch_lightning.trainer.states import TrainerFn
 from sklearn.base import ClassifierMixin
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, average_precision_score
 from vital.data.orchid.config import TabularAttribute
 from vital.data.orchid.data_module import OrchidDataModule
 from vital.data.orchid.datapipes import MISSING_CAT_ATTR
@@ -124,7 +124,12 @@ class CardiacRecordsStratificationTask:
         y_hat = np.argmax(predict_proba, axis=1)
 
         # Compute the model's performance metrics
-        scores = {"acc": accuracy_score(y, y_hat), "auroc": roc_auc_score(y, predict_proba, multi_class="ovr")}
+        scores = {
+            "acc": accuracy_score(y, y_hat),
+            "auroc": roc_auc_score(y, predict_proba, multi_class="ovr"),
+            "auprc": average_precision_score(y, predict_proba, average="macro"),
+            "f1": f1_score(y, y_hat, average="macro"),
+        }
 
         return scores
 
