@@ -137,7 +137,7 @@ class CardiacRecordsStratificationTask:
         self.model.save_model(path)
 
 
-@hydra.main(version_base=None, config_path="../config", config_name="experiment/records-xgb")
+@hydra.main(version_base=None, config_path="../config", config_name="experiment/orchid/records-xgb")
 def main(cfg: DictConfig):
     """Fit the generic model to the tabular data from the patients."""
 
