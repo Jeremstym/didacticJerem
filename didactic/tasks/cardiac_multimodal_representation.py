@@ -11,7 +11,7 @@ import vital
 from omegaconf import DictConfig
 from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
-from torchmetrics.functional import accuracy, auroc, mean_absolute_error, f1_score
+from torchmetrics.functional import accuracy, auroc, mean_absolute_error, f1_score, average_precision
 from vital.data.augmentation.base import mask_tokens, random_masking
 from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
 from vital.data.orchid.config import View as ViewEnum
@@ -216,6 +216,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 self.metrics[attr] = {
                     "acc": functools.partial(accuracy, task="binary"),
                     "auroc": functools.partial(auroc, task="binary"),
+                    "auprc": functools.partial(average_precision, task="binary"),
                     "f1": functools.partial(f1_score, task="binary"),
                 }
             else:  # attr in TabularAttribute.categorical_attrs()
@@ -223,6 +224,7 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
                 self.metrics[attr] = {
                     "acc": functools.partial(accuracy, task="multiclass", num_classes=num_classes),
                     "auroc": functools.partial(auroc, task="multiclass", num_classes=num_classes),
+                    "auprc": functools.partial(average_precision, task="multiclass", average="macro", num_classes=num_classes),
                     "f1": functools.partial(f1_score, task="multiclass", num_classes=num_classes),
                 }
         # Switch on ordinal mode if i) it's enabled, and ii) there are ordinal targets to predict
