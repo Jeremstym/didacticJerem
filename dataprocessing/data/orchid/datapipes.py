@@ -240,12 +240,18 @@ def filter_time_series_attributes(
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
         if view_data_tag in attrs
     }
+    # time_series_notna_mask = torch.Tensor(
+    #     [
+    #         # not np.array_equal(data, MISSING_TS_VIEWS)
+    #         not torch.isnan(data).all()
+    #         for view_enum, view_data_tag in time_series_data
+    #         for data in time_series_data[(view_enum, view_data_tag)]
+    #     ]
+    # ).reshape(-1, len(attrs) * len(views))
     time_series_notna_mask = torch.Tensor(
         [
-            # not np.array_equal(data, MISSING_TS_VIEWS)
             not torch.isnan(data).all()
-            for view_enum, view_data_tag in time_series_data
-            for data in time_series_data[(view_enum, view_data_tag)]
+            for data in time_series_data.values()
         ]
     ).reshape(-1, len(attrs) * len(views))
 
