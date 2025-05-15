@@ -102,7 +102,6 @@ class OrchidDataModule(VitalDataModule):
         self._datapipes_kwargs = datapipes_kwargs
 
         # Load an example item to dynamically detect the shape(s) of the different data modalities
-        print("--------- THIS IS HAPPENING ---------")
         self.train_dp = self._build_subset_datapipes(Subset.TRAIN)
         first_item = self.train_dp[0]
         modalities_shapes = {}
