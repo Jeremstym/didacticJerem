@@ -194,7 +194,8 @@ class Patient:
                 # Add missing views to the dictionary with empty data
                 # views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_VIEWS)
                 views_data[view] = View.from_dir(patient_id, view, data_roots, empty=True, **kwargs)
-            views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
+            else:
+                views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
             id=patient_id,
