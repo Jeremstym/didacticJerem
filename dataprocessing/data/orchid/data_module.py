@@ -8,13 +8,13 @@ from pytorch_lightning.trainer.states import TrainerFn
 from torch.utils.data import DataLoader, MapDataPipe
 from torchvision.transforms import transforms
 
-from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.datapipes import PatientData, build_datapipes
-from vital.data.orchid.utils.itertools import Patients
-from vital.data.config import DataParameters, Subset
-from vital.data.data_module import VitalDataModule
-from vital.utils.config import instantiate_config_node_leaves
+from dataprocessing.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.datapipes import PatientData, build_datapipes
+from dataprocessing.data.orchid.utils.itertools import Patients
+from dataprocessing.data.config import DataParameters, Subset
+from dataprocessing.data.data_module import VitalDataModule
+from dataprocessing.utils.config import instantiate_config_node_leaves
 
 logger = logging.getLogger(__name__)
 
@@ -267,7 +267,7 @@ def main(cfg: DictConfig):
 if __name__ == "__main__":
     from dotenv import load_dotenv
 
-    from vital.utils.config import register_omegaconf_resolvers
+    from dataprocessing.utils.config import register_omegaconf_resolvers
 
     # Load environment variables from `.env` file if it exists
     # Load before hydra main to allow for setting environment variables with ${oc.env:ENV_NAME}
