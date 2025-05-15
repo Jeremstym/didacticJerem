@@ -8,8 +8,8 @@ defaults:
   - /task/model/prediction_head: ft-prediction
   - /task/model/prediction_head@task.model.ordinal_head: unimodal-logits
   - /task/model: null  # Set this to null because we specify multiple submodels instead of a singleton model
-  - override /task/optim: adamw
-  - override /data: orchid
+  - /task/optim: adamw
+  - /data: orchid
 
 test: True
 
