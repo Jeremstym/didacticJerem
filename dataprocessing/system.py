@@ -11,7 +11,7 @@ from pytorch_lightning.trainer.states import TrainerFn
 from torch import Tensor, nn
 from torchinfo import summary
 
-from vital.data.config import DataParameters
+from dataprocessing.data.config import DataParameters
 
 
 class VitalSystem(pl.LightningModule, ABC):
@@ -51,7 +51,7 @@ class VitalSystem(pl.LightningModule, ABC):
             raise NotImplementedError(
                 f"Class '{cls.__name__}' does not support being loaded from a checkpoint because it is an ABC. Either "
                 f"call `load_from_checkpoint` on the specific class of the system you want to load, or use the utility "
-                f"function `load_from_checkpoint` provided in `vital.utils.saving` that will automatically detect the "
+                f"function `load_from_checkpoint` provided in `dataprocessing.utils.saving` that will automatically detect the "
                 f"system class when loading the checkpoint."
             )
         else:

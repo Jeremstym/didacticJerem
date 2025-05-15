@@ -7,7 +7,7 @@ from PIL.Image import Resampling
 from skimage.util import crop
 from torch import Tensor
 
-from vital.utils.decorators import batch_function
+from dataprocessing.utils.decorators import batch_function
 
 
 @batch_function(item_ndim=2)

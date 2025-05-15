@@ -17,14 +17,14 @@ from omegaconf import DictConfig, open_dict
 from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.loggers import CometLogger, Logger
 
-from vital.data.data_module import VitalDataModule
-from vital.system import VitalSystem
-from vital.utils.config import (
+from dataprocessing.data.data_module import VitalDataModule
+from dataprocessing.system import VitalSystem
+from dataprocessing.utils.config import (
     instantiate_config_node_leaves,
     instantiate_results_processor,
     register_omegaconf_resolvers,
 )
-from vital.utils.saving import resolve_model_checkpoint_path
+from dataprocessing.utils.saving import resolve_model_checkpoint_path
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class VitalRunner(ABC):
         register_omegaconf_resolvers()
 
     @staticmethod
-    @hydra.main(version_base=None, config_path="config", config_name="vital_default")
+    @hydra.main(version_base=None, config_path="config", config_name="default")
     def run_system(cfg: DictConfig) -> None:
         """Handles the training and evaluation of a model.
 

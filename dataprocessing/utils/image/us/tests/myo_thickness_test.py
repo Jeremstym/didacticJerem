@@ -7,7 +7,7 @@ def main():
     import numpy as np
     from skimage.morphology import disk
 
-    from vital.utils.image.us.measure import EchoMeasure
+    from dataprocessing.utils.image.us.measure import EchoMeasure
 
     parser = argparse.ArgumentParser(
         description="Compute the thickness of the band between an inner and an outer circle of known radii."

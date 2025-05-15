@@ -10,10 +10,10 @@ from scipy.signal import find_peaks
 from scipy.spatial import distance
 from skimage.measure import find_contours
 
-from vital.data.config import SemanticStructureId
-from vital.utils.decorators import auto_cast_data, batch_function
-from vital.utils.image.coord import cart2pol
-from vital.utils.image.measure import Measure, T
+from dataprocessing.data.config import SemanticStructureId
+from dataprocessing.utils.decorators import auto_cast_data, batch_function
+from dataprocessing.utils.image.coord import cart2pol
+from dataprocessing.utils.image.measure import Measure, T
 
 
 class EchoMeasure(Measure):

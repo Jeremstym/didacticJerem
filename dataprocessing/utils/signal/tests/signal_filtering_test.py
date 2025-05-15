@@ -10,12 +10,12 @@ import yaml
 from matplotlib import pyplot as plt
 from tqdm.auto import tqdm
 
-from vital.metrics.evaluate.attribute import check_temporal_consistency_errors
-from vital.utils.logging import configure_logging
-from vital.utils.parsing import StoreDictKeyPair
-from vital.utils.signal.regression import kernel_ridge_regression
-from vital.utils.signal.snake import DualLagrangianRelaxationSnake, PenaltySnake, Snake
-from vital.utils.signal.tests import load_signals_from_json
+from dataprocessing.metrics.evaluate.attribute import check_temporal_consistency_errors
+from dataprocessing.utils.logging import configure_logging
+from dataprocessing.utils.parsing import StoreDictKeyPair
+from dataprocessing.utils.signal.regression import kernel_ridge_regression
+from dataprocessing.utils.signal.snake import DualLagrangianRelaxationSnake, PenaltySnake, Snake
+from dataprocessing.utils.signal.tests import load_signals_from_json
 
 AttributesStatistics = Dict[str, Tuple[float, float]]
 

@@ -11,8 +11,8 @@ from PIL import Image
 from scipy.interpolate import griddata
 from tqdm import tqdm
 
-from vital.utils.image.coord import pol2cart
-from vital.utils.logging import configure_logging
+from dataprocessing.utils.image.coord import pol2cart
+from dataprocessing.utils.logging import configure_logging
 
 
 @dataclass

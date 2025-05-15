@@ -6,8 +6,8 @@ from matplotlib import rcParams
 from scipy.stats import multivariate_normal
 from sklearn.mixture import GaussianMixture
 
-from vital.utils.logging import configure_logging
-from vital.utils.sampling.rejection_sampling import RejectionSampler
+from dataprocessing.utils.logging import configure_logging
+from dataprocessing.utils.sampling.rejection_sampling import RejectionSampler
 
 
 def rejection_sampling_test():

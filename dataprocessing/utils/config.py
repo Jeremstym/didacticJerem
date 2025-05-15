@@ -11,8 +11,8 @@ import numpy as np
 from omegaconf import DictConfig, ListConfig, OmegaConf
 from pytorch_lightning import Callback
 
-from vital import get_vital_root
-from vital.results.processor import ResultsProcessor, ResultsProcessorCallback
+from dataprocessing import get_vital_root
+from dataprocessing.results.processor import ResultsProcessor, ResultsProcessorCallback
 
 logger = logging.getLogger(__name__)
 

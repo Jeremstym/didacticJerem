@@ -6,7 +6,7 @@ def main():
 
     import numpy as np
 
-    from vital.utils.image.us.measure import EchoMeasure
+    from dataprocessing.utils.image.us.measure import EchoMeasure
 
     parser = argparse.ArgumentParser(description="Compute the curvature of a circle of known radius.")
     parser.add_argument("--radius", type=float, default=50, help="Radius of the circle")

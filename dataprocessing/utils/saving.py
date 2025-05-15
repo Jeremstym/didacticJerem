@@ -9,9 +9,9 @@ import torch
 from packaging.version import InvalidVersion, Version
 from torch.types import Device
 
-from vital import get_vital_home
-from vital.system import VitalSystem
-from vital.utils.importlib import import_from_module
+from dataprocessing import get_vital_home
+from dataprocessing.system import VitalSystem
+from dataprocessing.utils.importlib import import_from_module
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ def load_from_checkpoint(
     device: Device | str = None,
     expected_checkpoint_type: Type[VitalSystem] = None,
 ) -> VitalSystem:
-    """Loads a vital checkpoint, casting it to the appropriate instantiable type.
+    """Loads a dataprocessing checkpoint, casting it to the appropriate instantiable type.
 
     The module's class is automatically determined based on the hyperparameters saved in the checkpoint.
 

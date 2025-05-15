@@ -5,7 +5,7 @@ from sklearn.model_selection import GridSearchCV, ShuffleSplit
 from sklearn.neighbors import KernelDensity, NearestNeighbors
 from torch import Tensor
 
-from vital.utils.decorators import auto_cast_data
+from dataprocessing.utils.decorators import auto_cast_data
 
 T = TypeVar("T", np.ndarray, Tensor)
 

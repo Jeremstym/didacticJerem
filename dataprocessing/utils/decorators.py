@@ -6,10 +6,10 @@ import torch
 from pytorch_lightning.utilities import move_data_to_device
 from torch import Tensor
 
-from vital.utils.format.native import Item
-from vital.utils.format.native import prefix as prefix_fn
-from vital.utils.format.native import squeeze as squeeze_fn
-from vital.utils.format.numpy import wrap_pad as wrap_pad_fn
+from dataprocessing.utils.format.native import Item
+from dataprocessing.utils.format.native import prefix as prefix_fn
+from dataprocessing.utils.format.native import squeeze as squeeze_fn
+from dataprocessing.utils.format.numpy import wrap_pad as wrap_pad_fn
 
 
 def _has_method(o: object, name: str) -> bool:

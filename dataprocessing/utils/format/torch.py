@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Tuple, Union
 import numpy as np
 import torch
 
-from vital.utils.format.native import apply
+from dataprocessing.utils.format.native import apply
 
 
 def torch_apply(obj: Union[Tuple, List, Dict], func: Callable) -> Union[Tuple, List, Dict]:

@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.kernel_ridge import KernelRidge
 
-from vital.utils.decorators import wrap_pad
+from dataprocessing.utils.decorators import wrap_pad
 
 
 @wrap_pad()

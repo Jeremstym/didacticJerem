@@ -7,8 +7,8 @@ from scipy import ndimage
 from skimage import measure
 from torch import Tensor
 
-from vital.data.config import SemanticStructureId
-from vital.utils.decorators import auto_cast_data, batch_function
+from dataprocessing.data.config import SemanticStructureId
+from dataprocessing.utils.decorators import auto_cast_data, batch_function
 
 T = TypeVar("T", np.ndarray, Tensor)
 

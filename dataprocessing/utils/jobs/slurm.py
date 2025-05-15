@@ -1,6 +1,6 @@
 from typing import List
 
-from vital.utils.jobs.job import Job, SbatchCommands, SetupOptions
+from dataprocessing.utils.jobs.job import Job, SbatchCommands, SetupOptions
 
 
 class SlurmSetupOptions(SetupOptions):
