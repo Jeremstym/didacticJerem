@@ -134,8 +134,8 @@ def process_patient(
                 for attr_tag, attr in view_data.items()
                 if attr_tag in time_series_attrs
             }
-            if not dicts_equal(view_data, MISSING_TS_VIEWS)
-            else MISSING_TS_VIEWS[view_enum]
+            # if not dicts_equal(view_data, MISSING_TS_VIEWS)
+            # else MISSING_TS_VIEWS[view_enum]
             for view_enum, view_data in time_series_attrs_data.items()
         }
     else:
