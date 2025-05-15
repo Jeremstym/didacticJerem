@@ -49,6 +49,7 @@ class OrchidDataModule(VitalDataModule):
         """
         # If instantiating the datamodule from a Hydra config, make sure to cast nested configs to primitive python
         # containers + instantiate any objects where it is needed, to avoid unexpected side effects later on
+        self.train_dp = None
         if isinstance(patients_kwargs, DictConfig):
             patients_kwargs = OmegaConf.to_container(patients_kwargs, resolve=True)
         else:
@@ -101,7 +102,7 @@ class OrchidDataModule(VitalDataModule):
         self._datapipes_kwargs = datapipes_kwargs
 
         # Load an example item to dynamically detect the shape(s) of the different data modalities
-        train_dp = self._build_subset_datapipes(Subset.TRAIN)
+        self.train_dp = self._build_subset_datapipes(Subset.TRAIN)
         first_item = train_dp[0]
         modalities_shapes = {}
         if ViewEnum.A4C in first_item:
@@ -209,7 +210,10 @@ class OrchidDataModule(VitalDataModule):
         subsets_to_setup = []
         match stage:
             case TrainerFn.FITTING:
-                subsets_to_setup.extend([Subset.TRAIN, Subset.VAL])
+                if self.train_dp is None:
+                    subsets_to_setup.extend([Subset.TRAIN, Subset.VAL])
+                else:
+                    subsets_to_setup.append(Subset.VAL)
             case TrainerFn.VALIDATING:
                 subsets_to_setup.append(Subset.VAL)
             case TrainerFn.TESTING:
@@ -218,6 +222,8 @@ class OrchidDataModule(VitalDataModule):
                 subsets_to_setup.extend(PREDICT_DATALOADERS_SUBSETS)
 
         # Update the available collections of patients and datasets
+        if self.train_dp is not None:
+            self.datasets[Subset.TRAIN] = self.train_dp
         self.datasets.update({subset: self._build_subset_datapipes(subset) for subset in subsets_to_setup})
 
     def predict_dataloader(self) -> Sequence[DataLoader]:  # noqa: D102
