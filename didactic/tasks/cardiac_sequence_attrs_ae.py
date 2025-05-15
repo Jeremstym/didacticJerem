@@ -10,13 +10,13 @@ from omegaconf import DictConfig
 from strenum import SnakeCaseStrEnum
 from torch import Tensor, nn
 from torch.nn import functional as F
-from vital.data.orchid.config import OrchidTag, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.datapipes import PatientData, filter_time_series_attributes
-from vital.tasks.generic import SharedStepsTask
-from vital.utils.decorators import auto_move_data
-from vital.utils.norm import minmax_scaling, scale
-from vital.utils.saving import load_from_checkpoint
+from dataprocessing.data.orchid.config import OrchidTag, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.datapipes import PatientData, filter_time_series_attributes
+from dataprocessing.tasks.generic import SharedStepsTask
+from dataprocessing.utils.decorators import auto_move_data
+from dataprocessing.utils.norm import minmax_scaling, scale
+from dataprocessing.utils.saving import load_from_checkpoint
 
 logger = logging.getLogger(__name__)
 

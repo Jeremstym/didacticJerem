@@ -6,11 +6,11 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
 
-from vital.data.orchid.config import Label, TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.metrics.evaluate.clinical.heart_us import compute_left_ventricle_volumes
-from vital.utils.image.measure import T
-from vital.utils.image.us.measure import EchoMeasure
+from dataprocessing.data.orchid.config import Label, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.metrics.evaluate.clinical.heart_us import compute_left_ventricle_volumes
+from dataprocessing.utils.image.measure import T
+from dataprocessing.utils.image.us.measure import EchoMeasure
 
 TIME_SERIES_ATTR_LABELS = {
     **dict.fromkeys(

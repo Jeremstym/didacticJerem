@@ -1,8 +1,8 @@
 from abc import abstractmethod
 from typing import List
 
-from vital.data.config import Subset
-from vital.data.data_module import VitalDataModule
+from dataprocessing.data.config import Subset
+from dataprocessing.data.data_module import VitalDataModule
 
 
 class StructuredDataMixin(VitalDataModule):

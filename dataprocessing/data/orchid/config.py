@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from strenum import SnakeCaseStrEnum, UppercaseStrEnum
 
-from vital.data.config import LabelEnum
+from dataprocessing.data.config import LabelEnum
 
 PATIENT_ID_REGEX = r"\d{4}"
 HDF5_FILENAME_PATTERN = "{patient_id}_{view}.h5"
@@ -281,7 +281,7 @@ class TabularAttribute(SnakeCaseStrEnum):
     @classmethod
     def categorical_attrs(cls) -> List["TabularAttribute"]:
         """Lists the tabular attributes that are categorical."""
-        from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
+        from dataprocessing.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
 
         return [attr for attr in cls if attr in TABULAR_CAT_ATTR_LABELS]
 
@@ -303,21 +303,21 @@ class TabularAttribute(SnakeCaseStrEnum):
     @classmethod
     def binary_attrs(cls) -> List["TabularAttribute"]:
         """Lists the subset of categorical attributes that only have 2 classes (e.g. bool)."""
-        from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
+        from dataprocessing.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
 
         return [attr for attr in cls.categorical_attrs() if len(TABULAR_CAT_ATTR_LABELS[attr]) == 2]
 
     @classmethod
     def boolean_attrs(cls) -> List["TabularAttribute"]:
         """Lists the subset of binary attributes that are boolean."""
-        from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
+        from dataprocessing.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
 
         return [attr for attr in cls.binary_attrs() if TABULAR_CAT_ATTR_LABELS[attr] == [False, True]]
 
     @classmethod
     def numerical_attrs(cls) -> List["TabularAttribute"]:
         """Lists the tabular attributes that are numerical/continuous."""
-        from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
+        from dataprocessing.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
 
         return [attr for attr in cls if attr not in TABULAR_CAT_ATTR_LABELS]
 

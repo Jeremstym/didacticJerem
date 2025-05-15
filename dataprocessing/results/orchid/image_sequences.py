@@ -1,12 +1,12 @@
 from argparse import ArgumentParser
 from typing import Any, Dict, Literal, Sequence, Tuple
 
-from vital.data.orchid.config import IMG_FORMAT
-from vital.data.orchid.utils.data_struct import View
-from vital.data.orchid.utils.itertools import Views
-from vital.results.processor import ResultsProcessor
-from vital.utils.parsing import StoreDictKeyPair, dtype_tuple
-from vital.utils.path import as_file_extension
+from dataprocessing.data.orchid.config import IMG_FORMAT
+from dataprocessing.data.orchid.utils.data_struct import View
+from dataprocessing.data.orchid.utils.itertools import Views
+from dataprocessing.results.processor import ResultsProcessor
+from dataprocessing.utils.parsing import StoreDictKeyPair, dtype_tuple
+from dataprocessing.utils.path import as_file_extension
 
 
 class ImageSequences(ResultsProcessor):

@@ -12,10 +12,10 @@ import param
 import seaborn as sns
 from bokeh.models import HoverTool
 from panel.layout import Panel
-from vital.data.cardinal.config import CardinalTag, TabularAttribute
-from vital.data.cardinal.utils.attributes import TABULAR_ATTR_GROUPS
-from vital.data.cardinal.utils.data_struct import Patient
-from vital.data.cardinal.utils.itertools import Patients
+from dataprocessing.data.cardinal.config import CardinalTag, TabularAttribute
+from dataprocessing.data.cardinal.utils.attributes import TABULAR_ATTR_GROUPS
+from dataprocessing.data.cardinal.utils.data_struct import Patient
+from dataprocessing.data.cardinal.utils.itertools import Patients
 
 from didactic.tasks.cardiac_multimodal_representation import CardiacMultimodalRepresentationTask
 from didactic.tasks.utils import encode_patients, summarize_patient_attn
@@ -251,11 +251,11 @@ def main():
     import logging
     from pathlib import Path
 
-    from vital.utils.logging import configure_logging
-    from vital.utils.parsing import yaml_flow_collection
-    from vital.utils.saving import load_from_checkpoint
+    from dataprocessing.utils.logging import configure_logging
+    from dataprocessing.utils.parsing import yaml_flow_collection
+    from dataprocessing.utils.saving import load_from_checkpoint
 
-    # Configure logging to display logs from `vital` but to ignore most logs displayed by default by bokeh and its deps
+    # Configure logging to display logs from `dataprocessing` but to ignore most logs displayed by default by bokeh and its deps
     configure_logging(log_to_console=True, console_level=logging.INFO)
     logging.getLogger("bokeh").setLevel(logging.WARNING)
     logging.getLogger("tornado").setLevel(logging.WARNING)

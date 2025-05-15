@@ -7,13 +7,13 @@ import torch
 from torch import Tensor
 from torch.utils.data import default_collate
 from tqdm.auto import tqdm
-from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.datapipes import process_patient
-from vital.data.orchid.utils.data_dis import check_subsets
-from vital.data.orchid.utils.data_struct import Patient
-from vital.data.orchid.utils.itertools import Patients
-from vital.utils.format.torch import numpy_to_torch, torch_apply, torch_to_numpy
+from dataprocessing.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.datapipes import process_patient
+from dataprocessing.data.orchid.utils.data_dis import check_subsets
+from dataprocessing.data.orchid.utils.data_struct import Patient
+from dataprocessing.data.orchid.utils.itertools import Patients
+from dataprocessing.utils.format.torch import numpy_to_torch, torch_apply, torch_to_numpy
 
 from didactic.models.explain import attention_rollout, k_number, register_attn_weights_hook
 from didactic.tasks.cardiac_multimodal_representation import CardiacMultimodalRepresentationTask

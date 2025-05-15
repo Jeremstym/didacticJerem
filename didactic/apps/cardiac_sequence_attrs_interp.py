@@ -7,12 +7,12 @@ import panel as pn
 import param
 import torch
 from panel.layout import Panel
-from vital.data.cardinal.config import CardinalTag, TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.cardinal.utils.attributes import TIME_SERIES_ATTR_LABELS
-from vital.data.cardinal.utils.data_struct import Patient
-from vital.data.cardinal.utils.itertools import Patients
-from vital.data.transforms import Interp1d
+from dataprocessing.data.cardinal.config import CardinalTag, TimeSeriesAttribute
+from dataprocessing.data.cardinal.config import View as ViewEnum
+from dataprocessing.data.cardinal.utils.attributes import TIME_SERIES_ATTR_LABELS
+from dataprocessing.data.cardinal.utils.data_struct import Patient
+from dataprocessing.data.cardinal.utils.itertools import Patients
+from dataprocessing.data.transforms import Interp1d
 
 from didactic.tasks.cardiac_sequence_attrs_ae import CardiacSequenceAttributesAutoencoder
 from didactic.tasks.cardiac_sequence_attrs_pca import CardiacSequenceAttributesPCA
@@ -201,11 +201,11 @@ def main():
     import pickle
     from pathlib import Path
 
-    from vital.utils.logging import configure_logging
-    from vital.utils.parsing import yaml_flow_collection
-    from vital.utils.saving import load_from_checkpoint
+    from dataprocessing.utils.logging import configure_logging
+    from dataprocessing.utils.parsing import yaml_flow_collection
+    from dataprocessing.utils.saving import load_from_checkpoint
 
-    # Configure logging to display logs from `vital` but to ignore most logs displayed by default by bokeh and its deps
+    # Configure logging to display logs from `dataprocessing` but to ignore most logs displayed by default by bokeh and its deps
     configure_logging(log_to_console=True, console_level=logging.INFO)
     logging.getLogger("bokeh").setLevel(logging.WARNING)
     logging.getLogger("tornado").setLevel(logging.WARNING)

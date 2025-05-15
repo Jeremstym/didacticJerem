@@ -12,7 +12,7 @@ from sklearn import metrics
 from sklearn.mixture import GaussianMixture
 from sklearn.model_selection import GridSearchCV
 from tqdm.auto import tqdm
-from vital.data.cardinal.config import TabularAttribute
+from dataprocessing.data.cardinal.config import TabularAttribute
 
 
 class GridSearchEnsembleClustering:
@@ -246,9 +246,9 @@ def main():
     from argparse import ArgumentParser
     from pathlib import Path
 
-    from vital.data.cardinal.config import CardinalTag
-    from vital.data.cardinal.utils.itertools import Patients
-    from vital.utils.saving import load_from_checkpoint
+    from dataprocessing.data.cardinal.config import CardinalTag
+    from dataprocessing.data.cardinal.utils.itertools import Patients
+    from dataprocessing.utils.saving import load_from_checkpoint
 
     from didactic.tasks.cardiac_multimodal_representation import CardiacMultimodalRepresentationTask
     from didactic.tasks.utils import encode_patients

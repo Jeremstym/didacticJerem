@@ -2,9 +2,9 @@ from pathlib import Path
 
 from matplotlib import pyplot as plt
 
-from vital.data.orchid.config import TabularAttribute
-from vital.data.orchid.utils.data_dis import plot_patients_distribution
-from vital.data.orchid.utils.itertools import Patients
+from dataprocessing.data.orchid.config import TabularAttribute
+from dataprocessing.data.orchid.utils.data_dis import plot_patients_distribution
+from dataprocessing.data.orchid.utils.itertools import Patients
 
 
 def main():

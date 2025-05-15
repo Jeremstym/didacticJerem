@@ -7,16 +7,16 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from tqdm import tqdm
 
-from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.utils.data_dis import plot_tabular_attrs_wrt_group, plot_time_series_attrs_wrt_group
-from vital.data.orchid.utils.itertools import Patients
+from dataprocessing.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.utils.data_dis import plot_tabular_attrs_wrt_group, plot_time_series_attrs_wrt_group
+from dataprocessing.data.orchid.utils.itertools import Patients
 
 
 def main():
     """Run the script."""
     from argparse import ArgumentParser
 
-    from vital.utils.parsing import yaml_flow_collection
+    from dataprocessing.utils.parsing import yaml_flow_collection
 
     parser = ArgumentParser()
     groups = parser.add_mutually_exclusive_group(required=True)

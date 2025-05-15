@@ -7,19 +7,19 @@ from typing import Any, Callable, Dict, Literal, Optional, Sequence, Tuple
 
 import hydra
 import torch
-import vital
+import dataprocessing
 from omegaconf import DictConfig
 from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
 from torchmetrics.functional import accuracy, auroc, mean_absolute_error, f1_score
-from vital.data.augmentation.base import mask_tokens, random_masking
-from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
-from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
+from dataprocessing.data.augmentation.base import mask_tokens, random_masking
+from dataprocessing.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.cardinal.config import View as ViewEnum
+from dataprocessing.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
+from dataprocessing.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
-from vital.tasks.generic import SharedStepsTask
-from vital.utils.decorators import auto_move_data
+from dataprocessing.tasks.generic import SharedStepsTask
+from dataprocessing.utils.decorators import auto_move_data
 
 import didactic.models.transformer
 from didactic.models.tabular import TabularEmbedding

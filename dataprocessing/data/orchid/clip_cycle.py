@@ -9,13 +9,13 @@ import yaml
 from scipy.signal import find_peaks
 from tqdm.auto import tqdm
 
-from vital.data.orchid.config import OrchidTag, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.data_struct import View
-from vital.data.orchid.utils.itertools import Views
-from vital.utils.format.native import squeeze
-from vital.utils.logging import configure_logging
-from vital.utils.parsing import int_or_float
+from dataprocessing.data.orchid.config import OrchidTag, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.data_struct import View
+from dataprocessing.data.orchid.utils.itertools import Views
+from dataprocessing.utils.format.native import squeeze
+from dataprocessing.utils.logging import configure_logging
+from dataprocessing.utils.parsing import int_or_float
 
 logger = logging.getLogger(__name__)
 

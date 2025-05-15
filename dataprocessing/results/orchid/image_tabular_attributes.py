@@ -4,13 +4,13 @@ from typing import Literal, Sequence, Tuple
 
 import numpy as np
 
-from vital.data.orchid.config import OrchidTag, Label
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.attributes import compute_mask_tabular_attributes
-from vital.data.orchid.utils.data_struct import Patient
-from vital.data.orchid.utils.itertools import Patients
-from vital.results.metrics import Metrics
-from vital.utils.image.us.measure import EchoMeasure
+from dataprocessing.data.orchid.config import OrchidTag, Label
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.attributes import compute_mask_tabular_attributes
+from dataprocessing.data.orchid.utils.data_struct import Patient
+from dataprocessing.data.orchid.utils.itertools import Patients
+from dataprocessing.results.metrics import Metrics
+from dataprocessing.utils.image.us.measure import EchoMeasure
 
 logger = logging.getLogger(__name__)
 

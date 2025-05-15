@@ -5,11 +5,11 @@ from typing import Any, Dict, Literal, Tuple
 
 import numpy as np
 from sklearn.decomposition import PCA
-from vital.data.cardinal.config import TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.transforms import Interp1d
-from vital.utils.decorators import auto_cast_data
-from vital.utils.norm import minmax_scaling, scale
+from dataprocessing.data.cardinal.config import TimeSeriesAttribute
+from dataprocessing.data.cardinal.config import View as ViewEnum
+from dataprocessing.data.transforms import Interp1d
+from dataprocessing.utils.decorators import auto_cast_data
+from dataprocessing.utils.norm import minmax_scaling, scale
 
 
 class CardiacSequenceAttributesPCA:
@@ -219,12 +219,12 @@ def main():
     import pandas as pd
     from matplotlib import pyplot as plt
     from tqdm.auto import tqdm
-    from vital.data.cardinal.config import CardinalTag
-    from vital.data.cardinal.utils.attributes import TIME_SERIES_ATTR_LABELS
-    from vital.data.cardinal.utils.itertools import Patients
-    from vital.utils.logging import configure_logging
-    from vital.utils.parsing import yaml_flow_collection
-    from vital.utils.signal.decomposition import (
+    from dataprocessing.data.cardinal.config import CardinalTag
+    from dataprocessing.data.cardinal.utils.attributes import TIME_SERIES_ATTR_LABELS
+    from dataprocessing.data.cardinal.utils.itertools import Patients
+    from dataprocessing.utils.logging import configure_logging
+    from dataprocessing.utils.parsing import yaml_flow_collection
+    from dataprocessing.utils.signal.decomposition import (
         analyze_pca_wrt_n_components,
         sweep_embedding_dims,
         visualize_embedding_pairwise_dims,

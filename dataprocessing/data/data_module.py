@@ -6,7 +6,7 @@ from typing import Dict
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset
 
-from vital.data.config import DataParameters, Subset
+from dataprocessing.data.config import DataParameters, Subset
 
 
 class VitalDataModule(pl.LightningDataModule, ABC):

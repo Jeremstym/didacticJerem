@@ -13,7 +13,7 @@ from scipy import ndimage
 from skimage import color
 from skimage.morphology import disk
 
-from vital.data.orchid.config import (
+from dataprocessing.data.orchid.config import (
     ATTRS_CACHE_FORMAT,
     ATTRS_FILENAME_PATTERN,
     IMG_FILENAME_PATTERN,
@@ -24,13 +24,13 @@ from vital.data.orchid.config import (
     TabularAttribute,
     TimeSeriesAttribute,
 )
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.attributes import compute_mask_time_series_attributes
-from vital.utils.data_struct import LazyDict
-from vital.utils.image.io import sitk_load, sitk_save
-from vital.utils.image.transform import resize_image, resize_image_to_voxelspacing
-from vital.utils.image.us.measure import EchoMeasure
-from vital.utils.path import as_file_extension, remove_suffixes
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.attributes import compute_mask_time_series_attributes
+from dataprocessing.utils.data_struct import LazyDict
+from dataprocessing.utils.image.io import sitk_load, sitk_save
+from dataprocessing.utils.image.transform import resize_image, resize_image_to_voxelspacing
+from dataprocessing.utils.image.us.measure import EchoMeasure
+from dataprocessing.utils.path import as_file_extension, remove_suffixes
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +180,7 @@ class Patient:
         Returns:
             `Patient` instance, built using data related to the patient from the provided folders.
         """
-        from vital.data.orchid.utils.itertools import views_avail_by_patient
+        from dataprocessing.data.orchid.utils.itertools import views_avail_by_patient
 
         if not views:
             # If no specific views are requested, consider all possible views

@@ -10,11 +10,11 @@ from omegaconf import DictConfig
 from pytorch_lightning.trainer.states import TrainerFn
 from sklearn.base import ClassifierMixin
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, average_precision_score
-from vital.data.orchid.config import TabularAttribute
-from vital.data.orchid.data_module import OrchidDataModule
-from vital.data.orchid.datapipes import MISSING_CAT_ATTR
-from vital.data.config import Subset
-from vital.utils.config import register_omegaconf_resolvers
+from dataprocessing.data.orchid.config import TabularAttribute
+from dataprocessing.data.orchid.data_module import OrchidDataModule
+from dataprocessing.data.orchid.datapipes import MISSING_CAT_ATTR
+from dataprocessing.data.config import Subset
+from dataprocessing.utils.config import register_omegaconf_resolvers
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +149,7 @@ def main(cfg: DictConfig):
     from pathlib import Path
 
     from hydra.core.hydra_config import HydraConfig
-    from vital.utils.logging import configure_logging
+    from dataprocessing.utils.logging import configure_logging
 
     configure_logging(log_to_console=True, console_level=logging.INFO)
 

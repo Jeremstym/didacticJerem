@@ -8,11 +8,11 @@ import pandas as pd
 from pandas.api.types import CategoricalDtype
 from tqdm import tqdm
 
-from vital.data.orchid.config import IMG_FILENAME_PATTERN, IMG_FORMAT, PATIENT_ID_REGEX, TabularAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.attributes import TABULAR_ATTR_UNITS, TABULAR_CAT_ATTR_LABELS
-from vital.data.orchid.utils.data_struct import Patient, View, load_attributes
-from vital.utils.itertools import Collection
+from dataprocessing.data.orchid.config import IMG_FILENAME_PATTERN, IMG_FORMAT, PATIENT_ID_REGEX, TabularAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.attributes import TABULAR_ATTR_UNITS, TABULAR_CAT_ATTR_LABELS
+from dataprocessing.data.orchid.utils.data_struct import Patient, View, load_attributes
+from dataprocessing.utils.itertools import Collection
 
 logger = logging.getLogger(__name__)
 

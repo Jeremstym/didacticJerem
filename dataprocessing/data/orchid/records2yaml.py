@@ -5,9 +5,9 @@ from typing import Literal, Sequence
 import pandas as pd
 from tqdm.auto import tqdm
 
-from vital.data.orchid.config import TabularAttribute
-from vital.data.orchid.utils.attributes import TABULAR_ATTR_UNITS
-from vital.data.orchid.utils.itertools import Patients
+from dataprocessing.data.orchid.config import TabularAttribute
+from dataprocessing.data.orchid.utils.attributes import TABULAR_ATTR_UNITS
+from dataprocessing.data.orchid.utils.itertools import Patients
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,7 @@ def main():
     """Run the script."""
     from argparse import ArgumentParser
 
-    from vital.utils.logging import configure_logging
+    from dataprocessing.utils.logging import configure_logging
 
     configure_logging(log_to_console=True, console_level=logging.INFO)
     parser = ArgumentParser()

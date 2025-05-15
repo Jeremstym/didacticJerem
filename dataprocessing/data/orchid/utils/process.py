@@ -4,9 +4,9 @@ from typing import Any, Dict, Sequence, Union
 import numpy as np
 from tqdm.auto import tqdm
 
-from vital.data.orchid.config import OrchidTag
-from vital.data.orchid.utils.itertools import Views
-from vital.utils.image.process import PostProcessor
+from dataprocessing.data.orchid.config import OrchidTag
+from dataprocessing.data.orchid.utils.itertools import Views
+from dataprocessing.utils.image.process import PostProcessor
 
 
 def postprocess_masks(

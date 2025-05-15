@@ -7,9 +7,9 @@ from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
 from lightly.models.modules import SimCLRProjectionHead
 
-from vital.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
-from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
-from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
+from dataprocessing.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
+from dataprocessing.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
 from didactic.models.layers import CLSToken, PositionalEncoding, SequencePooling
 from didactic.models.tabular import TabularEmbedding
 from didactic.models.time_series import TimeSeriesEmbedding

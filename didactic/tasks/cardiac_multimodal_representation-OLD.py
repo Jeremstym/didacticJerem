@@ -13,13 +13,13 @@ from torch import Tensor, nn
 from torch.nn import Parameter, ParameterDict, init
 from torch.nn import functional as F
 from torchmetrics.functional import accuracy, mean_absolute_error
-from vital.data.augmentation.base import mask_tokens, random_masking
-from vital.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.cardinal.config import View as ViewEnum
-from vital.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
-from vital.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
-from vital.tasks.generic import SharedStepsTask
-from vital.utils.decorators import auto_move_data
+from dataprocessing.data.augmentation.base import mask_tokens, random_masking
+from dataprocessing.data.cardinal.config import CardinalTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.cardinal.config import View as ViewEnum
+from dataprocessing.data.cardinal.datapipes import MISSING_CAT_ATTR, PatientData, filter_time_series_attributes
+from dataprocessing.data.cardinal.utils.attributes import TABULAR_CAT_ATTR_LABELS
+from dataprocessing.tasks.generic import SharedStepsTask
+from dataprocessing.utils.decorators import auto_move_data
 
 from IRENE.models.encoder import Encoder as IRENEncoder
 from IRENE.models.configs import get_IRENE_config

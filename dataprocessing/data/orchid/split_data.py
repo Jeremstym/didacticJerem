@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from vital.data.orchid.config import TabularAttribute
-from vital.data.orchid.utils.data_dis import generate_patients_splits, generate_cv_splits
-from vital.data.orchid.utils.itertools import Patients
-from vital.utils.parsing import int_or_float
+from dataprocessing.data.orchid.config import TabularAttribute
+from dataprocessing.data.orchid.utils.data_dis import generate_patients_splits, generate_cv_splits
+from dataprocessing.data.orchid.utils.itertools import Patients
+from dataprocessing.utils.parsing import int_or_float
 
 
 def main():

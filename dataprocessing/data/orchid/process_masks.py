@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, OmegaConf
 
-from vital import get_vital_root
-from vital.data.orchid.utils.process import postprocess_views
-from vital.utils.config import instantiate_config_node_leaves, register_omegaconf_resolvers
+from dataprocessing import get_vital_root
+from dataprocessing.data.orchid.utils.process import postprocess_views
+from dataprocessing.utils.config import instantiate_config_node_leaves, register_omegaconf_resolvers
 
 
 @hydra.main(version_base=None, config_path="../../config", config_name="experiment/orchid-process_masks")

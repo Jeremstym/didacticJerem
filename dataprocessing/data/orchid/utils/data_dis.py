@@ -11,17 +11,17 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 from tqdm.auto import tqdm
 
-from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.attributes import (
+from dataprocessing.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.attributes import (
     TABULAR_ATTR_UNITS,
     TABULAR_CAT_ATTR_LABELS,
     TIME_SERIES_ATTR_LABELS,
     build_attributes_dataframe,
 )
-from vital.data.orchid.utils.data_struct import Patient
-from vital.data.orchid.utils.itertools import Patients
-from vital.data.transforms import Interp1d
+from dataprocessing.data.orchid.utils.data_struct import Patient
+from dataprocessing.data.orchid.utils.itertools import Patients
+from dataprocessing.data.transforms import Interp1d
 
 logger = logging.getLogger(__name__)
 

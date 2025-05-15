@@ -5,11 +5,11 @@ from typing import Sequence, Tuple, Union
 import h5py
 from tqdm.auto import tqdm
 
-from vital.data.orchid.config import HDF5_FILENAME_PATTERN, OrchidTag
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.data_struct import View
-from vital.utils.image.us.bmode import CartesianBMode, PolarBMode
-from vital.utils.logging import configure_logging
+from dataprocessing.data.orchid.config import HDF5_FILENAME_PATTERN, OrchidTag
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.data_struct import View
+from dataprocessing.utils.image.us.bmode import CartesianBMode, PolarBMode
+from dataprocessing.utils.logging import configure_logging
 
 
 def _extract_metadata_from_name(filepath_or_name: Union[str, Path]) -> Tuple[str, ViewEnum]:

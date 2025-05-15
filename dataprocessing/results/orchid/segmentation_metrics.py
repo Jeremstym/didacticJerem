@@ -7,11 +7,11 @@ import medpy.metric as metric
 import numpy as np
 import pandas as pd
 
-from vital.data.orchid.config import OrchidTag, Label
-from vital.data.orchid.utils.data_struct import View
-from vital.data.orchid.utils.itertools import Views
-from vital.results.metrics import Metrics
-from vital.utils.image.us.measure import EchoMeasure
+from dataprocessing.data.orchid.config import OrchidTag, Label
+from dataprocessing.data.orchid.utils.data_struct import View
+from dataprocessing.data.orchid.utils.itertools import Views
+from dataprocessing.results.metrics import Metrics
+from dataprocessing.utils.image.us.measure import EchoMeasure
 
 
 class SegmentationMetrics(Metrics):

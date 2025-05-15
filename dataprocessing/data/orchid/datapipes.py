@@ -9,11 +9,11 @@ from torch import Tensor
 from torch.utils.data import MapDataPipe
 from torchvision.transforms import transforms
 
-from vital.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
-from vital.data.orchid.utils.data_struct import Patient, MISSING_TS_VIEWS, MISSING_TS_ATTR
-from vital.data.orchid.utils.itertools import Patients
+from dataprocessing.data.orchid.config import OrchidTag, TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.utils.attributes import TABULAR_CAT_ATTR_LABELS
+from dataprocessing.data.orchid.utils.data_struct import Patient, MISSING_TS_VIEWS, MISSING_TS_ATTR
+from dataprocessing.data.orchid.utils.itertools import Patients
 
 T = TypeVar("T", np.ndarray, Tensor)
 PatientData = Dict[
@@ -258,10 +258,10 @@ if __name__ == "__main__":
     from PIL import Image
     from skimage import color
 
-    from vital.data.orchid.config import Label
-    from vital.data.orchid.utils.attributes import build_attributes_dataframe, plot_attributes_wrt_time
-    from vital.utils.importlib import import_from_module
-    from vital.utils.parsing import yaml_flow_collection
+    from dataprocessing.data.orchid.config import Label
+    from dataprocessing.data.orchid.utils.attributes import build_attributes_dataframe, plot_attributes_wrt_time
+    from dataprocessing.utils.importlib import import_from_module
+    from dataprocessing.utils.parsing import yaml_flow_collection
 
     parser = ArgumentParser()
     parser = Patients.add_args(parser)
