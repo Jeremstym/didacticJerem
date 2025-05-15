@@ -187,6 +187,7 @@ class TimeSeriesEmbedding(nn.Module):
         Returns:
             (N, S, E), Embedding of the time series.
         """
+        print(f"Time series embedding: {time_series}")
         if not isinstance(time_series, dict):
             time_series = {idx: t for idx, t in enumerate(time_series)}
 
