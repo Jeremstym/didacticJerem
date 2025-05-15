@@ -9,7 +9,7 @@ defaults:
   - /task/model/prediction_head@task.model.ordinal_head: unimodal-logits
   - override /task/model: null  # Set this to null because we specify multiple submodels instead of a singleton model
   - override /task/optim: adamw
-  - override /data: dataprocessing/data/orchid
+  - override /data: orchid
 
 test: True
 
