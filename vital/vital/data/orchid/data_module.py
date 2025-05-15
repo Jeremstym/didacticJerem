@@ -198,6 +198,11 @@ class OrchidDataModule(VitalDataModule):
             transform_patient_kwargs=self._transform_patient_kwargs[subset],
             **self._datapipes_kwargs,
         )
+    def prepare_data(self):  # noqa: D102
+        # This method is called on every GPU, so we need to make sure that the data is downloaded and available
+        # on all GPUs. We can use the `Patients` class to download the data.
+        for subset in self._subsets_lists:
+            self._partial_patients(include_patients=self._subsets_lists.get(subset))
 
     def setup(self, stage: Optional[str] = None) -> None:  # noqa: D102
         # Determine subset to setup given the stage of training
