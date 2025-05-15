@@ -8,8 +8,8 @@ from pathos.multiprocessing import Pool
 from pytorch_lightning import Callback
 from tqdm import tqdm
 
-from vital.utils.itertools import Collection, Item
-from vital.utils.logging import configure_logging
+from dataprocessing.utils.itertools import Collection, Item
+from dataprocessing.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
 
