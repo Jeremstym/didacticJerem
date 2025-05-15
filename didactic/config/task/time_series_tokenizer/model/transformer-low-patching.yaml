@@ -3,7 +3,7 @@ _args_:
   - _target_: collections.OrderedDict
 
     expand_feat_dim:
-      _target_: vital.models.layers.Lambda
+      _target_: dataprocessing.models.layers.Lambda
       fn:
         _target_: torch.unsqueeze
         _partial_: True

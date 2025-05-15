@@ -11,7 +11,7 @@ _args_:
     #   padding: 0
 
     expand_feat_dim:
-      _target_: vital.models.layers.Lambda
+      _target_: dataprocessing.models.layers.Lambda
       fn:
         _target_: torch.unsqueeze
         _partial_: True
@@ -28,7 +28,7 @@ _args_:
       d_model: ${task.embed_dim}
 
     reshape_tensor:
-      _target_: vital.models.layers.Lambda
+      _target_: dataprocessing.models.layers.Lambda
       fn:
         _target_: torch.reshape
         _partial_: True
@@ -57,7 +57,7 @@ _args_:
       d_model: ${task.embed_dim}
 
     reshape_tensor_back:
-      _target_: vital.models.layers.Lambda
+      _target_: dataprocessing.models.layers.Lambda
       fn:
         _target_: torch.reshape
         _partial_: True

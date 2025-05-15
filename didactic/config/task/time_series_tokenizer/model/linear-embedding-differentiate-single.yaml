@@ -3,14 +3,14 @@ _args_:
   - _target_: collections.OrderedDict
 
     differentiate_TS:
-      _target_: vital.models.layers.Lambda
+      _target_: dataprocessing.models.layers.Lambda
       fn:
         _target_: didactic.models.time_series.differentiate_ts
         _partial_: True
       order: 1
 
     # expand_feat_dim:
-    #   _target_: vital.models.layers.Lambda
+    #   _target_: dataprocessing.models.layers.Lambda
     #   fn:
     #     _target_: torch.unsqueeze
     #     _partial_: True
@@ -25,7 +25,7 @@ _args_:
     #   padding: 1
 
     # squeeze_feat_dim:
-    #   _target_: vital.models.layers.Lambda
+    #   _target_: dataprocessing.models.layers.Lambda
     #   fn:
     #     _target_: torch.squeeze
     #     _partial_: True
