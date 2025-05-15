@@ -238,7 +238,7 @@ def filter_time_series_attributes(
         (view_enum, view_data_tag): data
         for view_enum in views
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
-        if view_data_tag in attrs
+        if view_data_tag in attrs and item_or_batch.get(view_enum)
     }
     # time_series_notna_mask = torch.from_numpy(np.array(
     #     [
