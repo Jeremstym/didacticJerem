@@ -738,12 +738,12 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
     def _shared_step(self, batch: PatientData, batch_idx: int) -> Dict[str, Tensor]:
         # Extract tabular and time-series attributes from the batch
         tabular_attrs = {attr: attr_data for attr, attr_data in batch.items() if attr in self.hparams.tabular_attrs}
-        time_series_attrs, time_series_notna_mask = filter_time_series_attributes(
+        time_series_attrs = filter_time_series_attributes(
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
 
         # print(f'notna mask returnes: {time_series_notna_mask.shape}')
-        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs, time_series_notna_mask)  # (N, S, E), (N, S)
+        in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs)  # (N, S, E), (N, S)
         
         metrics = {}
         losses = []
@@ -925,14 +925,14 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
             attr: attr_data[None, ...]
             for attr, attr_data in filter_time_series_attributes(
                 batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
-            )[0].items()
+            ).items()
         }
-        time_series_notna_mask = filter_time_series_attributes(
-            batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
-        )[1]
+        # time_series_notna_mask = filter_time_series_attributes(
+        #     batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
+        # )[1]
 
         # Encoder's output
-        out_features = self(tabular_attrs, time_series_attrs, time_series_notna_mask)
+        out_features = self(tabular_attrs, time_series_attrs)
 
         # If the model has targets to predict, output the predictions
         predictions = None
