@@ -194,6 +194,7 @@ class OrchidDataModule(VitalDataModule):
         print(f"OR IS THIS LOADING THE PATIENTS? {subset}")
         patients = self._partial_patients(include_patients=self._subsets_lists.get(subset))
         self.subsets_patients[subset] = patients
+        print(f"OR IS THIS LOADING THE PATIENTS? {subset} {patients}")
         return build_datapipes(
             patients,
             process_patient_kwargs=self._process_patient_kwargs,
