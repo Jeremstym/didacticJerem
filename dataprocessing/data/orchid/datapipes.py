@@ -248,6 +248,8 @@ def filter_time_series_attributes(
             for data in time_series_data[(view_enum, view_data_tag)]
         ]
     ).reshape(-1, len(attrs) * len(views))
+
+    print(f"ts notna mask: {time_series_notna_mask}")
     
     return time_series_data, time_series_notna_mask
 
