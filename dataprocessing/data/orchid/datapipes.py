@@ -247,7 +247,7 @@ def filter_time_series_attributes(
             for view_enum, view_data_tag in time_series_data
             for data in time_series_data[(view_enum, view_data_tag)]
         ]
-    )#.reshape(-1, len(attrs) * len(views))
+    ).reshape(-1, len(attrs) * len(views))
     # time_series_notna_mask = torch.Tensor(
     #     [
     #         not torch.isnan(data).all()
