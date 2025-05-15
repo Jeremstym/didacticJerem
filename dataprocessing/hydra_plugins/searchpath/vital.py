@@ -16,4 +16,4 @@ class VitalSearchPathPlugin(SearchPathPlugin):  # noqa: D101
         # be available in a package.
         # Remember to verify the config is packaged properly (build sdist and look inside,
         # and verify MANIFEST.in is correct).
-        search_path.append(provider="vital-searchpath-plugin", path="pkg://vital.config")
+        search_path.append(provider="vital-searchpath-plugin", path="pkg://dataprocessing.config")
