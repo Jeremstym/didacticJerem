@@ -234,6 +234,8 @@ def filter_time_series_attributes(
     Returns:
         Requested time-series attributes from the requested views in the item/batch of data.
     """
+    for view_enum in views:
+        print(f"item or batch: {item_or_batch.get(view_enum, {})}")
     time_series_data = {
         (view_enum, view_data_tag): data
         for view_enum in views
