@@ -512,7 +512,7 @@ class View:
         if empty:
             # If no data is available, create an empty view with the requested ID
             empty_data = {OrchidTag.voxelspacing: MISSING_NUM_ATTR}
-            empty_attrs = {attr: MISSING_NUM_ATTR for attr in TimeSeriesAttribute}
+            empty_attrs = {attr: MISSING_TS_ATTR for attr in TimeSeriesAttribute}
             view_object = cls(id=cls.Id(patient_id, view))
             view_object.data = {OrchidTag.mask: empty_data}
             view_object.attrs = {OrchidTag.mask: empty_attrs}
