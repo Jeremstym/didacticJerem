@@ -146,7 +146,7 @@ class VitalRunner(ABC):
             else:
                 logger.info(f"Loading model from {ckpt_path}")
                 model = model.load_from_checkpoint(ckpt_path, data_params=datamodule.data_params, strict=cfg.strict)
-
+        print("fitting model ----------------------")
         if cfg.train:
             if cfg.resume:
                 trainer.fit(model, datamodule=datamodule, ckpt_path=cfg.ckpt_path)
