@@ -187,7 +187,6 @@ class TimeSeriesEmbedding(nn.Module):
         Returns:
             (N, S, E), Embedding of the time series.
         """
-        print(f"Time series embedding: {time_series}")
         if not isinstance(time_series, dict):
             time_series = {idx: t for idx, t in enumerate(time_series)}
 
@@ -200,6 +199,7 @@ class TimeSeriesEmbedding(nn.Module):
 
         # Extract the time series from the dictionary and stack them along the batch dimension
         x = list(time_series.values())  # (S, N, `resample_dim`)
+        x = [torch.nan_to_num(attr, nan=0.0) for attr in x]  # Replace NaN values with 0.0
         if self.channel_first:
              x = torch.stack(x, dim=2) # (S, N, `resample_dim`) -> (N, `resample_dim`, S)
              if self.model:
