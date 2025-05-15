@@ -143,7 +143,7 @@ class Patient:
         # return {view_enum: view.get_mask_attributes(mask_tag) if view is not None else MISSING_VIEW_ATTR for view_enum, view in self.views.items()}
         mask_attrs = {
             view_enum: view.get_mask_attributes(mask_tag) 
-            if view != MISSING_TS_VIEWS else MISSING_TS_VIEWS
+            # if view != MISSING_TS_VIEWS else MISSING_TS_VIEWS
             for view_enum, view in self.views.items()
         }
         return mask_attrs
