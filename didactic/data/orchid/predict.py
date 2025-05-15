@@ -15,17 +15,17 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import accuracy_score, mean_absolute_error, roc_auc_score, f1_score, average_precision_score
 from torch import Tensor
 import torch
-from vital.data.orchid.config import TabularAttribute, TimeSeriesAttribute
-from vital.data.orchid.config import View as ViewEnum
-from vital.data.orchid.data_module import PREDICT_DATALOADERS_SUBSETS
-from vital.data.orchid.datapipes import PatientData, filter_time_series_attributes
-from vital.data.orchid.utils.attributes import (
+from dataprocessing.data.orchid.config import TabularAttribute, TimeSeriesAttribute
+from dataprocessing.data.orchid.config import View as ViewEnum
+from dataprocessing.data.orchid.data_module import PREDICT_DATALOADERS_SUBSETS
+from dataprocessing.data.orchid.datapipes import PatientData, filter_time_series_attributes
+from dataprocessing.data.orchid.utils.attributes import (
     TABULAR_CAT_ATTR_LABELS,
     build_attributes_dataframe,
     plot_attributes_wrt_time,
 )
-from vital.utils.loggers import log_dataframe, log_figure
-from vital.utils.plot import embedding_scatterplot
+from dataprocessing.utils.loggers import log_dataframe, log_figure
+from dataprocessing.utils.plot import embedding_scatterplot
 
 from didactic.tasks.cardiac_multimodal_representation import CardiacMultimodalRepresentationTask
 from didactic.tasks.cardiac_sequence_attrs_ae import CardiacSequenceAttributesAutoencoder
