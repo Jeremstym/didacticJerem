@@ -54,6 +54,7 @@ class OrchidDataModule(VitalDataModule):
         else:
             # If the config does not come from Hydra, manually add the '_target_' field
             patients_kwargs["_target_"] = ".".join([Patients.__module__, Patients.__qualname__])
+        print("IS THIS LOADING THE PATIENTS?")
         self._partial_patients = hydra.utils.instantiate(patients_kwargs, _partial_=True)
 
         if isinstance(process_patient_kwargs, DictConfig):
@@ -190,6 +191,7 @@ class OrchidDataModule(VitalDataModule):
         Returns:
             Datapipe for processing the data of the requested subset.
         """
+        print(f"OR IS THIS LOADING THE PATIENTS? {subset}")
         patients = self._partial_patients(include_patients=self._subsets_lists.get(subset))
         self.subsets_patients[subset] = patients
         return build_datapipes(
