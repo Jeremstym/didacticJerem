@@ -8,7 +8,7 @@ from typing import Tuple
 import numpy as np
 from skimage.measure import find_contours
 
-from vital.utils.image.transform import resize_image_to_isotropic
+from dataprocessing.utils.image.transform import resize_image_to_isotropic
 
 logger = logging.getLogger(__name__)
 

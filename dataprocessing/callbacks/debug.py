@@ -8,7 +8,7 @@ from pytorch_lightning.loggers import CometLogger, Logger
 from pytorch_lightning.loggers.logger import DummyLogger
 from torch import nn
 
-from vital.utils.importlib import import_from_module
+from dataprocessing.utils.importlib import import_from_module
 
 
 def _log_layers_histograms(

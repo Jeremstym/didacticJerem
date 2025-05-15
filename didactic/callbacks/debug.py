@@ -4,8 +4,8 @@ import pandas as pd
 import pytorch_lightning as pl
 from matplotlib import pyplot as plt
 from pytorch_lightning import Callback
-from vital.utils.loggers import log_figure
-from vital.utils.plot import plot_heatmap
+from dataprocessing.utils.loggers import log_figure
+from dataprocessing.utils.plot import plot_heatmap
 
 from didactic.models.explain import attention_rollout, register_attn_weights_hook
 from didactic.tasks.cardiac_multimodal_representation import CardiacMultimodalRepresentationTask

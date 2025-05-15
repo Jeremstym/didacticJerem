@@ -3,8 +3,8 @@ from typing import Dict
 
 from torch import Tensor
 
-from vital.system import VitalSystem
-from vital.utils.format.native import prefix
+from dataprocessing.system import VitalSystem
+from dataprocessing.utils.format.native import prefix
 
 
 class SharedStepsTask(VitalSystem, ABC):

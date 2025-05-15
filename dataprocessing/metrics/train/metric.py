@@ -2,7 +2,7 @@ from typing import Sequence
 
 from torch import Tensor, nn
 
-from vital.metrics.train.functional import (
+from dataprocessing.metrics.train.functional import (
     differentiable_dice_score,
     monotonic_regularization_loss,
     ntxent_loss,

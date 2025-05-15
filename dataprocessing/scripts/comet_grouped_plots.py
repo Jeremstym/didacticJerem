@@ -13,9 +13,9 @@ from comet_ml.api import API, APIExperiment
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-from vital.utils.format.native import filter_excluded
-from vital.utils.logging import configure_logging
-from vital.utils.parsing import StoreDictKeyPair
+from dataprocessing.utils.format.native import filter_excluded
+from dataprocessing.utils.logging import configure_logging
+from dataprocessing.utils.parsing import StoreDictKeyPair
 
 logger = logging.getLogger(__name__)
 

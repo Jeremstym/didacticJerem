@@ -5,7 +5,7 @@ from typing import Mapping, Sequence
 
 import pandas as pd
 
-from vital.results.processor import ResultsProcessor
+from dataprocessing.results.processor import ResultsProcessor
 
 
 class Metrics(ResultsProcessor):

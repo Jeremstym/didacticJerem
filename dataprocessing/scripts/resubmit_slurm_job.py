@@ -25,7 +25,7 @@ if __name__ == "__main__":
     """Run the script."""
     from argparse import ArgumentParser
 
-    from vital.utils.logging import configure_logging
+    from dataprocessing.utils.logging import configure_logging
 
     configure_logging(log_to_console=True, console_level=logging.INFO)
     parser = ArgumentParser()

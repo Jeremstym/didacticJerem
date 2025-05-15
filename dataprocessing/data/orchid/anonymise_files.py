@@ -9,7 +9,7 @@ import pandas as pd
 from pathos.multiprocessing import Pool
 from tqdm.auto import tqdm
 
-from vital.utils.logging import configure_logging
+from dataprocessing.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
 

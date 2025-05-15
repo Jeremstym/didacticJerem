@@ -1,4 +1,4 @@
-from vital.utils.jobs.job import Job
+from dataprocessing.utils.jobs.job import Job
 
 
 class LocalJob(Job):

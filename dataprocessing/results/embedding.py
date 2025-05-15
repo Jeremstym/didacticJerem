@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import umap
 
-from vital.results.processor import ResultsProcessor
-from vital.utils.parsing import StoreDictKeyPair
+from dataprocessing.results.processor import ResultsProcessor
+from dataprocessing.utils.parsing import StoreDictKeyPair
 
 logger = logging.getLogger(__name__)
 

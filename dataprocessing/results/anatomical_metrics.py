@@ -3,8 +3,8 @@ from typing import Literal, Mapping
 
 import pandas as pd
 
-from vital.metrics.evaluate.segmentation import check_metric_validity
-from vital.results.metrics import Metrics
+from dataprocessing.metrics.evaluate.segmentation import check_metric_validity
+from dataprocessing.results.metrics import Metrics
 
 
 class AnatomicalMetrics(Metrics):

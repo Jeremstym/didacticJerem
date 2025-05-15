@@ -6,7 +6,7 @@ import torchvision.transforms.functional as F
 from scipy import interpolate, signal
 from torch import Tensor
 
-from vital.utils.image.transform import segmentation_to_tensor
+from dataprocessing.utils.image.transform import segmentation_to_tensor
 
 
 class NormalizeSample(torch.nn.Module):

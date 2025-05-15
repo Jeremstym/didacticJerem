@@ -46,7 +46,7 @@ def torch_to_numpy(obj: Union[Tuple, List, Dict], copy: bool = False) -> Union[T
 
     Example:
         .. code-block:: python
-            >>> from vital.utils.format.torch import torch_to_numpy
+            >>> from dataprocessing.utils.format.torch import torch_to_numpy
             >>> torch_to_numpy({
             ...     'first': torch.tensor([1, 2, 3]),
             ...     'second':[torch.tensor([4,5,6]), torch.tensor([7,8,9])],
@@ -87,7 +87,7 @@ def numpy_to_torch(obj: Union[Tuple, List, Dict]) -> Union[Tuple, List, Dict]:
 
     Example:
         .. code-block:: python
-            >>> from vital.utils.format.torch import numpy_to_torch
+            >>> from dataprocessing.utils.format.torch import numpy_to_torch
             >>> numpy_to_torch({
             ...     'first': np.array([1, 2, 3]),
             ...     'second':[np.array([4,5,6]), np.array([7,8,9])],

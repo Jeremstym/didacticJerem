@@ -1,6 +1,6 @@
 import numpy as np
 
-from vital.utils.norm import minmax_scaling
+from dataprocessing.utils.norm import minmax_scaling
 
 
 def check_temporal_consistency_errors(threshold: float, *args, **kwargs) -> np.ndarray:
