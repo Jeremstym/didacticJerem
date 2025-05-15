@@ -240,27 +240,15 @@ def filter_time_series_attributes(
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
         if view_data_tag in attrs
     }
-    # time_series_notna_mask = torch.Tensor(
-    #     [
-    #         # not np.array_equal(data, MISSING_TS_VIEWS)
-    #         not torch.isnan(data).all()
-    #         for view_enum, view_data_tag in time_series_data
-    #         for data in time_series_data[(view_enum, view_data_tag)]
-    #     ]
-    # ).reshape(-1, len(attrs) * len(views))
-    # Collect all series as tensors of shape [seq_len]
-    series_list = [torch.as_tensor(time_series_data[key]) for key in time_series_data]
+    time_series_notna_mask = torch.Tensor(
+        [
+            # not np.array_equal(data, MISSING_TS_VIEWS)
+            not torch.isnan(data).all()
+            for view_enum, view_data_tag in time_series_data
+            for data in time_series_data[(view_enum, view_data_tag)]
+        ]
+    ).reshape(-1, len(attrs) * len(views))
 
-    # Stack into a tensor of shape [num_series, seq_len]
-    series_tensor = torch.stack(series_list)  # shape: [num_series, seq_len]
-
-    # Compute mask: True if NOT all values are NaN for each time point in each series
-    # If you want a mask of shape [seq_len, num_series]:
-    # time_series_notna_mask = ~torch.isnan(series_tensor).all(dim=0)  # shape: [seq_len]
-
-    # If you want a mask of shape [num_series, seq_len]:
-    time_series_notna_mask = ~torch.isnan(series_tensor)  # shape: [num_series, seq_len]
-    time_series_notna_mask = time_series_notna_mask.reshape(-1, len(views) * len(attrs))  # shape: [num_series]
     print(f'ts notna mask {time_series_notna_mask}')
     
     return time_series_data, time_series_notna_mask
