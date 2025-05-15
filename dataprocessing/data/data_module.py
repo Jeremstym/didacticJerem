@@ -48,7 +48,7 @@ class VitalDataModule(pl.LightningDataModule, ABC):
             num_workers=self.num_workers,
             pin_memory=True,
             persistent_workers=bool(self.num_workers),
-            collate_fn=self.custom_collate,
+            collate_fn=custom_collate,
         )
 
     def train_dataloader(self) -> DataLoader:  # noqa: D102
