@@ -260,6 +260,7 @@ def filter_time_series_attributes(
 
     # If you want a mask of shape [num_series, seq_len]:
     time_series_notna_mask = ~torch.isnan(series_tensor)  # shape: [num_series, seq_len]
+    time_series_notna_mask = time_series_notna_mask.reshape(-1, len(views) * len(attrs))  # shape: [num_series]
     print(f'ts notna mask {time_series_notna_mask}')
     
     return time_series_data, time_series_notna_mask
