@@ -23,7 +23,7 @@ AttributeTransform = Callable[[np.ndarray], np.ndarray]
 
 MISSING_NUM_ATTR = np.nan
 MISSING_CAT_ATTR = -1
-MISSING_TS_VIEWS = {view_enum: {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute} for view_enum in ViewEnum}
+# MISSING_TS_VIEWS = {view_enum: {attr_tag: MISSING_NUM_ATTR for attr_tag in TimeSeriesAttribute} for view_enum in ViewEnum}
 
 def dicts_equal(di1, di2):
     if set(di1.keys()) != set(di2.keys()):
@@ -134,10 +134,10 @@ def process_patient(
                 for attr_tag, attr in view_data.items()
                 if attr_tag in time_series_attrs
             }
-            # if not dicts_equal(view_data, MISSING_TS_VIEWS)
-            # else MISSING_TS_VIEWS[view_enum]
-            for view_enum, view_data in time_series_attrs_data.items()
             if not np.isnan(list(view_data.values())[0]).all()
+            else MISSING_TS_VIEWS
+            # if not dicts_equal(view_data, MISSING_TS_VIEWS)
+            for view_enum, view_data in time_series_attrs_data.items()
         }
     else:
         time_series_attrs_data = {}
@@ -234,25 +234,22 @@ def filter_time_series_attributes(
     Returns:
         Requested time-series attributes from the requested views in the item/batch of data.
     """
-    for view_enum in views:
-        if type(item_or_batch.get(view_enum)) is not dict:
-            print(f"item or batch: {item_or_batch.get(view_enum, {})}")
     time_series_data = {
         (view_enum, view_data_tag): data
         for view_enum in views
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
-        if view_data_tag in attrs and item_or_batch.get(view_enum)
+        if view_data_tag in attrs
     }
-    # time_series_notna_mask = torch.from_numpy(np.array(
-    #     [
-    #         # not np.array_equal(data, MISSING_TS_VIEWS)
-    #         not torch.isnan(data).all()
-    #         for view_enum, view_data_tag in time_series_data
-    #         for data in time_series_data[(view_enum, view_data_tag)]
-    #     ]
-    # ).reshape(-1, len(attrs) * len(views)))
+    time_series_notna_mask = torch.from_numpy(np.array(
+        [
+            # not np.array_equal(data, MISSING_TS_VIEWS)
+            not torch.isnan(data).all()
+            for view_enum, view_data_tag in time_series_data
+            for data in time_series_data[(view_enum, view_data_tag)]
+        ]
+    ).reshape(-1, len(attrs) * len(views)))
     
-    return time_series_data #, time_series_notna_mask
+    return time_series_data, time_series_notna_mask
 
 
 if __name__ == "__main__":
