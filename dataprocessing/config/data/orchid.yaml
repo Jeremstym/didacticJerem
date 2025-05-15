@@ -6,7 +6,7 @@ defaults:
   - transform@transform_patient_kwargs.test: orchid/test
 
 
-_target_: vital.data.orchid.data_module.OrchidDataModule
+_target_: dataprocessing.data.orchid.data_module.OrchidDataModule
 
 num_workers: 0
 
