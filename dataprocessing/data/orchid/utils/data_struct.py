@@ -193,7 +193,7 @@ class Patient:
             if view not in avail_views:
                 # Add missing views to the dictionary with empty data
                 # views_data[view] = View(id=(patient_id, view), data={}, attrs=MISSING_TS_VIEWS)
-                views_data[view] = MISSING_TS_VIEWS
+                views_data[view] = View.from_dir(patient_id, view, data_roots, empty=True, **kwargs)
             views_data[view] = View.from_dir(patient_id, view, data_roots, **kwargs)
 
         return cls(
@@ -471,10 +471,10 @@ class View:
         Returns:
             Dictionary of attributes and their values for the given mask.
         """
-        if mask_tag not in self.attrs:
-            # Handle missing mask_tag by returning MISSING_TS_VIEWS or an empty dictionary
-            # logger.warning(f"Mask tag '{mask_tag}' is missing in view '{self.id}'. Returning default attributes.")
-            return {attr: MISSING_TS_ATTR for attr in TimeSeriesAttribute}
+        # if mask_tag not in self.attrs:
+        #     # Handle missing mask_tag by returning MISSING_TS_VIEWS or an empty dictionary
+        #     # logger.warning(f"Mask tag '{mask_tag}' is missing in view '{self.id}'. Returning default attributes.")
+        #     return {attr: MISSING_TS_ATTR for attr in TimeSeriesAttribute}
 
         # If mask_tag exists, return its attributes
         return {attr: self.attrs[mask_tag][attr] for attr in TimeSeriesAttribute}
@@ -485,6 +485,7 @@ class View:
         patient_id: str,
         view: ViewEnum,
         data_roots: Sequence[Path],
+        empty: bool = False,
         img_format: str = IMG_FORMAT,
         eager_loading: bool = False,
         overwrite_attrs_cache: bool = False,
@@ -507,6 +508,15 @@ class View:
         Returns:
             `View` instance, built using data related to the patient's view from the provided folders.
         """
+        if empty:
+            # If no data is available, create an empty view with the requested ID
+            empty_data = {OrchidTag.voxelspacing: MISSING_NUM_ATTR}
+            empty_attrs = {attr: MISSING_NUM_ATTR for attr in TimeSeriesAttribute}
+            view_object = cls(id=cls.Id(patient_id, view))
+            view_object.data = {OrchidTag.mask: empty_data}
+            view_object.attrs = {OrchidTag.mask: empty_attrs}
+            return view_object
+
         view_files_pattern = IMG_FILENAME_PATTERN.format(
             patient_id=patient_id, view=view, tag="*", ext=as_file_extension(img_format)
         )
