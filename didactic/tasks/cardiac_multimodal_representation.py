@@ -741,7 +741,9 @@ class CardiacMultimodalRepresentationTask(SharedStepsTask):
         time_series_attrs, time_series_notna_mask = filter_time_series_attributes(
             batch, views=self.hparams.views, attrs=self.hparams.time_series_attrs
         )
-
+        print(f'time_series_attrs: {time_series_attrs}')
+        print(f'time_series_notna_mask: {time_series_notna_mask}')
+        
         # print(f'notna mask returnes: {time_series_notna_mask.shape}')
         in_tokens, avail_mask = self.tokenize(tabular_attrs, time_series_attrs, time_series_notna_mask)  # (N, S, E), (N, S)
         
