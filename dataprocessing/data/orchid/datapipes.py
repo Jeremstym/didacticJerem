@@ -250,7 +250,7 @@ def filter_time_series_attributes(
     # ).reshape(-1, len(attrs) * len(views))
     time_series_notna_mask = list(
         map(
-            lambda data: not np.isnan(data).all(),
+            lambda data: not torch.isnan(data).all(),
             itertools.chain.from_iterable(
                 [time_series_data[(view_enum, view_data_tag)] for view_enum, view_data_tag in time_series_data]
             ),
@@ -276,7 +276,7 @@ def filter_time_series_attributes(
             raise ValueError(
                 f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: {data[~np.isnan(data)]} != {data[mask]}"
             )
-            
+
     return time_series_data, time_series_notna_mask
 
 
