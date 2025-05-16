@@ -240,14 +240,22 @@ def filter_time_series_attributes(
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
         if view_data_tag in attrs
     }
-    time_series_notna_mask = torch.stack(
-        [
-            # not np.array_equal(data, MISSING_TS_VIEWS)
-            ~(torch.isnan(data).all())
-            for view_enum, view_data_tag in time_series_data
-            for data in time_series_data[(view_enum, view_data_tag)]
-        ]
-    ).reshape(-1, len(attrs) * len(views))
+    # time_series_notna_mask = torch.stack(
+    #     [
+    #         # not np.array_equal(data, MISSING_TS_VIEWS)
+    #         ~(torch.isnan(data).all())
+    #         for view_enum, view_data_tag in time_series_data
+    #         for data in time_series_data[(view_enum, view_data_tag)]
+    #     ]
+    # ).reshape(-1, len(attrs) * len(views))
+    time_series_notna_mask = list(
+        map(
+            lambda data: not np.isnan(data).all(),
+            itertools.chain.from_iterable(
+                [time_series_data[(view_enum, view_data_tag)] for view_enum, view_data_tag in time_series_data]
+            ),
+        )
+    )
     # time_series_notna_mask = torch.Tensor(
     #     [
     #         not torch.isnan(data).all()
@@ -256,13 +264,19 @@ def filter_time_series_attributes(
     # ).reshape(-1, len(attrs) * len(views))
     
     # Check if mask match np.nan data 
-    for view_enum, view_data_tag in time_series_data:
+    for (view_enum, view_data_tag), mask in zip(time_series_data, time_series_notna_mask):
         data = time_series_data[(view_enum, view_data_tag)]
-        if not np.array_equal(data[time_series_notna_mask], data[~np.isnan(data).all()]):
+        if mask and np.isnan(data).any():
+            # If the mask is True, but the data contains NaN values, raise an error
             raise ValueError(
-                f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: "
-                f"{data[time_series_notna_mask]} != {data[~np.isnan(data).all()]}"
+                f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: {data[~np.isnan(data)]} != {data[mask]}"
             )
+        elif not mask and not np.isnan(data).any():
+            # If the mask is False, but the data does not contain NaN values, raise an error
+            raise ValueError(
+                f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: {data[~np.isnan(data)]} != {data[mask]}"
+            )
+            
     return time_series_data, time_series_notna_mask
 
 
