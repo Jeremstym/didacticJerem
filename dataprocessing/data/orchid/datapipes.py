@@ -263,18 +263,18 @@ def filter_time_series_attributes(
     #     ]
     # ).reshape(-1, len(attrs) * len(views))
     
-    # Check if mask match np.nan data 
+    # Check if mask match torch.nan data 
     for (view_enum, view_data_tag), mask in zip(time_series_data, time_series_notna_mask):
         data = time_series_data[(view_enum, view_data_tag)]
-        if mask and np.isnan(data).any():
+        if mask and torch.isnan(data).any():
             # If the mask is True, but the data contains NaN values, raise an error
             raise ValueError(
-                f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: {data[~np.isnan(data)]} != {data[mask]}"
+                f"Mask does not match torch.nan data for {view_enum}/{view_data_tag}: {data[~torch.isnan(data)]} != {data[mask]}"
             )
-        elif not mask and not np.isnan(data).any():
+        elif not mask and not torch.isnan(data).any():
             # If the mask is False, but the data does not contain NaN values, raise an error
             raise ValueError(
-                f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: {data[~np.isnan(data)]} != {data[mask]}"
+                f"Mask does not match torch.nan data for {view_enum}/{view_data_tag}: {data[~torch.isnan(data)]} != {data[mask]}"
             )
 
     return time_series_data, time_series_notna_mask
