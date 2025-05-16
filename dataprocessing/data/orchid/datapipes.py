@@ -240,7 +240,7 @@ def filter_time_series_attributes(
         for view_data_tag, data in item_or_batch.get(view_enum, {}).items()
         if view_data_tag in attrs
     }
-    time_series_notna_mask = torch.Tensor(
+    time_series_notna_mask = torch.stack(
         [
             # not np.array_equal(data, MISSING_TS_VIEWS)
             ~(torch.isnan(data))
