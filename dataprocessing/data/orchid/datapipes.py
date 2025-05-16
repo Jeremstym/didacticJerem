@@ -243,7 +243,7 @@ def filter_time_series_attributes(
     time_series_notna_mask = torch.stack(
         [
             # not np.array_equal(data, MISSING_TS_VIEWS)
-            ~(torch.isnan(data))
+            ~(torch.isnan(data).all())
             for view_enum, view_data_tag in time_series_data
             for data in time_series_data[(view_enum, view_data_tag)]
         ]
@@ -255,6 +255,14 @@ def filter_time_series_attributes(
     #     ]
     # ).reshape(-1, len(attrs) * len(views))
     
+    # Check if mask match np.nan data 
+    for view_enum, view_data_tag in time_series_data:
+        data = time_series_data[(view_enum, view_data_tag)]
+        if not np.array_equal(data[time_series_notna_mask], data[~np.isnan(data).all()]):
+            raise ValueError(
+                f"Mask does not match np.nan data for {view_enum}/{view_data_tag}: "
+                f"{data[time_series_notna_mask]} != {data[~np.isnan(data).all()]}"
+            )
     return time_series_data, time_series_notna_mask
 
 
